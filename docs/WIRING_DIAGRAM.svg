@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000" role="img" aria-label="AgriVerse ESP32-S3 实际连线接线图">
+  <rect x="0" y="0" width="1400" height="1000" fill="#f6f8f4"/>
+  <text x="32" y="42" font-family="Microsoft YaHei, PingFang SC, sans-serif" font-size="22" font-weight="700" fill="#173d32">AgriVerse 接线图 · ESP32-S3 N16R8</text>
+  <text x="32" y="64" font-family="Microsoft YaHei, PingFang SC, sans-serif" font-size="12" fill="#6f8177">M2 初稿｜实线为导线，圆点为连接点；无圆点交叉不相连｜继电器 3.3V 高电平触发（GPIO5 HIGH 运行）</text>
+
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 5V: power -> ESP32 5V and TJC VCC -->
+    <path d="M280 170 H315 V75 H800 V150 H820" stroke="#c65c4e" stroke-width="2.6"/>
+    <path d="M315 170 H340" stroke="#c65c4e" stroke-width="2.6"/>
+    <circle cx="315" cy="170" r="4.5" fill="#c65c4e" stroke="none"/>
+
+    <!-- 3V3: sensors, soil, relay -->
+    <path d="M280 240 H305 V900 H790 V420 H820" stroke="#c69a48" stroke-width="2.6"/>
+    <path d="M790 570 H820" stroke="#c69a48" stroke-width="2.6"/>
+    <path d="M790 690 H820" stroke="#c69a48" stroke-width="2.6"/>
+    <circle cx="790" cy="420" r="4.5" fill="#c69a48" stroke="none"/>
+    <circle cx="790" cy="570" r="4.5" fill="#c69a48" stroke="none"/>
+    <circle cx="790" cy="690" r="4.5" fill="#c69a48" stroke="none"/>
+
+    <!-- GND bus -->
+    <path d="M280 310 H295 V930 H780 V180 H820" stroke="#1d2c25" stroke-width="2.8"/>
+    <path d="M295 310 H340" stroke="#1d2c25" stroke-width="2.8"/>
+    <path d="M780 450 H820" stroke="#1d2c25" stroke-width="2.8"/>
+    <path d="M780 600 H820" stroke="#1d2c25" stroke-width="2.8"/>
+    <path d="M780 720 H820" stroke="#1d2c25" stroke-width="2.8"/>
+    <circle cx="295" cy="310" r="4.5" fill="#1d2c25" stroke="none"/>
+    <circle cx="780" cy="450" r="4.5" fill="#1d2c25" stroke="none"/>
+    <circle cx="780" cy="600" r="4.5" fill="#1d2c25" stroke="none"/>
+    <circle cx="780" cy="720" r="4.5" fill="#1d2c25" stroke="none"/>
+    <circle cx="780" cy="930" r="4.5" fill="#1d2c25" stroke="none"/>
+    <circle cx="295" cy="930" r="4.5" fill="#1d2c25" stroke="none"/>
+
+    <!-- Pump supply: + to relay COM, - to GND -->
+    <path d="M280 380 H285 V960 H810 V780 H820" stroke="#c65c4e" stroke-width="4.2"/>
+    <path d="M280 420 H295 V930" stroke="#1d2c25" stroke-width="4.2"/>
+    <path d="M1030 820 H1080" stroke="#c65c4e" stroke-width="4.2"/>
+    <path d="M1080 850 V930 H780" stroke="#1d2c25" stroke-width="4.2"/>
+
+    <!-- UART to TJC -->
+    <path d="M700 210 H820" stroke="#3d7eb8" stroke-width="2.4"/>
+    <path d="M700 240 H820" stroke="#3d7eb8" stroke-width="2.4"/>
+
+    <!-- I2C -->
+    <path d="M700 360 H820" stroke="#4d956f" stroke-width="2.4"/>
+    <path d="M700 390 H820" stroke="#4d956f" stroke-width="2.4"/>
+
+    <!-- ADC and relay control -->
+    <path d="M700 540 H820" stroke="#d08a2e" stroke-width="2.4"/>
+    <path d="M700 660 H820" stroke="#7b4fa0" stroke-width="2.4"/>
+  </g>
+
+  <g font-family="Microsoft YaHei, PingFang SC, sans-serif" fill="#3d4f45" font-size="11">
+    <!-- Power block -->
+    <rect x="30" y="100" width="250" height="360" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="46" y="128" font-size="14" font-weight="700" fill="#1d2c25">电源与保护</text>
+    <text x="46" y="156" fill="#3d4f45">12V 电池组（额定 ≤ 12V）</text>
+    <text x="46" y="178" fill="#3d4f45">保险丝 + 总开关</text>
+    <rect x="46" y="192" width="100" height="34" rx="7" fill="#fbf5e7" stroke="#e5d4ae"/>
+    <text x="56" y="213" fill="#7a5a1e">5V DC-DC</text>
+    <rect x="156" y="192" width="100" height="34" rx="7" fill="#fbf5e7" stroke="#e5d4ae"/>
+    <text x="166" y="213" fill="#7a5a1e">3.3V DC-DC</text>
+
+    <text x="268" y="174" text-anchor="end" font-weight="700" fill="#c65c4e">5V</text>
+    <text x="268" y="244" text-anchor="end" font-weight="700" fill="#a8792f">3V3</text>
+    <text x="268" y="314" text-anchor="end" font-weight="700" fill="#1d2c25">GND</text>
+    <text x="268" y="384" text-anchor="end" font-weight="700" fill="#c65c4e">PUMP+</text>
+    <text x="268" y="424" text-anchor="end" font-weight="700" fill="#1d2c25">PUMP-</text>
+    <text x="46" y="258" font-size="10" fill="#7b8b82">5V：ESP32 + 屏幕</text>
+    <text x="46" y="276" font-size="10" fill="#7b8b82">3V3：传感器/继电器</text>
+    <text x="46" y="294" font-size="10" fill="#7b8b82">GND：全部共地</text>
+    <text x="46" y="340" font-size="10" fill="#8e3b31">USB 调试时可由 USB 供电；</text>
+    <text x="46" y="356" font-size="10" fill="#8e3b31">不要同时向 5V 引脚反灌。</text>
+    <text x="46" y="380" font-size="10" fill="#7b8b82">泵与主控分开供电，</text>
+    <text x="46" y="396" font-size="10" fill="#7b8b82">至少独立稳压支路。</text>
+    <text x="46" y="424" font-size="10" fill="#7b8b82">PUMP- 与 GND 共地</text>
+    <text x="46" y="440" font-size="10" fill="#7b8b82">泵电源按泵额定，独立支路</text>
+
+    <!-- ESP32 -->
+    <rect x="340" y="100" width="360" height="620" rx="12" fill="#ffffff" stroke="#9dbca4" stroke-width="1.6"/>
+    <text x="358" y="130" font-size="14" font-weight="700" fill="#173d32">ESP32-S3 N16R8</text>
+    <text x="358" y="148" font-size="10" fill="#7b8b82">USB / 5V 供电（二选一）</text>
+
+    <circle cx="330" cy="170" r="3.5" fill="#c65c4e"/>
+    <text x="342" y="174" fill="#3d4f45">5V</text>
+    <circle cx="330" cy="240" r="3.5" fill="#c69a48"/>
+    <text x="342" y="244" fill="#3d4f45">3V3（不接外部，避免反灌）</text>
+    <circle cx="330" cy="310" r="3.5" fill="#1d2c25"/>
+    <text x="342" y="314" fill="#3d4f45">GND</text>
+
+    <text x="690" y="214" text-anchor="end" fill="#3d4f45">GPIO17</text>
+    <circle cx="700" cy="210" r="3.5" fill="#3d7eb8"/>
+    <text x="706" y="204" font-size="10" font-weight="700" fill="#2f5f8f">TJC_RX</text>
+    <text x="690" y="244" text-anchor="end" fill="#3d4f45">GPIO18</text>
+    <circle cx="700" cy="240" r="3.5" fill="#3d7eb8"/>
+    <text x="706" y="234" font-size="10" font-weight="700" fill="#2f5f8f">TJC_TX</text>
+    <text x="690" y="364" text-anchor="end" fill="#3d4f45">GPIO8</text>
+    <circle cx="700" cy="360" r="3.5" fill="#4d956f"/>
+    <text x="706" y="354" font-size="10" font-weight="700" fill="#2d6948">SDA</text>
+    <text x="690" y="394" text-anchor="end" fill="#3d4f45">GPIO9</text>
+    <circle cx="700" cy="390" r="3.5" fill="#4d956f"/>
+    <text x="706" y="384" font-size="10" font-weight="700" fill="#2d6948">SCL</text>
+    <text x="690" y="544" text-anchor="end" fill="#3d4f45">GPIO4</text>
+    <circle cx="700" cy="540" r="3.5" fill="#d08a2e"/>
+    <text x="706" y="534" font-size="10" font-weight="700" fill="#a0641e">SOIL_AOUT</text>
+    <text x="690" y="664" text-anchor="end" fill="#3d4f45">GPIO5</text>
+    <circle cx="700" cy="660" r="3.5" fill="#7b4fa0"/>
+    <text x="706" y="654" font-size="10" font-weight="700" fill="#5d397c">RELAY_IN</text>
+
+    <text x="358" y="660" font-size="10" fill="#8e3b31">GPIO5 上电即 LOW：继电器释放</text>
+    <text x="358" y="676" font-size="10" fill="#7b8b82">USB 仅调试；外部 5V 不要同时接入</text>
+    <text x="358" y="692" font-size="10" fill="#7b8b82">GPIO8/9 需上拉；地址见传感器区</text>
+
+    <!-- TJC screen -->
+    <rect x="820" y="80" width="520" height="220" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="838" y="108" font-size="14" font-weight="700" fill="#1d2c25">TJC3224T128_011R_A01 · 2.8 英寸 320×240</text>
+    <circle cx="820" cy="150" r="3.5" fill="#c65c4e"/>
+    <text x="830" y="154" fill="#3d4f45">VCC</text>
+    <circle cx="820" cy="180" r="3.5" fill="#1d2c25"/>
+    <text x="830" y="184" fill="#3d4f45">GND</text>
+    <circle cx="820" cy="210" r="3.5" fill="#3d7eb8"/>
+    <text x="830" y="214" fill="#3d4f45">RX</text>
+    <circle cx="820" cy="240" r="3.5" fill="#3d7eb8"/>
+    <text x="830" y="244" fill="#3d4f45">TX</text>
+    <text x="1000" y="150" font-size="10" fill="#7b8b82">VCC 电压按规格书核实</text>
+    <text x="1000" y="168" font-size="10" fill="#7b8b82">5V TTL 时 RX/TX 需电平转换</text>
+    <text x="1000" y="186" font-size="10" fill="#7b8b82">波特率/校验待确认</text>
+    <text x="1000" y="204" font-size="10" fill="#8e3b31">ESP32 TX → 屏 RX；屏 TX → ESP32 RX</text>
+    <text x="1000" y="222" font-size="10" fill="#7b8b82">TJC_VCC ← 5V / 3V3 二选一</text>
+    <text x="1000" y="240" font-size="10" fill="#7b8b82">整机共地</text>
+    <text x="1000" y="258" font-size="10" font-weight="700" fill="#8e3b31">3.3V 屏严禁接 5V；先查规格书</text>
+
+    <!-- Sensors -->
+    <rect x="820" y="320" width="520" height="190" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="838" y="348" font-size="14" font-weight="700" fill="#1d2c25">I²C 传感器（共用 SDA / SCL）</text>
+    <circle cx="820" cy="360" r="3.5" fill="#4d956f"/>
+    <text x="830" y="364" font-weight="700" fill="#2d6948">SDA</text>
+    <circle cx="820" cy="390" r="3.5" fill="#4d956f"/>
+    <text x="830" y="394" font-weight="700" fill="#2d6948">SCL</text>
+    <circle cx="820" cy="420" r="3.5" fill="#c69a48"/>
+    <text x="830" y="424" font-weight="700" fill="#a8792f">3V3</text>
+    <circle cx="820" cy="450" r="3.5" fill="#1d2c25"/>
+    <text x="830" y="454" font-weight="700" fill="#1d2c25">GND</text>
+
+    <rect x="880" y="358" width="200" height="140" rx="9" fill="#f8fbf7" stroke="#e2ebe3"/>
+    <text x="892" y="380" font-size="12" font-weight="700" fill="#355b43">SHT31 温湿度</text>
+    <text x="892" y="398" font-size="10" fill="#3d4f45">VCC → 3V3</text>
+    <text x="892" y="416" font-size="10" fill="#3d4f45">GND → GND</text>
+    <text x="892" y="434" font-size="10" fill="#2d6948">SDA → SDA</text>
+    <text x="892" y="452" font-size="10" fill="#2d6948">SCL → SCL</text>
+    <text x="892" y="470" font-size="10" fill="#7b8b82">ADDR → GND（0x44）</text>
+
+    <rect x="1100" y="358" width="220" height="140" rx="9" fill="#f8fbf7" stroke="#e2ebe3"/>
+    <text x="1111" y="380" font-size="12" font-weight="700" fill="#355b43">BH1750 光照</text>
+    <text x="1111" y="398" font-size="10" fill="#3d4f45">VCC → 3V3</text>
+    <text x="1111" y="416" font-size="10" fill="#3d4f45">GND → GND</text>
+    <text x="1111" y="434" font-size="10" fill="#2d6948">SDA → SDA</text>
+    <text x="1111" y="452" font-size="10" fill="#2d6948">SCL → SCL</text>
+    <text x="1111" y="470" font-size="10" fill="#7b8b82">ADDR → GND（0x23）</text>
+    <text x="880" y="500" font-size="10" fill="#7b8b82">上拉与地址冲突必须实测；SHT31 也可 0x45，BH1750 也可 0x5C</text>
+
+    <!-- Soil -->
+    <rect x="820" y="520" width="520" height="120" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="838" y="532" font-size="14" font-weight="700" fill="#1d2c25">HW-390 土壤湿度</text>
+    <circle cx="820" cy="540" r="3.5" fill="#d08a2e"/>
+    <text x="830" y="544" font-weight="700" fill="#a0641e">AOUT</text>
+    <circle cx="820" cy="570" r="3.5" fill="#c69a48"/>
+    <text x="830" y="574" font-weight="700" fill="#a8792f">3V3</text>
+    <circle cx="820" cy="600" r="3.5" fill="#1d2c25"/>
+    <text x="830" y="604" font-weight="700" fill="#1d2c25">GND</text>
+    <text x="900" y="544" font-size="10" fill="#7b8b82">AOUT → GPIO4（SOIL_AOUT）</text>
+    <text x="1100" y="544" font-size="10" fill="#7b8b82">AOUT ≤ 3.3V</text>
+    <text x="900" y="566" font-size="10" fill="#7b8b82">必须做干燥/湿润两点校准</text>
+    <text x="1100" y="566" font-size="10" fill="#8e3b31">未校准不出百分比</text>
+    <text x="900" y="588" font-size="10" fill="#7b8b82">探头 VCC 3.3V；AOUT 接 ADC</text>
+    <text x="1100" y="588" font-size="10" fill="#8e3b31">未校准禁自动灌溉</text>
+
+    <!-- Relay -->
+    <rect x="820" y="650" width="210" height="220" rx="12" fill="#ffffff" stroke="#efc8c1" stroke-width="1.4"/>
+    <text x="838" y="678" font-size="13" font-weight="700" fill="#8e3b31">继电器 3.3V 高电平</text>
+    <circle cx="820" cy="660" r="3.5" fill="#7b4fa0"/>
+    <text x="830" y="664" font-weight="700" fill="#5d397c">IN</text>
+    <circle cx="820" cy="690" r="3.5" fill="#c69a48"/>
+    <text x="830" y="694" font-weight="700" fill="#a8792f">VCC</text>
+    <circle cx="820" cy="720" r="3.5" fill="#1d2c25"/>
+    <text x="830" y="724" font-weight="700" fill="#1d2c25">GND</text>
+    <circle cx="820" cy="780" r="3.5" fill="#c65c4e"/>
+    <text x="830" y="784" font-weight="700" fill="#c65c4e">COM</text>
+    <circle cx="820" cy="820" r="3.5" fill="#c65c4e"/>
+    <text x="830" y="824" font-weight="700" fill="#c65c4e">NO</text>
+    <text x="838" y="748" font-size="10" fill="#3d4f45">HIGH（3.3V）→ 吸合</text>
+    <text x="838" y="766" font-size="10" fill="#3d4f45">LOW（0V）→ 释放</text>
+    <text x="838" y="850" font-size="10" fill="#8e3b31">IN 到 GND 加 10k 下拉</text>
+    <text x="838" y="866" font-size="10" fill="#7b8b82">COM←泵+；NO→泵+；NC 不用</text>
+
+    <!-- Pump -->
+    <rect x="1080" y="650" width="200" height="220" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="1098" y="678" font-size="13" font-weight="700" fill="#355b43">水泵</text>
+    <circle cx="1080" cy="820" r="3.5" fill="#c65c4e"/>
+    <text x="1090" y="824" font-weight="700" fill="#c65c4e">+</text>
+    <circle cx="1080" cy="850" r="3.5" fill="#1d2c25"/>
+    <text x="1090" y="854" font-weight="700" fill="#1d2c25">-</text>
+    <text x="1098" y="710" font-size="10" fill="#7b8b82">额定电压/电流待核实</text>
+    <text x="1098" y="728" font-size="10" fill="#7b8b82">启动浪涌留余量</text>
+    <text x="1098" y="758" font-size="10" fill="#8e3b31">+ ← 继电器 NO</text>
+    <text x="1098" y="776" font-size="10" fill="#8e3b31">- ← PUMP-（电源 -）</text>
+    <text x="1098" y="866" font-size="10" fill="#8e3b31">D1 反激二极管跨接 +/-</text>
+
+    <!-- Legend -->
+    <rect x="30" y="480" width="250" height="330" rx="12" fill="#ffffff" stroke="#d9e3db" stroke-width="1.2"/>
+    <text x="46" y="508" font-size="14" font-weight="700" fill="#1d2c25">图例 / 接线规则</text>
+    <line x1="46" y1="532" x2="82" y2="532" stroke="#c65c4e" stroke-width="3"/>
+    <text x="92" y="536" font-size="10" fill="#3d4f45">5V</text>
+    <line x1="46" y1="556" x2="82" y2="556" stroke="#c69a48" stroke-width="3"/>
+    <text x="92" y="560" font-size="10" fill="#3d4f45">3V3</text>
+    <line x1="46" y1="580" x2="82" y2="580" stroke="#1d2c25" stroke-width="3"/>
+    <text x="92" y="584" font-size="10" fill="#3d4f45">GND</text>
+    <line x1="46" y1="604" x2="82" y2="604" stroke="#4d956f" stroke-width="3"/>
+    <text x="92" y="608" font-size="10" fill="#3d4f45">SDA / SCL</text>
+    <line x1="46" y1="628" x2="82" y2="628" stroke="#3d7eb8" stroke-width="3"/>
+    <text x="92" y="632" font-size="10" fill="#3d4f45">UART</text>
+    <line x1="46" y1="652" x2="82" y2="652" stroke="#d08a2e" stroke-width="3"/>
+    <text x="92" y="656" font-size="10" fill="#3d4f45">ADC</text>
+    <line x1="46" y1="676" x2="82" y2="676" stroke="#7b4fa0" stroke-width="3"/>
+    <text x="92" y="680" font-size="10" fill="#3d4f45">RELAY_IN</text>
+    <line x1="46" y1="700" x2="82" y2="700" stroke="#c65c4e" stroke-width="5"/>
+    <text x="92" y="704" font-size="10" fill="#3d4f45">泵电源</text>
+    <text x="46" y="734" font-size="10" fill="#7b8b82">实线 = 导线；圆点 = 连接</text>
+    <text x="46" y="752" font-size="10" fill="#7b8b82">无圆点交叉 = 不相连</text>
+    <text x="46" y="770" font-size="10" fill="#7b8b82">所有 GND 必须共地</text>
+    <text x="46" y="788" font-size="10" fill="#8e3b31">先断电接线，再上电测量</text>
+    <text x="46" y="806" font-size="10" fill="#8e3b31">继电器 IN 不得悬空</text>
+
+    <text x="32" y="986" font-size="10" fill="#7b8b82">详细引脚表：docs/GPIO_WIRING.md ｜ 屏幕供电/电平以规格书为准 ｜ 本图不是最终电气接线表，接线前逐项核对</text>
+  </g>
+</svg>

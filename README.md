@@ -35,6 +35,12 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 | 灌溉执行 | 3.3V 供电、**高电平触发**继电器，IN=GPIO5；低压直流水泵 |
 | 水位检测 | **不安装**，系统不提供水位/缺水自动检测 |
 
+### 接线图
+
+[![AgriVerse 接线图（初稿）](docs/WIRING_DIAGRAM.svg)](docs/WIRING_DIAGRAM.svg)
+
+> 实线为导线，圆点为连接点，无圆点交叉不相连。屏幕 VCC/电平、继电器 IN 上拉、泵额定参数仍需实物核对；**3.3V 屏严禁接 5V**。完整引脚表见 [docs/GPIO_WIRING.md](docs/GPIO_WIRING.md)。
+
 ### 继电器安全逻辑（强制）
 
 - GPIO5 输出 **3.3V HIGH**：继电器吸合，水泵运行。
