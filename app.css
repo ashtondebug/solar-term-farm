@@ -1,0 +1,196 @@
+/* Additions for the live data layer. The core visual design stays in the
+   dashboard HTML; this file only styles status banners, forms, the PIN modal
+   and the small sensor/irrigation tables. */
+
+.agri-banner {
+  display: none;
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+  border: 1px solid transparent;
+}
+.agri-banner.sim {
+  background: #fbf5e7;
+  border-color: #ead9ae;
+  color: #7a5a1e;
+}
+.agri-banner.offline {
+  background: #fbeeec;
+  border-color: #efc8c1;
+  color: #8e3b31;
+}
+
+body.agri-offline .stat-value,
+body.agri-offline .sensor-value,
+body.agri-offline .score-number {
+  opacity: 0.55;
+}
+
+.agri-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.agri-field {
+  min-width: 0;
+}
+.agri-field strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.agri-table {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.agri-table-row {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr 0.8fr;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  align-items: center;
+}
+.agri-table-head {
+  background: var(--mint);
+  border-top: 0;
+  font-weight: 650;
+  color: #355b43;
+}
+.agri-table-row span {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.agri-muted {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.empty {
+  padding: 34px 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.agri-form {
+  display: grid;
+  gap: 14px;
+  max-width: 520px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.agri-form h3 {
+  margin: 0 0 2px;
+  font-size: 14px;
+}
+.agri-labeled {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.agri-labeled > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.agri-input {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.agri-input:focus {
+  outline: none;
+  border-color: #8fb79e;
+  box-shadow: 0 0 0 3px #e9f4ed;
+}
+.agri-primary {
+  background: var(--green);
+  color: #fff;
+  border: 1px solid var(--green);
+  width: fit-content;
+  padding: 9px 18px;
+}
+.agri-primary:hover {
+  background: var(--green2);
+}
+.agri-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.agri-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(18, 38, 29, 0.45);
+  backdrop-filter: blur(2px);
+}
+.agri-modal-card {
+  width: min(380px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 24px 70px rgba(18, 38, 29, 0.28);
+}
+.agri-modal-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.agri-modal-card p {
+  margin: 0 0 14px;
+}
+.agri-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+.agri-error {
+  min-height: 18px;
+  margin-top: 8px;
+  color: var(--red);
+  font-size: 11px;
+}
+
+.agri-history {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.agri-history-row {
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 11px;
+  color: var(--muted);
+}
+.agri-history-row:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 560px) {
+  .agri-table-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .agri-table-row span:last-child {
+    display: none;
+  }
+}

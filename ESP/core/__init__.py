@@ -1,0 +1,1 @@
+"""AgriVerse firmware package marker."""

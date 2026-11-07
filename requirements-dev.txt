@@ -1,0 +1,2 @@
+mpremote>=1.22
+esptool>=4.7
