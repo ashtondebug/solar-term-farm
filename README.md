@@ -11,7 +11,8 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 - ESP32-S3 固件骨架：配置、状态、时间、日志、存储、传感器、适宜度、节气、灌溉安全状态机、HTTP API。
 - 主机模拟器：用真实 API/控制器/状态代码驱动浏览器页面，数据明确标注为模拟值。
 - Web 管理页：保留原有视觉基准，六个页面接入 `/api/v1/*`，支持离线提示、设备状态、灌溉控制、参数保存、PIN 输入与二十四节气切换。
-- 主机测试：`50` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、时间纪元均有覆盖。
+- Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；屏幕 UI 待接。
+- 主机测试：`57` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、时间纪元、Wi-Fi 配网状态机均有覆盖。
 - 部署脚本：`tools/install.bat`、`tools/start.bat`、`tools/deploy.py`、`tools/build_web.py`。
 - 文档：架构、硬件、GPIO、API、部署、测试、串口屏资料阅读记录。
 
@@ -19,7 +20,7 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 
 - 真实硬件读数、继电器电气行为、RGB LED 引脚、屏幕电平与串口屏工程。
 - 触摸屏 `.HMI` 工程（USART HMI 闭源格式，需在上位机中搭建）。
-- Wi-Fi 首次配网流程、完整 24 节气长文案、MCP Server。
+- Wi-Fi 屏幕配网页面、完整 24 节气长文案、MCP Server。
 - 设备端 PIN 默认关闭（`security.require_pin=false`），M1 仅保留 API 与 UI 的 401 流程。
 
 ## 硬件
@@ -70,7 +71,7 @@ python -m unittest discover -s tests -v
 预期：
 
 ```text
-Ran 50 tests in ...
+Ran 57 tests in ...
 OK
 ```
 

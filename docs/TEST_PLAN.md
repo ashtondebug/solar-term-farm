@@ -22,6 +22,8 @@ python -m unittest discover -s tests -v
 | `test_web_parse.py` | 请求行、查询串 |
 | `test_web_server.py` | CPython 上真实 HTTP socket 往返、静态 index |
 | `test_history_store.py` | 追加/范围、坏尾行跳过 |
+| `test_timeutil.py` | Unix 纪元、时区格式化 |
+| `test_network.py` | 未配置、连接成功后才保存、密码不进状态、5 次失败转配网、取消恢复、扫描去重/排序 |
 
 ## 2. 模拟器端到端
 

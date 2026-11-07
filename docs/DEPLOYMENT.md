@@ -32,7 +32,7 @@ tools\start.bat
 python -m unittest discover -s tests -v
 ```
 
-预期 `Ran 50 tests ... OK`。也可运行 `python tools\run_tests.py`。
+预期 `Ran 57 tests ... OK`。也可运行 `python tools\run_tests.py`。
 
 ## 4. 安装部署工具（可选）
 
@@ -72,7 +72,7 @@ python tools\deploy.py --dry-run
 
 ## 7. Wi-Fi 配置
 
-M1 尚未实现屏幕配网。可在板端 `/data/wifi.json` 预置：
+设备端已实现扫描、连接、验证、5 次失败转配网（M3A，见 `docs/WIFI_PROVISIONING.md`）；屏幕配网页面尚未接入。当前可在板端 `/data/wifi.json` 预置：
 
 ```json
 {"ssid": "YOUR_SSID", "password": "YOUR_PASSWORD"}

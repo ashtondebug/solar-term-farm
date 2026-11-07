@@ -17,11 +17,11 @@ exit 0
 
 ```text
 python -m unittest discover -s tests -v
-Ran 50 tests in 0.019s
+Ran 57 tests in 0.019s
 OK
 ```
 
-覆盖：配置、土壤校准、SHT31 CRC、适宜度、灌溉状态机、节气边界、API、HTTP 解析、真实 HTTP socket 往返、历史存储。
+覆盖：配置、土壤校准、SHT31 CRC、适宜度、灌溉状态机、节气边界、API、HTTP 解析、真实 HTTP socket 往返、历史存储、时间纪元、Wi-Fi 配网状态机。
 
 ## 3. 模拟器 API 冒烟
 

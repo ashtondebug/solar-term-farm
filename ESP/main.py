@@ -24,6 +24,7 @@ from irrigation.controller import IrrigationController
 from irrigation.history import IrrigationHistory
 from irrigation.relay import Relay
 from network.manager import NetworkManager
+from network.store import WifiStore
 from sensors.bh1750 import BH1750
 from sensors.manager import SensorManager
 from sensors.sht31 import SHT31
@@ -136,9 +137,14 @@ class Application:
         )
 
         wlan = network.WLAN(network.STA_IF)
-        self.network = NetworkManager(wlan, self.state, self.logger, self.clock)
-        wifi = kv.read_json("wifi.json", {}) or {}
-        self.network.set_credentials(wifi.get("ssid", ""), wifi.get("password", ""))
+        self.network = NetworkManager(
+            wlan,
+            WifiStore(kv, self.logger),
+            self.state,
+            self.logger,
+            self.clock,
+        )
+        self.network.start()
 
         self.web = WebServer(
             self.api,

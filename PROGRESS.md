@@ -2,21 +2,22 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-07（M1 垂直切片）
+> 最后更新：2026-11-07（M1 垂直切片 + M3A 配网状态机）
 
 ## 当前状态
 
 | 项 | 状态 |
 |---|---|
-| 阶段 | M1：主机可运行垂直切片 |
+| 阶段 | M1 垂直切片 + M3A 配网状态机 |
 | 固件骨架 | 完成（未真机验证） |
 | 传感器/适宜度/节气/灌溉 | 代码与单测完成，真机未验证 |
 | Web API | 完成，模拟器与 CPython 集成测试通过 |
 | Web 页面 | 六页接入 API，视觉基准保留 |
+| Wi-Fi 配网 | 设备端状态机完成（M3A）；屏幕 UI 待接 |
 | 串口屏 | 仅资料记录与页面规格，无 `.HMI` |
 | MCP | 未实现，接口已预留 |
 | 真机 | 未接入 |
-| Git | 有未提交改动；提交/推送需用户确认 |
+| Git | M1 已推送 `14a2478`；M3A 随本次会话提交 |
 
 ## 本次会话完成（2026-11-07）
 
@@ -31,7 +32,7 @@
 - `ESP/config.py`：默认配置、深度合并、范围/校准/PIN/GPIO 唯一性校验。
 - `ESP/core/`：`DeviceState` 单一状态源、日志、`SystemClock`、校验工具。
 - `ESP/storage/`：原子 JSON 配置、JSONL 历史、容量/保留策略。
-- `ESP/network/manager.py`：非阻塞 Wi-Fi 重连状态机（配网流程待做）。
+- `ESP/network/`：非阻塞 Wi-Fi 自动重连 + M3A 配网状态机（扫描/连接/验证/5 次失败转配网）。
 - `ESP/main.py`：安全优先的组合根；GPIO5 先拉低，再加载配置/服务/任务。
 - `tools/`：`build_web.py`、`devserver.py`、`deploy.py`、`run_tests.py`、`install.bat`、`start.bat`。
 
@@ -62,11 +63,20 @@
   - 移除“演示数据”文案与写死参数；无数据时显示「—」。
 - 无头浏览器逐页截图验证：overview / environment / irrigation / calendar / device / settings。
 
-### 6. 验证记录
+### 6. M3A Wi-Fi 配网状态机
+
+- `network/store.py`：`/data/wifi.json` 原子保存/读取/清除；密码不进入公开配置或日志。
+- `network/manager.py`：`unconfigured → idle → connecting → connected`，失败后 15 秒重试、最多 5 次，达到上限转 `provisioning`；连接超时 20 秒；错误码分类 `wrong_password` / `no_ap_found` / `connect_failed`。
+- 手动 `connect(ssid, password)`：验证成功后才替换旧配置；`cancel_provisioning()` 恢复旧网络；`forget()` 需显式调用。
+- `main.py` 改为注入 `WifiStore` 并启动自动连接；网络任务仍由 supervised task 隔离。
+- 新增 `tests/test_network.py`（7 项）：未配置、成功后保存、密码不出现在状态、5 次失败转配网、取消恢复、扫描去重排序、存储往返。
+- 文档：`docs/WIFI_PROVISIONING.md`。
+
+### 7. 验证记录
 
 ```text
 python -m compileall -q ESP tools tests    -> exit 0
-python -m unittest discover -s tests -v    -> Ran 50 tests ... OK
+python -m unittest discover -s tests -v    -> Ran 57 tests ... OK
 ```
 
 API 冒烟（模拟器 `127.0.0.1:8099`）：
@@ -75,12 +85,12 @@ API 冒烟（模拟器 `127.0.0.1:8099`）：
 state.ok=True, source=simulator, time_synced=True
 soil=43.819%, air_temp=22.9C, air_humidity=59.914%, light=7753.436lx
 suitability=100/good, solar_term=立冬/225, history.points=143, terms=24
-GET / = 200 (31875 bytes), GET /app.js = 200 (45632 bytes)
+GET / = 200 (31803 bytes), GET /app.js = 200 (47931 bytes)
 start -> ok, pump=True, remaining=20; stop -> ok, pump=False
 PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 ```
 
-截图：`artifacts/m1-overview.png` 等（本地产物，未入库）。
+截图：`artifacts/m1-overview-final.png` 等（本地产物，未入库）。
 
 ## 已知问题 / 未验证
 
@@ -88,7 +98,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 2. **PIN 默认关闭**：`security.require_pin=false`；API/UI 的 401 流程已实现，等屏幕能展示 PIN 后启用。
 3. **串口屏工程缺失**：仅完成资料阅读与页面规格；`.HMI` 需 USART HMI 上位机创建。
 4. **18 个节气长文案缺失**：UI 明确显示「暂无收录」，不伪造。
-5. **Wi-Fi 配网未实现**：仅支持 `/data/wifi.json` 预置 + 5 次失败状态；屏幕配网待 M3。
+5. **Wi-Fi 屏幕配网 UI 未接**：设备端状态机已完成（M3A），屏幕页面仍待 M5；当前可用 `/data/wifi.json` 预置。
 6. **MCP 未实现**：`docs/` 与 API 已为 MCP Server 预留稳定接口。
 7. **`deploy.py` 未在板端执行**：`mpremote` 未安装；脚本为待验证状态。
 8. **主目录 UI 与构建产物**：`ESP/web/static/*` 由 `tools/build_web.py` 生成，`.gitignore` 忽略；根目录 HTML 是唯一视觉源。
@@ -98,11 +108,12 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 
 - [ ] **M2 真机 bring-up**：核对开发板原理图、RGB LED、GPIO5 下拉、继电器/泵额定；接入 SHT31/BH1750/HW-390；记录实测值。
 - [ ] **M2 安全实测**：上电/复位/拔 USB/程序卡死四种场景泵必须停；最长运行、故障锁存、看门狗。
-- [ ] **M3 配网与配置**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；连续 5 次失败转配网；PIN 展示与启用。
+- [x] **M3A 配网服务**：扫描/连接/验证/5 次失败转配网/密码不入状态；主机测试通过。
+- [ ] **M3B 屏幕配网**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；PIN 展示与启用。
 - [ ] **M4 内容**：补齐 18 个节气长文案；植物档案与阶段；适宜度权重可配置。
 - [ ] **M5 屏幕**：在 USART HMI 创建 5 页工程，按 `Touch_screen/docs/` 变量表对接 UART 协议。
 - [ ] **M6 MCP**：PC 端 stdio MCP Server，10 个工具，复用现有 REST + PIN；不成为核心依赖。
-- [ ] 提交前：跑 50 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
+- [ ] 提交前：跑 57 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
 
 ## 关键设计决策
 
