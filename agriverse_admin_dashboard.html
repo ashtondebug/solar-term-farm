@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#173d32">
+<title>AgriVerse · 智慧农业管理后台</title>
+<style>
+:root{--green:#1d6049;--green2:#2e8060;--mint:#e9f4ed;--ink:#1d2c25;--muted:#7b8b82;--line:#e7ede8;--bg:#f5f7f4;--white:#fff;--gold:#c69a48;--red:#c65c4e;--shadow:0 8px 28px rgba(28,55,40,.055)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Microsoft YaHei","PingFang SC",sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer}.app{display:flex;min-height:100vh}.sidebar{width:248px;background:#173d32;color:#eaf3ed;padding:24px 16px;display:flex;flex-direction:column;flex-shrink:0}.brand{display:flex;align-items:center;gap:12px;padding:0 10px 30px}.brand-mark{width:39px;height:39px;border-radius:12px;background:#dcebdc;color:#1b563f;display:grid;place-items:center}.brand-mark svg{width:24px;height:24px}.brand-name{font-size:19px;font-weight:750;letter-spacing:.2px}.brand-sub{font-size:10px;color:#a8c1b1;margin-top:3px;letter-spacing:1.5px}.nav-label{font-size:10px;color:#8da99a;letter-spacing:1.5px;padding:13px 12px 9px}.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#c2d5c9;text-align:left;padding:12px 13px;border-radius:10px;display:flex;align-items:center;gap:12px;transition:.2s}.nav button:hover{background:#ffffff12;color:#fff}.nav button.active{background:#2c604b;color:#fff;box-shadow:inset 3px 0 #d5b36c}.nav svg{width:18px;height:18px;opacity:.9}.sidebar-bottom{margin-top:auto;padding:18px 10px 4px;border-top:1px solid #ffffff1c;color:#9eb8a8;font-size:11px;line-height:1.8}.connection{display:flex;align-items:center;gap:8px;color:#d5e8da;font-size:12px;margin-bottom:7px}.dot{width:7px;height:7px;border-radius:50%;background:#76c991;box-shadow:0 0 0 4px #76c99122}.main{flex:1;min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:sticky;top:0;z-index:5}.crumb{color:var(--muted);font-size:12px}.crumb strong{color:var(--ink);font-weight:650}.top-actions{display:flex;align-items:center;gap:18px}.date-label{color:var(--muted);font-size:12px}.content{max-width:1440px;margin:auto;padding:30px 34px 44px}.page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:25px;gap:15px}.eyebrow{color:var(--green2);font-size:11px;font-weight:700;letter-spacing:1.8px;margin-bottom:8px}.page-head h1{font-size:25px;margin:0;font-weight:750;letter-spacing:-.5px}.page-head p{margin:8px 0 0;color:var(--muted);font-size:13px}.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;border-radius:9px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:8px}.btn.primary{background:var(--green);border-color:var(--green);color:white}.btn:hover{filter:brightness(.97)}.btn svg{width:15px;height:15px}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.stat{padding:19px 20px;position:relative;overflow:hidden}.stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px}.stat-icon{width:34px;height:34px;border-radius:10px;background:var(--mint);color:var(--green);display:grid;place-items:center}.stat-icon svg{width:18px;height:18px}.stat-value{font-size:27px;font-weight:750;margin:13px 0 5px;letter-spacing:-.7px}.unit{font-size:13px;color:var(--muted);font-weight:500;margin-left:3px}.stat-foot{font-size:11px;color:var(--muted)}.up{color:var(--green2);font-weight:650}.middle{grid-template-columns:minmax(0,1.55fr) minmax(290px,.85fr);margin-bottom:18px}.card-head{display:flex;align-items:center;justify-content:space-between;padding:19px 21px 12px}.card-title{font-size:14px;font-weight:700}.card-sub{font-size:11px;color:var(--muted);margin-top:5px}.select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;color:#59685f;font-size:11px}.chart-card{padding-bottom:15px}.chart-wrap{padding:0 18px 8px;height:220px}.chart-wrap svg{width:100%;height:100%;overflow:visible}.legend{display:flex;gap:17px;padding:0 22px;color:var(--muted);font-size:11px}.legend span{display:flex;align-items:center;gap:6px}.legend i{width:7px;height:7px;border-radius:50%;background:#3c8b68}.legend span:nth-child(2) i{background:#d1a45a}.score-card{padding:20px 21px}.score-top{display:flex;justify-content:space-between;align-items:flex-start}.score-ring{width:132px;height:132px;margin:20px auto 14px;position:relative;display:grid;place-items:center}.score-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}.score-number{font-size:32px;font-weight:760;color:var(--green)}.score-caption{font-size:11px;color:var(--muted);margin-top:2px}.score-status{text-align:center;color:var(--green2);font-weight:700;font-size:12px}.score-detail{display:grid;gap:12px;margin-top:19px}.score-row{display:grid;grid-template-columns:65px 1fr 35px;gap:10px;align-items:center;font-size:11px;color:var(--muted)}.bar{height:6px;background:#edf1ed;border-radius:10px;overflow:hidden}.bar b{display:block;height:100%;background:#559574;border-radius:10px}.score-row strong{text-align:right;color:var(--ink);font-size:11px}.bottom{grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)}.sensor-card,.irrigation-card{padding:19px 21px}.sensor-list{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:15px}.sensor{border:1px solid var(--line);border-radius:11px;padding:13px}.sensor-label{color:var(--muted);font-size:11px}.sensor-value{font-size:21px;font-weight:740;margin:9px 0 4px}.sensor-note{font-size:10px;color:var(--green2)}.sensor-note.warn{color:#b78336}.sensor-symbol{float:right;color:#82a28d}.sensor-symbol svg{width:17px;height:17px}.pump-row{display:flex;justify-content:space-between;align-items:center;margin:17px 0 13px}.pump-state{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:650}.pump-state .dot{background:#aab8ae;box-shadow:none}.pump-state.running .dot{background:#4ca575;box-shadow:0 0 0 4px #4ca57520}.switch{width:42px;height:24px;border:0;border-radius:20px;background:#dce4dd;padding:3px;transition:.2s}.switch:after{content:"";display:block;width:18px;height:18px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 3px #0002}.switch.on{background:var(--green2)}.switch.on:after{transform:translateX(18px)}.pump-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px}.meta-box{background:#f7f9f6;border-radius:9px;padding:11px}.meta-box small{color:var(--muted);font-size:10px}.meta-box strong{display:block;margin-top:6px;font-size:13px}.warning{font-size:10px;color:#9a7945;line-height:1.7;margin-top:13px;padding:9px 11px;background:#fbf7ee;border-radius:8px}.view{display:none}.view.active{display:block}.placeholder{padding:45px;text-align:center;color:var(--muted)}.placeholder h2{color:var(--ink);font-size:18px}.toast{position:fixed;right:25px;bottom:25px;background:#203e31;color:white;padding:12px 17px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none;z-index:10;font-size:12px}.toast.show{opacity:1;transform:translateY(0)}.mobile-menu{display:none;background:none;border:0;color:var(--ink)}@media(max-width:1050px){.sidebar{width:215px}.stats{grid-template-columns:repeat(2,1fr)}.middle{grid-template-columns:1fr}.score-card{display:grid;grid-template-columns:1fr 1fr;align-items:center}.score-ring{margin:10px auto}.score-detail{margin-top:0}}@media(max-width:720px){.sidebar{position:fixed;left:-260px;top:0;bottom:0;z-index:20;width:248px;transition:.25s}.sidebar.open{left:0}.mobile-menu{display:block}.topbar{padding:0 17px;height:64px}.date-label{display:none}.content{padding:23px 16px}.page-head{align-items:flex-start;flex-direction:column}.page-head h1{font-size:22px}.stats{gap:10px}.stat{padding:14px}.stat-value{font-size:23px}.middle,.bottom{grid-template-columns:1fr}.score-card{display:block}.score-detail{margin-top:15px}.sensor-list{grid-template-columns:1fr 1fr}.chart-wrap{height:190px}.top-actions{gap:10px}}@media(max-width:390px){.stats{grid-template-columns:1fr 1fr}.sensor-list{grid-template-columns:1fr}.stat-value{font-size:21px}}
+
+.season-hero{background:linear-gradient(120deg,#183f32 0%,#2e6c50 68%,#77966b 100%);color:#fff;border-radius:15px;padding:25px 27px;position:relative;overflow:hidden;margin-bottom:16px}
+.season-hero:after{content:attr(data-season);position:absolute;right:28px;top:2px;font-family:serif;font-size:100px;font-weight:800;color:#ffffff12;letter-spacing:8px}
+.season-kicker{font-size:10px;letter-spacing:2px;color:#d4e5d8}
+.season-hero h2{font-family:serif;font-size:32px;margin:10px 0 7px;letter-spacing:4px}
+.season-hero p{max-width:610px;color:#e0ebe2;font-size:12px;line-height:1.9;margin:0}
+.season-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:17px;color:#e0ebe2;font-size:11px}
+.season-meta span{display:flex;align-items:center;gap:6px}
+.season-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-bottom:16px}
+.season-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 21px;box-shadow:var(--shadow)}
+.season-panel h3{font-size:14px;margin:0 0 13px}
+.proverb{background:#f7f5ed;border-left:3px solid #c5a05b;border-radius:0 10px 10px 0;padding:15px 16px;margin-bottom:10px}
+.proverb strong{display:block;font-family:serif;font-size:17px;line-height:1.6;color:#5b4a2e;font-weight:700}
+.proverb small{display:block;color:#8b806b;font-size:10px;margin-top:6px;line-height:1.7}
+.info-list{display:grid;gap:11px}
+.info-item{display:flex;gap:11px;align-items:flex-start}
+.info-icon{width:29px;height:29px;border-radius:9px;background:#edf4ed;color:#467b59;display:grid;place-items:center;flex-shrink:0;font-size:12px;font-weight:700}
+.info-item strong{display:block;font-size:12px;margin:1px 0 4px}
+.info-item p{font-size:11px;color:var(--muted);line-height:1.75;margin:0}
+.farming-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.farming-tip{background:#f8faf7;border:1px solid #edf1eb;border-radius:10px;padding:13px}
+.farming-tip b{font-size:12px;display:block;margin-bottom:6px;color:#355b43}
+.farming-tip p{font-size:11px;color:var(--muted);line-height:1.75;margin:0}
+.term-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:14px}
+.term-chip{border:1px solid var(--line);border-radius:8px;padding:9px 5px;text-align:center;color:var(--muted);font-size:10px;background:#fff}
+.term-chip.active{background:#edf5ee;border-color:#9dbca4;color:#2d6948;font-weight:700}
+.term-chip small{display:block;font-size:9px;margin-top:4px;opacity:.8}
+.season-footnote{font-size:10px;color:#9a8b70;line-height:1.7;margin-top:13px}
+@media(max-width:850px){.season-grid{grid-template-columns:1fr}.farming-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.season-hero{padding:21px}.season-hero:after{font-size:75px;right:12px}.season-hero h2{font-size:27px}.term-strip{grid-template-columns:repeat(4,1fr)}.farming-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4.5-2.8-6.8-6.2-6.8-10.2C5.2 6.4 8.1 3.5 12 2c3.9 1.5 6.8 4.4 6.8 8.8C18.8 14.8 16.5 18.2 12 21Z"/><path d="M12 21V8m0 7c-2.3-2.2-4-3-6.2-3.3M12 12c1.6-1.8 3.2-2.6 5.4-2.9"/></svg></div>
+    <div><div class="brand-name">AgriVerse</div><div class="brand-sub">SMART AGRICULTURE</div></div>
+  </div>
+  <div class="nav-label">工作台</div>
+  <nav class="nav">
+    <button class="active" data-view="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg>总览仪表盘</button>
+    <button data-view="environment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M4.2 7.2l2.1 2.1m11.4 5.4 2.1 2.1M3 12h3m12 0h3M4.2 16.8l2.1-2.1m11.4-5.4 2.1-2.1"/><circle cx="12" cy="12" r="4"/></svg>环境监测</button>
+    <button data-view="irrigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2.5 3.5-6 7.1-6 11a6 6 0 0 0 12 0c0-3.9-3.5-7.5-6-11Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg>灌溉管理</button>
+    <button data-view="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3m-3 3h6"/></svg>节气与种植</button>
+  </nav>
+  <div class="nav-label">设备与系统</div>
+  <nav class="nav">
+    <button data-view="device"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/></svg>设备管理</button>
+    <button data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.6-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.6a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.6 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7Z" transform="translate(-1 -1)"/></svg>系统设置</button>
+  </nav>
+  <div class="sidebar-bottom"><div class="connection"><i class="dot"></i>设备连接状态：演示模式</div>AgriVerse · 节气智农<br>本地局域网管理界面<br>© 2026 AgriVerse Project</div>
+</aside>
+<main class="main">
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:13px"><button class="mobile-menu" id="menuBtn" aria-label="打开菜单"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><div class="crumb">AgriVerse <span style="padding:0 7px;color:#b8c4bb">/</span><strong id="crumbName">总览仪表盘</strong></div></div>
+  <div class="top-actions"><span class="date-label" id="dateLabel">设备本地时间</span></div>
+</header>
+<div class="content">
+<section class="view active" id="overview">
+  <div class="page-head"><div><div class="eyebrow">AGRIverse CONTROL CENTER</div><h1>总览仪表盘</h1><p>实时了解种植环境、植物适宜度与灌溉设备状态。</p></div><button class="btn" id="refreshBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.8-2L20 12M4 12l2.6 5a7 7 0 0 0 11.8-2"/></svg>刷新数据</button></div>
+  <div class="grid stats">
+    <article class="card stat"><div class="stat-top">空气温度 <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg></span></div><div class="stat-value">24.6<span class="unit">°C</span></div><div class="stat-foot"><span class="up">适宜</span> · SHT31</div></article>
+    <article class="card stat"><div class="stat-top">空气湿度 <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2.5 3.5-6 7.1-6 11a6 6 0 0 0 12 0c0-3.9-3.5-7.5-6-11Z"/></svg></span></div><div class="stat-value">63<span class="unit">%</span></div><div class="stat-foot"><span class="up">适宜</span> · SHT31</div></article>
+    <article class="card stat"><div class="stat-top">土壤湿度 <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 15c2.5-2 5-2 7.5 0s5 2 7.5 0 3-1 3-1"/><path d="M3 19c2.5-2 5-2 7.5 0s5 2 7.5 0 3-1 3-1M12 3v8m-4-4 4 4 4-4"/></svg></span></div><div class="stat-value">42<span class="unit">%</span></div><div class="stat-foot"><span class="up">当前正常</span> · 电容式传感器</div></article>
+    <article class="card stat"><div class="stat-top">环境光照 <span class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span></div><div class="stat-value">12,680<span class="unit">lx</span></div><div class="stat-foot"><span class="up">光照充足</span> · BH1750</div></article>
+  </div>
+  <div class="grid middle">
+    <article class="card chart-card"><div class="card-head"><div><div class="card-title">环境变化趋势</div><div class="card-sub">传感器历史数据 · 示例曲线</div></div><select class="select" id="chartRange"><option>最近 12 小时</option><option>最近 24 小时</option><option>最近 7 天</option></select></div>
+      <div class="chart-wrap"><svg viewBox="0 0 650 210" preserveAspectRatio="none" role="img" aria-label="环境变化趋势示意图"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5c9b78" stop-opacity=".2"/><stop offset="1" stop-color="#5c9b78" stop-opacity="0"/></linearGradient></defs><g stroke="#edf1ed" stroke-width="1"><path d="M40 25H635M40 70H635M40 115H635M40 160H635"/></g><g fill="#9aa89f" font-size="10"><text x="5" y="28">30°</text><text x="5" y="73">25°</text><text x="5" y="118">20°</text><text x="5" y="163">15°</text><text x="40" y="192">08:00</text><text x="185" y="192">10:00</text><text x="330" y="192">12:00</text><text x="475" y="192">14:00</text><text x="605" y="192">现在</text></g><path d="M40 116 C85 110 95 89 135 96 S200 113 235 88 S300 72 335 82 S400 105 435 75 S500 57 535 70 S590 62 635 55 L635 165 L40 165Z" fill="url(#area)"/><path d="M40 116 C85 110 95 89 135 96 S200 113 235 88 S300 72 335 82 S400 105 435 75 S500 57 535 70 S590 62 635 55" fill="none" stroke="#438967" stroke-width="2.7" stroke-linecap="round"/><path d="M40 143 C85 137 95 133 135 138 S200 127 235 132 S300 122 335 128 S400 135 435 123 S500 117 535 121 S590 111 635 115" fill="none" stroke="#d1a45a" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/></svg></div>
+      <div class="legend"><span><i></i>空气温度</span><span><i></i>土壤湿度趋势（示意）</span></div>
+    </article>
+    <article class="card score-card"><div class="score-top"><div><div class="card-title">植物环境适宜度</div><div class="card-sub">基于当前环境参数的综合评估</div></div><span style="font-size:10px;color:var(--muted)">示例数据</span></div><div><div class="score-ring"><svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="59" fill="none" stroke="#edf2ed" stroke-width="10"/><circle cx="70" cy="70" r="59" fill="none" stroke="#4d956f" stroke-width="10" stroke-linecap="round" stroke-dasharray="371" stroke-dashoffset="66.8"/></svg><div style="text-align:center"><div class="score-number">82</div><div class="score-caption">综合适宜度</div></div></div><div class="score-status">环境状态良好</div></div><div class="score-detail"><div class="score-row"><span>温度</span><div class="bar"><b style="width:90%"></b></div><strong>90</strong></div><div class="score-row"><span>空气湿度</span><div class="bar"><b style="width:82%"></b></div><strong>82</strong></div><div class="score-row"><span>土壤湿度</span><div class="bar"><b style="width:70%"></b></div><strong>70</strong></div><div class="score-row"><span>光照</span><div class="bar"><b style="width:86%"></b></div><strong>86</strong></div></div></article>
+  </div>
+  <div class="grid bottom">
+    <article class="card sensor-card"><div class="card-head" style="padding:0"><div><div class="card-title">传感器状态</div><div class="card-sub">当前采集设备运行概况</div></div><button class="btn" data-goto="environment">查看详情</button></div><div class="sensor-list">
+      <div class="sensor"><span class="sensor-symbol">◉</span><div class="sensor-label">土壤湿度</div><div class="sensor-value">42%</div><div class="sensor-note">● 在线 · ADC</div></div>
+      <div class="sensor"><span class="sensor-symbol">◉</span><div class="sensor-label">空气温湿度</div><div class="sensor-value">24.6°</div><div class="sensor-note">● 在线 · I²C</div></div>
+      <div class="sensor"><span class="sensor-symbol">◉</span><div class="sensor-label">光照强度</div><div class="sensor-value">12.6k</div><div class="sensor-note">● 在线 · I²C</div></div>
+    </div></article>
+    <article class="card irrigation-card"><div class="card-head" style="padding:0"><div><div class="card-title">灌溉控制</div><div class="card-sub">水泵状态与运行模式</div></div><button class="btn" data-goto="irrigation">管理</button></div><div class="pump-row"><div class="pump-state" id="pumpState"><i class="dot"></i><span>水泵已停止</span></div><button class="switch" id="pumpSwitch" aria-label="演示水泵开关" aria-pressed="false"></button></div><div class="pump-meta"><div class="meta-box"><small>当前模式</small><strong id="pumpMode">自动模式</strong></div><div class="meta-box"><small>今日运行</small><strong>0 次</strong></div></div><div class="warning">演示界面：此开关仅改变页面显示，不会连接或驱动真实水泵。实际控制必须由设备端安全逻辑执行。</div></article>
+  </div>
+</section>
+<section class="view" id="environment"><div class="page-head"><div><div class="eyebrow">SENSOR MONITORING</div><h1>环境监测</h1><p>查看土壤、空气与光照传感器采集状态。</p></div></div><div class="grid stats"><article class="card stat"><div class="stat-top">土壤湿度</div><div class="stat-value">42<span class="unit">%</span></div><div class="stat-foot">电容式传感器 · AO</div></article><article class="card stat"><div class="stat-top">空气温度</div><div class="stat-value">24.6<span class="unit">°C</span></div><div class="stat-foot">SHT31</div></article><article class="card stat"><div class="stat-top">空气湿度</div><div class="stat-value">63<span class="unit">%</span></div><div class="stat-foot">SHT31</div></article><article class="card stat"><div class="stat-top">光照强度</div><div class="stat-value">12,680<span class="unit">lx</span></div><div class="stat-foot">BH1750</div></article></div><article class="card" style="padding:22px"><div class="card-title">数据说明</div><p style="color:var(--muted);line-height:1.9">此页面当前展示前端样例数值。正式接入 ESP32-S3 后，应通过设备 Web API 获取真实传感器数据，并标注采样时间、数据有效性与传感器异常状态。土壤湿度百分比需经过实际探头标定，不应直接把 ADC 原始值当作真实含水率。</p></article></section>
+<section class="view" id="irrigation"><div class="page-head"><div><div class="eyebrow">IRRIGATION CONTROL</div><h1>灌溉管理</h1><p>配置自动灌溉策略，并查看水泵运行状态。</p></div></div><div class="grid bottom"><article class="card irrigation-card"><div class="card-title">水泵控制</div><div class="pump-row"><div class="pump-state" id="pumpState2"><i class="dot"></i><span>水泵已停止</span></div><button class="switch" id="pumpSwitch2" aria-label="演示水泵开关" aria-pressed="false"></button></div><div class="warning">安全提示：当前为静态前端演示。真实设备必须由 ESP32-S3 统一执行继电器控制、最长运行时间、灌溉间隔及传感器有效性检查。继电器为低电平触发，GPIO 高电平应对应关闭状态。</div></article><article class="card irrigation-card"><div class="card-title">自动灌溉策略（界面示例）</div><div style="display:grid;gap:14px;margin-top:18px"><label>工作模式<select class="select" style="display:block;width:100%;margin-top:7px" id="modeSelect"><option>自动模式</option><option>手动模式</option></select></label><label>土壤湿度触发阈值<input class="select" style="display:block;width:100%;margin-top:7px" value="35%" readonly></label><label>单次最长运行时间<input class="select" style="display:block;width:100%;margin-top:7px" value="20 秒" readonly></label></div><p style="color:var(--muted);font-size:11px;line-height:1.7">参数仅为界面占位示例，实际阈值应按植物种类、生长阶段和土壤情况标定。</p></article></div></section>
+<section class="view" id="calendar">
+  <div class="page-head">
+    <div><div class="eyebrow">SEASONAL CULTURE & FARMING</div><h1>节气与种植</h1><p>从节气文化、民间俗语到农事建议，了解时令变化与种植智慧。</p></div>
+    <select class="select" id="seasonSelect" aria-label="选择节气">
+      <option value="立冬">立冬</option><option value="霜降">霜降</option><option value="小雪">小雪</option>
+      <option value="大雪">大雪</option><option value="冬至">冬至</option><option value="小寒">小寒</option>
+    </select>
+  </div>
+
+  <div class="season-hero" id="seasonHero" data-season="立冬">
+    <div class="season-kicker">二十四节气 · 冬季节气</div>
+    <h2 id="seasonName">立冬</h2>
+    <p id="seasonIntro">立冬是冬季的第一个节气，意味着冬季开始。此时气温逐渐下降，万物进入休养、蓄藏的时节。不同地区气候差异明显，农事安排应结合当地天气与作物实际情况。</p>
+    <div class="season-meta">
+      <span>◷ <b id="seasonDate">通常在公历 11 月 7 日或 8 日前后</b></span>
+      <span>⌁ <b id="seasonSeason">冬季 · 第 1 个节气</b></span>
+      <span>✧ <b>太阳黄经约 225°</b></span>
+    </div>
+  </div>
+
+  <div class="season-grid">
+    <article class="season-panel">
+      <h3>节气俗语 · 民间农谚</h3>
+      <div class="proverb">
+        <strong id="proverbOne">立冬晴，一冬凌；立冬阴，一冬温。</strong>
+        <small id="proverbNoteOne">民间天气经验说法，用来表达对冬季冷暖的观察；并非准确的长期天气预报。</small>
+      </div>
+      <div class="proverb">
+        <strong id="proverbTwo">立冬不端饺子碗，冻掉耳朵没人管。</strong>
+        <small id="proverbNoteTwo">北方常见的立冬饮食俗语，体现了立冬吃饺子的民俗文化。</small>
+      </div>
+      <div class="proverb">
+        <strong id="proverbThree">立冬补冬，补嘴空。</strong>
+        <small id="proverbNoteThree">反映部分地区立冬进补、顺应时令的饮食习俗。</small>
+      </div>
+    </article>
+    <article class="season-panel">
+      <h3>节气知识与传统习俗</h3>
+      <div class="info-list" id="customList">
+        <div class="info-item"><div class="info-icon">01</div><div><strong>迎冬与贺冬</strong><p>古时有迎冬、贺冬等礼俗，表达对季节转换的重视。</p></div></div>
+        <div class="info-item"><div class="info-icon">02</div><div><strong>北方吃饺子</strong><p>不少北方地区有立冬吃饺子的习惯，寓意迎接冬季、祈愿安康。</p></div></div>
+        <div class="info-item"><div class="info-icon">03</div><div><strong>南方进补</strong><p>部分南方地区会煮食温热的时令食物，各地习俗并不相同。</p></div></div>
+      </div>
+    </article>
+  </div>
+
+  <article class="season-panel" style="margin-bottom:16px">
+    <h3>时令农事建议</h3>
+    <div class="farming-grid" id="farmingTips">
+      <div class="farming-tip"><b>越冬管理</b><p>关注寒潮和霜冻预报，根据作物耐寒性采取覆盖、保温等措施。</p></div>
+      <div class="farming-tip"><b>土壤与水分</b><p>根据土壤墒情和作物需水量安排灌溉，避免低温时段盲目浇水。</p></div>
+      <div class="farming-tip"><b>设施检查</b><p>检查温室棚膜、支架和通风设施，及时处理破损与积雪风险。</p></div>
+    </div>
+    <div class="season-footnote">农事建议为通用知识参考。实际操作应结合当地气候、土壤条件、作物品种和生长阶段，不应仅凭节气日期自动执行灌溉。</div>
+  </article>
+
+  <article class="season-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div><h3 style="margin-bottom:4px">二十四节气 · 时序一览</h3><div class="card-sub">选择节气可查看对应文化与农事内容</div></div>
+      <span style="font-size:10px;color:var(--muted)">当前展示：冬季节气示例</span>
+    </div>
+    <div class="term-strip">
+      <div class="term-chip">立春<small>春季</small></div><div class="term-chip">雨水<small>春季</small></div><div class="term-chip">惊蛰<small>春季</small></div><div class="term-chip">春分<small>春季</small></div><div class="term-chip">清明<small>春季</small></div><div class="term-chip">谷雨<small>春季</small></div>
+      <div class="term-chip">立夏<small>夏季</small></div><div class="term-chip">小满<small>夏季</small></div><div class="term-chip">芒种<small>夏季</small></div><div class="term-chip">夏至<small>夏季</small></div><div class="term-chip">小暑<small>夏季</small></div><div class="term-chip">大暑<small>夏季</small></div>
+      <div class="term-chip">立秋<small>秋季</small></div><div class="term-chip">处暑<small>秋季</small></div><div class="term-chip">白露<small>秋季</small></div><div class="term-chip">秋分<small>秋季</small></div><div class="term-chip">寒露<small>秋季</small></div><div class="term-chip">霜降<small>秋季</small></div>
+      <div class="term-chip active">立冬<small>冬季</small></div><div class="term-chip">小雪<small>冬季</small></div><div class="term-chip">大雪<small>冬季</small></div><div class="term-chip">冬至<small>冬季</small></div><div class="term-chip">小寒<small>冬季</small></div><div class="term-chip">大寒<small>冬季</small></div>
+    </div>
+  </article>
+</section>
+<section class="view" id="device"><div class="page-head"><div><div class="eyebrow">DEVICE MANAGEMENT</div><h1>设备管理</h1><p>查看主控板、屏幕、传感器与网络连接信息。</p></div></div><article class="card" style="padding:22px"><div class="card-title">设备信息</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin-top:20px"><div><div class="stat-foot">主控型号</div><strong>ESP32-S3 N16R8</strong></div><div><div class="stat-foot">操作系统</div><strong>SunTerm OS 1.0.0</strong></div><div><div class="stat-foot">固件平台</div><strong>MicroPython</strong></div><div><div class="stat-foot">触摸屏</div><strong>淘晶驰 T1 · 2.4 英寸</strong></div><div><div class="stat-foot">连接方式</div><strong>Wi-Fi 局域网</strong></div><div><div class="stat-foot">传感器</div><strong>土壤湿度 / SHT31 / BH1750</strong></div><div><div class="stat-foot">当前连接</div><strong style="color:var(--gold)">演示数据，尚未连接</strong></div></div></article></section>
+<section class="view" id="settings"><div class="page-head"><div><div class="eyebrow">SYSTEM SETTINGS</div><h1>系统设置</h1><p>设备网络、数据刷新与系统信息。</p></div></div><article class="card" style="padding:22px"><div class="card-title">网络配置</div><p style="color:var(--muted);line-height:1.8">正式版本将在此显示设备当前 Wi-Fi 状态、局域网 IP 地址与网络重连状态。Wi-Fi 密码不应在管理页面明文展示。</p><div class="meta-box" style="max-width:360px"><small>当前网络状态</small><strong>演示模式 · 未连接真实设备</strong></div></article></section>
+</div>
+</main>
+</div>
+<div class="toast" id="toast">演示操作已触发</div>
+<script>
+const labels={overview:"总览仪表盘",environment:"环境监测",irrigation:"灌溉管理",calendar:"节气与种植",device:"设备管理",settings:"系统设置"};
+const toast=document.getElementById('toast');let toastTimer;
+function notify(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2300)}
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===name));document.querySelectorAll('.nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));document.getElementById('crumbName').textContent=labels[name]||'总览仪表盘';document.getElementById('sidebar').classList.remove('open')}
+document.querySelectorAll('.nav button[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.goto)));
+document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('refreshBtn').addEventListener('click',()=>notify('当前为演示数据，尚未连接 ESP32-S3'));
+let pumpOn=false;
+function setPump(on){pumpOn=on;['pumpSwitch','pumpSwitch2'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.toggle('on',on);el.setAttribute('aria-pressed',String(on))}});['pumpState','pumpState2'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.toggle('running',on);el.querySelector('span').textContent=on?'水泵运行中（模拟）':'水泵已停止'}});notify(on?'已切换为模拟运行状态':'已切换为模拟停止状态')}
+document.getElementById('pumpSwitch').addEventListener('click',()=>setPump(!pumpOn));
+document.getElementById('pumpSwitch2').addEventListener('click',()=>setPump(!pumpOn));
+document.getElementById('modeSelect').addEventListener('change',e=>{document.getElementById('pumpMode').textContent=e.target.value;notify('演示模式已切换')});
+document.getElementById('chartRange').addEventListener('change',e=>notify('已选择：'+e.target.value+'（当前曲线为示意数据）'));
+
+const seasonData={
+"立冬":{intro:"立冬是冬季的第一个节气，意味着冬季开始。此时气温逐渐下降，万物进入休养、蓄藏的时节。不同地区气候差异明显，农事安排应结合当地天气与作物实际情况。",date:"通常在公历 11 月 7 日或 8 日前后",order:"冬季 · 第 1 个节气",angle:"太阳黄经约 225°",sayings:[["立冬晴，一冬凌；立冬阴，一冬温。","民间天气经验说法，用来表达对冬季冷暖的观察；并非准确的长期天气预报。"],["立冬不端饺子碗，冻掉耳朵没人管。","北方常见的立冬饮食俗语，体现了立冬吃饺子的民俗文化。"],["立冬补冬，补嘴空。","反映部分地区立冬进补、顺应时令的饮食习俗。"]],customs:[["迎冬与贺冬","古时有迎冬、贺冬等礼俗，表达对季节转换的重视。"],["北方吃饺子","不少北方地区有立冬吃饺子的习惯，寓意迎接冬季、祈愿安康。"],["南方进补","部分南方地区会煮食温热的时令食物，各地习俗并不相同。"]],tips:[["越冬管理","关注寒潮和霜冻预报，根据作物耐寒性采取覆盖、保温等措施。"],["土壤与水分","根据土壤墒情和作物需水量安排灌溉，避免低温时段盲目浇水。"],["设施检查","检查温室棚膜、支架和通风设施，及时处理破损与积雪风险。"]]},
+"霜降":{intro:"霜降是秋季最后一个节气，天气渐冷，昼夜温差增大。北方部分地区可能出现初霜，南方则仍可能较为温暖。",date:"通常在公历 10 月 23 日或 24 日前后",order:"秋季 · 第 6 个节气",angle:"太阳黄经约 210°",sayings:[["霜降杀百草。","形容气温下降、霜冻对部分植物生长的影响，并非所有地区都会在此时出现霜冻。"],["霜降见霜，米谷满仓。","民间借霜降时节的天气表达对丰收的期盼，不能作为产量判断依据。"],["寒露不算冷，霜降变了天。","反映秋末天气转冷的季节感受。"]],customs:[["赏菊","不少地方有霜降赏菊的习俗，菊花也常被视为秋日代表。"],["吃柿子","部分地区有霜降吃柿子的习惯，寓意平安、御寒等。"],["秋季收尾","一些地区会抓紧秋收、晾晒和储藏工作。"]],tips:[["防霜防冻","关注天气预报，必要时为不耐寒作物采取覆盖等保护措施。"],["适时采收","根据成熟度和天气安排采收，及时晾晒、储藏，减少损失。"],["减少盲目灌溉","结合土壤墒情判断是否需要补水，避免低温高湿环境。"]]},
+"小雪":{intro:"小雪是冬季第二个节气，气温继续下降，部分地区开始出现降雪，但降雪并非各地都会发生。",date:"通常在公历 11 月 22 日或 23 日前后",order:"冬季 · 第 2 个节气",angle:"太阳黄经约 240°",sayings:[["小雪雪满天，来年必丰年。","表达民间对冬季降雪有利于农作物越冬的期盼；实际影响还取决于雪量、温度和作物状况。"],["小雪腌菜，大雪腌肉。","概括部分地区在冬季制作腌菜、腌肉的传统生活习俗。"],["小雪封地，大雪封河。","形容北方地区进入冬季后天气逐渐寒冷的季节变化。"]],customs:[["腌菜储藏","部分地区有小雪前后腌制蔬菜的习惯。"],["制作腊味","一些地方开始准备腊肉、香肠等冬季食物。"],["防寒准备","整理冬衣、检查取暖与越冬设施。"]],tips:[["设施保温","检查温室密封和保温设施，注意通风与湿度平衡。"],["越冬水分管理","依据土壤墒情和作物状态安排水分管理，不宜机械套用日期。"],["防范降温","寒潮来临前做好幼苗、盆栽及不耐寒作物防护。"]]},
+"大雪":{intro:"大雪是冬季第三个节气，天气更加寒冷，降雪概率在部分地区增加，但雪量和是否降雪因地域而异。",date:"通常在公历 12 月 6 日或 7 日前后",order:"冬季 · 第 3 个节气",angle:"太阳黄经约 255°",sayings:[["大雪兆丰年，无雪要遭殃。","民间对冬季降雪与来年农事的经验表达，不能视为普遍适用的气象规律。"],["大雪纷纷是丰年。","表达对冬季降雪滋养农田、帮助越冬的传统期盼。"],["小雪腌菜，大雪腌肉。","反映部分地区冬季制作腌制食品的生活习俗。"]],customs:[["赏雪观景","在有降雪的地区，人们会赏雪、记录冬日景色。"],["腌制储备","部分地区继续制作腊味，为冬季储备食物。"],["冬季进补","各地有不同的冬季饮食习惯，应注意均衡饮食。"]],tips:[["雪后巡查","及时检查棚体承重、排水和设施安全，按当地规范处理积雪。"],["低温防护","加强幼苗、温室作物和管路的防冻保护。"],["通风控湿","晴好天气适度通风，降低设施内湿度和病害风险。"]]},
+"冬至":{intro:"冬至是二十四节气中的第二十二个节气，太阳直射点到达南回归线附近，北半球白昼最短、黑夜最长。此后白昼逐渐变长。",date:"通常在公历 12 月 21 日或 22 日前后",order:"冬季 · 第 4 个节气",angle:"太阳黄经约 270°",sayings:[["冬至大如年。","体现冬至在传统节日文化中的重要地位。"],["冬至饺子夏至面。","北方不少地区以冬至吃饺子、夏至吃面作为时令饮食习俗。"],["冬至到，数九寒天开始。","民间常从冬至开始数九，用以记录寒冷时段。"]],customs:[["北方吃饺子","不少北方家庭会在冬至吃饺子。"],["南方吃汤圆","部分南方地区有冬至吃汤圆的习俗，寓意团圆。"],["数九","从冬至起按传统方法数九，记录冬季寒冷时节。"]],tips:[["温室巡检","检查保温、加温和通风设备，避免温度剧烈波动。"],["灌溉择时","结合土壤温度、墒情和作物需水量安排灌溉。"],["防冻检查","检查水管、滴灌管路和设备，做好低温防护。"]]},
+"小寒":{intro:"小寒是冬季第五个节气，标志着天气进入一年中较为寒冷的时段。不同地区寒冷程度和降雪情况差异较大。",date:"通常在公历 1 月 5 日或 6 日前后",order:"冬季 · 第 5 个节气",angle:"太阳黄经约 285°",sayings:[["小寒大寒，冷成冰团。","形容小寒、大寒时节的寒冷感受，具体冷暖仍以当地天气为准。"],["小寒胜大寒，常见不稀罕。","一些地区流传的天气经验说法，不代表每年都如此。"],["小寒不寒，清明泥潭。","民间对季节天气变化的经验表达，不宜作为天气预测。"]],customs:[["腊八前后","部分年份小寒与腊八节相近，民间会准备腊八粥等食物。"],["探梅迎春","一些地区有赏梅、踏雪等冬日活动。"],["整理年货","民间开始为春节做准备。"]],tips:[["重点防寒","对幼苗和不耐寒作物做好保温，留意寒潮预警。"],["设备防冻","检查灌溉管路、阀门和水泵周边环境，避免冻损。"],["控制水分","低温时根据作物需水量谨慎补水，避免土壤过湿。"]]}
+};
+function renderSeason(name){
+ const d=seasonData[name];if(!d)return;
+ document.getElementById('seasonName').textContent=name;
+ document.getElementById('seasonHero').dataset.season=name;
+ document.getElementById('seasonIntro').textContent=d.intro;
+ document.getElementById('seasonDate').textContent=d.date;
+ document.getElementById('seasonSeason').textContent=d.order;
+ document.querySelector('.season-meta span:last-child b').textContent=d.angle;
+ for(let i=0;i<3;i++){document.getElementById(['proverbOne','proverbTwo','proverbThree'][i]).textContent=d.sayings[i][0];document.getElementById(['proverbNoteOne','proverbNoteTwo','proverbNoteThree'][i]).textContent=d.sayings[i][1];}
+ document.getElementById('customList').innerHTML=d.customs.map((x,i)=>`<div class="info-item"><div class="info-icon">0${i+1}</div><div><strong>${x[0]}</strong><p>${x[1]}</p></div></div>`).join('');
+ document.getElementById('farmingTips').innerHTML=d.tips.map(x=>`<div class="farming-tip"><b>${x[0]}</b><p>${x[1]}</p></div>`).join('');
+ document.querySelectorAll('.term-chip').forEach(el=>el.classList.toggle('active',el.childNodes[0].textContent===name));
+}
+document.getElementById('seasonSelect').addEventListener('change',e=>renderSeason(e.target.value));
+document.querySelectorAll('.term-chip').forEach(el=>el.addEventListener('click',()=>{const name=el.childNodes[0].textContent.trim();if(seasonData[name]){document.getElementById('seasonSelect').value=name;renderSeason(name)}else{notify('该节气的详细内容将在后续版本补充')}}));
+
+const now=new Date();document.getElementById('dateLabel').textContent=now.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'short'});
+</script>
+</body>
+</html>
