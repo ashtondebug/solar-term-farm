@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-08（M2 真机 bring-up，BH1750 待查）
+> 最后更新：2026-11-08（M2 真机 A1–A4 验收完成）
 
 ## 当前状态
 
@@ -118,12 +118,20 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - 截图：`artifacts/overview-score-fixed.png`（本地）。
 - 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
 - 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。
-- 尚未测试：长期泵运行、最长运行保护、RGB LED、屏幕。
+- 尚未测试：RGB LED、屏幕、程序卡死/看门狗、Wi-Fi 断网。
 - 结论：SHT31、BH1750、土壤 ADC、GPIO5 默认关闭正常；固件已上板并能启动 Web 服务。
+
+### A1–A4 真机验收结果（2026-11-08）
+
+- **A1 基线**：`192.168.0.100`，RSSI −34～−38；uptime 996s；土壤 raw 17,300 / 96.1%；SHT31 19.13 °C / 58.99%；BH1750 4.17 lx；泵停止、auto/idle；历史 29 点；采样 30s / 历史 300s。
+- **A2 标定**：干端 raw 50,764–50,780（稳定）；湿端（水）15,907–15,923（稳定）；差值 34,873；用户确认后覆盖为 **50,780 / 15,907**。正常土壤复验 raw 39,641 → **31.9%**，适宜度 **82 / good**。
+- **A3 Web + soak**：Web `start` → `pump=true`，1 秒后 `stop` → `pump=false`；用户确认泵实际转动。300 次 `/state` 轮询 **300 成功 / 0 失败**，平均 317ms、最大 1,616ms，raw 16,307–17,540。
+- **A4 安全**：复位后 `pump=false`/`idle`，标定保留；1 秒启停后立刻再启动返回 **409 MIN_OFF**；20 秒最长运行约 20 秒自动停；运行中拔 USB，泵**立即停止**、继电器释放，重新上电后 `pump=false`/`idle`，标定保留。
+- **未测**：Wi-Fi 断网测试（用户要求跳过）；程序卡死/看门狗复位；RGB LED；串口屏。
 
 ## 已知问题 / 未验证
 
-1. **真机部分验证**：SHT31、BH1750、土壤 ADC、GPIO5 默认低、继电器/泵短脉冲已实测；长期泵运行、最长运行保护、RGB LED 仍未验证。
+1. **真机已验收 A1–A4**：传感器、标定、Web 控制、10 分钟 soak、复位/最小间隔/20 秒最长运行/USB 拔电均已实测；Wi-Fi 断网、程序卡死/看门狗、RGB LED、屏幕仍未验证。
 2. **PIN 默认关闭**：`security.require_pin=false`；API/UI 的 401 流程已实现，等屏幕能展示 PIN 后启用。
 3. **串口屏工程缺失**：仅完成资料阅读与页面规格；`.HMI` 需 USART HMI 上位机创建。
 4. **18 个节气长文案缺失**：UI 明确显示「暂无收录」，不伪造。
@@ -131,16 +139,17 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 6. **MCP 未实现**：`docs/` 与 API 已为 MCP Server 预留稳定接口。
 7. **`deploy.py` 已在 COM10 上执行成功**（37 个文件）；`mpremote` 已安装；Wi-Fi 已连接 `192.168.0.100`，Web 可访问。
 8. **`/api/v1/health` 的 `uptime_s` 每 30 秒采样更新**：短时间内读到 0 属正常；页面不依赖该字段。
-8. **主目录 UI 与构建产物**：`ESP/web/static/*` 由 `tools/build_web.py` 生成，`.gitignore` 忽略；根目录 HTML 是唯一视觉源。
-9. **截图依赖 Edge headless**：`artifacts/` 不入库，仅用于本地验收。
+9. **主目录 UI 与构建产物**：`ESP/web/static/*` 由 `tools/build_web.py` 生成，`.gitignore` 忽略；根目录 HTML 是唯一视觉源。
+10. **截图依赖 Edge headless**：`artifacts/` 不入库，仅用于本地验收。
 
 ## 下一步（按优先级）
 
 - [x] **M2 硬件识别**：COM10 / MicroPython 1.29.0 / SHT31 / BH1750 / GPIO5 默认低。
 - [x] **M2 固件部署**：`deploy.py` 上传 37 个文件，硬复位后 Web 服务正常启动。
+- [x] **M2 真机验收 A1–A4**：基线、两点标定、Web start/stop、300 次 soak、复位/最小间隔/20 秒最长运行/USB 运行中拔电。
 - [ ] **M2 真机 bring-up**：核对开发板原理图、RGB LED、GPIO5 下拉、继电器/泵额定；接入 SHT31/BH1750/HW-390；记录实测值。
 - [x] **M2 接线图初稿**：`docs/WIRING_DIAGRAM.svg`（待实物核对）。
-- [ ] **M2 安全实测**：上电/复位/拔 USB/程序卡死四种场景泵必须停；最长运行、故障锁存、看门狗。
+- [ ] **M2 剩余安全项**：程序卡死/看门狗、Wi-Fi 断网（本次按要求跳过）；其余场景已通过。
 - [x] **M3A 配网服务**：扫描/连接/验证/5 次失败转配网/密码不入状态；主机测试通过。
 - [ ] **M3B 屏幕配网**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；PIN 展示与启用。
 - [ ] **M4 内容**：补齐 18 个节气长文案；植物档案与阶段；适宜度权重可配置。

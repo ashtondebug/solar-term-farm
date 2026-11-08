@@ -1,6 +1,6 @@
 # 测试记录
 
-日期：2026-11-07
+日期：2026-11-07；真机验收：2026-11-08
 环境：Windows 11（NT 10.0.26300），Python 3.13.14，Edge headless（截图）
 
 ## 1. 静态检查
@@ -73,12 +73,62 @@ GET /api/v1/history?range=7d
 - 节气页当前为立冬，太阳黄经 225°，24 节气下拉可选。
 - 设置页参数为设备返回值，保存按钮存在。
 
-## 5. 未验证
+## 5. 真机验收（2026-11-08）
 
-- 真实 ESP32-S3 上的启动、传感器、I²C、ADC、继电器、水泵、Wi-Fi、看门狗。
+设备：ESP32-S3 N16R8，COM10，MicroPython 1.29.0，IP `192.168.0.100`，Wi-Fi RSSI −34～−38 dBm。
+
+### A1 只读基线
+
+```text
+device: model=ESP32-S3 N16R8, firmware=MicroPython, uptime=996s, time_synced=true
+network: connected, ip=192.168.0.100, rssi=-34..-38
+soil: raw=17300, value=96.1 %, valid=true
+air: 19.13 C / 58.99 % RH; light=4.17 lx
+irrigation: pump=false, mode=auto, state=idle
+suitability: 45/poor (soil=13, temp=100, humidity=100, light=64)
+history: 29 points (12h); sampling 30s, history 300s
+```
+
+### A2 土壤两点标定
+
+```text
+dry raw: 50764..50780 (stable, air/dry)
+wet raw: 15907..15923 (stable, water)
+span: 34873 (>= 500)
+saved: soil_dry=50780, soil_wet=15907
+normal soil check: raw=39641 -> 31.9 %, suitability 82/good
+```
+
+### A3 Web 控制与 10 分钟 soak
+
+```text
+POST start -> ok, pump=true, state=manual, remaining=20
+1s later POST stop -> ok, pump=false, state=cooldown
+user confirmed pump physically ran
+soak: 300 requests, 300 ok, 0 failures
+latency: avg 317 ms, max 1616 ms
+raw range: 16307..17540
+```
+
+### A4 安全验收
+
+```text
+reset -> pump=false, idle, calibration persisted
+start/stop then immediate start -> HTTP 409 MIN_OFF (min_off_s=5)
+20s max run -> auto stop at ~20s, pump=false
+USB unplug while pump running -> pump stopped immediately, relay released
+replug -> pump=false, idle, uptime=30s, calibration persisted, IP restored
+Wi-Fi disconnect -> not tested (user request)
+```
+
+## 6. 未验证
+
 - 串口屏 UART 通信与 `.HMI` 工程。
-- 设备 PIN 流程的真实交互（模拟器默认关闭 PIN）。
-- 长时间运行、Flash 磨损、掉电恢复。
-- `tools/deploy.py` 在真实板端的上传/重置。
+- 设备 PIN 流程的真实交互（模拟器/PIN 默认关闭）。
+- Wi-Fi 断网后的自动重连（本次按要求跳过）。
+- 程序卡死/看门狗复位。
+- RGB LED。
+- 超过 10 分钟的长期运行、Flash 磨损。
+- 18 个节气的完整农事文案。
 
 以上项在对应硬件/工程完成后补测，未测项不得写成「已通过」。
