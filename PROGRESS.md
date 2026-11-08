@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-08（M2 A1–A4 验收；M4 24 节气 tips/谚语/习俗完成）
+> 最后更新：2026-11-08（M2 A1–A4；M4 24 节气内容；环境趋势四序列；内存拆分）
 
 ## 当前状态
 
@@ -115,7 +115,8 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - **图表更新逻辑**：图例不再仅凭历史点数显示“未标定”，改为按当前 `calibration` 显示“等待采样”；图表追加当前实时读数，土壤线/右轴能随当前值更新。
 - **HTTP 异常兼容**：`HttpError` / `ApiError` 不再调用 MicroPython 缺失的 `Exception.__init__`，修复 404/校验异常时的 `connection failed`。
 - **离线恢复**：Wi-Fi 显示 connected、RSSI −35，但 ARP/HTTP 全无响应；复位恢复。根因是浏览器并发连接耗尽 lwIP 套接字。Web 服务增加 `MAX_CLIENTS=6`、静态发送 10 秒超时、`wait_closed` 1 秒超时；30 个并发 API + 12 个混合静态/API 压测后 health=200、ping 正常。
-- **M4 内存修复**：完整节气数据约 37 KB，启动时 `network.WLAN` 报 `WiFi Out of Memory`。把 WLAN 创建提前到重模块 import 之前；`solar-terms.json` 由 `tools/build_web.py` 预生成（约 31 KB），设备端静态流式返回，避免 `/solar-terms` 在板端构造大 JSON。
+- **M4 内存拆分**：`data.py` 核心元数据约 6.7 KB；谚语/习俗/农事全文放在仅构建时使用的 `culture.py`（约 28 KB）；`solar-terms.json`（约 31 KB）由构建生成并静态返回。设备空闲堆从约 40 KB 提升到约 83 KB，HTML 页面加载后仍保持 health=200。
+- **环境趋势图**：温度左轴 °C、空气湿度/土壤湿度外右轴 %、光照内右轴 lx；四序列图例和轴标题已显示，并追加当前实时点。
 - 截图：`artifacts/overview-score-fixed.png`（本地）。
 - 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
 - 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。

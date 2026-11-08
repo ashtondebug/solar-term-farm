@@ -111,9 +111,9 @@ def current_term(epoch):
         "angle": data["angle"],
         "date_hint": data["date_hint"],
         "intro": data["intro"],
-        "proverbs": data["proverbs"],
-        "customs": data["customs"],
-        "tips": data["tips"],
+        "proverbs": data.get("proverbs", []),
+        "customs": data.get("customs", []),
+        "tips": data.get("tips", []),
         "available": data["available"],
         "longitude": round(solar_apparent_longitude(epoch), 4),
         "start_ts": start,
@@ -136,9 +136,15 @@ def term_payload(name, epoch):
 
 def all_payloads(epoch):
     current_name = current_term(epoch)["name"]
+    try:
+        from solar_terms.culture import CULTURE
+    except ImportError:
+        CULTURE = {}
     for index, data in enumerate(TERMS):
         # Reuse the loaded term dictionaries instead of copying every
         # proverb/custom/tip; the full 24-term payload is memory-sensitive.
+        content = CULTURE.get(data["name"], {})
+        data.update(content)
         data["index"] = index
         data["is_current"] = data["name"] == current_name
     return TERMS

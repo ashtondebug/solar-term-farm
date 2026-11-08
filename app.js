@@ -648,16 +648,27 @@
       }
     }
     const soilPoints = points.filter((point) => typeof point.soil === "number");
+    const humidityPoints = points.filter((point) => typeof point.humidity === "number");
+    const lightPoints = points.filter((point) => typeof point.light === "number");
     const hasSoil = soilPoints.length >= 2;
+    const hasHumidity = humidityPoints.length >= 2;
+    const hasLight = lightPoints.length >= 2;
     const calibration = state.data && state.data.config ? state.data.config.calibration || {} : {};
     const calibrated = calibration.soil_dry !== null && calibration.soil_dry !== undefined
       && calibration.soil_wet !== null && calibration.soil_wet !== undefined;
     const soilLegend = hasSoil
-      ? "土壤湿度（右轴）"
+      ? "土壤湿度（右轴 %）"
       : calibrated ? "土壤湿度（等待采样）" : "土壤湿度未标定";
+    const humidityLegend = hasHumidity ? "空气湿度（右轴 %）" : "空气湿度（等待采样）";
+    const lightLegend = hasLight ? "光照（内右轴 lx）" : "光照（等待采样）";
     const legend = $(".chart-card .legend");
     if (legend) {
-      legend.innerHTML = `<span><i></i>空气温度（左轴）</span><span><i></i>${soilLegend}</span>`;
+      legend.innerHTML = [
+        `<span><i style="background:#438967"></i>空气温度（左轴 °C）</span>`,
+        `<span><i style="background:#4e8fb5"></i>${humidityLegend}</span>`,
+        `<span><i style="background:#d1a45a"></i>${soilLegend}</span>`,
+        `<span><i style="background:#c9a227"></i>${lightLegend}</span>`
+      ].join("");
     }
     if (points.length < 2) {
       wrap.textContent = "";
@@ -667,7 +678,7 @@
     const width = 650;
     const height = 210;
     const left = 40;
-    const right = 14;
+    const right = 72;
     const top = 25;
     const bottom = 45;
     const plotWidth = width - left - right;
@@ -683,16 +694,40 @@
     minTemp -= pad;
     maxTemp += pad;
 
+    const lightValues = lightPoints.map((point) => Number(point.light));
+    const maxLight = Math.max(1, Math.max.apply(null, lightValues.length ? lightValues : [1]) * 1.15);
+
     const x = (index) => left + (plotWidth * index) / (points.length - 1);
     const yTemp = (value) => top + plotHeight - ((value - minTemp) / (maxTemp - minTemp)) * plotHeight;
-    const ySoil = (value) => top + plotHeight - (Math.max(0, Math.min(100, value)) / 100) * plotHeight;
+    const yPercent = (value) => top + plotHeight - (Math.max(0, Math.min(100, value)) / 100) * plotHeight;
+    const yLight = (value) => top + plotHeight - (Math.max(0, Math.min(maxLight, value)) / maxLight) * plotHeight;
 
     const tempPath = points.map((point, index) => `${index ? "L" : "M"}${x(index).toFixed(1)} ${yTemp(Number(point.temp)).toFixed(1)}`).join(" ");
+    let humidityPath = "";
+    let humidityStarted = false;
+    points.forEach((point, index) => {
+      if (typeof point.humidity === "number") {
+        humidityPath += `${humidityStarted ? "L" : "M"}${x(index).toFixed(1)} ${yPercent(Number(point.humidity)).toFixed(1)} `;
+        humidityStarted = true;
+      } else {
+        humidityStarted = false;
+      }
+    });
+    let lightPath = "";
+    let lightStarted = false;
+    points.forEach((point, index) => {
+      if (typeof point.light === "number") {
+        lightPath += `${lightStarted ? "L" : "M"}${x(index).toFixed(1)} ${yLight(Number(point.light)).toFixed(1)} `;
+        lightStarted = true;
+      } else {
+        lightStarted = false;
+      }
+    });
     let soilPath = "";
     let soilStarted = false;
     points.forEach((point, index) => {
       if (typeof point.soil === "number") {
-        soilPath += `${soilStarted ? "L" : "M"}${x(index).toFixed(1)} ${ySoil(Number(point.soil)).toFixed(1)} `;
+        soilPath += `${soilStarted ? "L" : "M"}${x(index).toFixed(1)} ${yPercent(Number(point.soil)).toFixed(1)} `;
         soilStarted = true;
       } else {
         soilStarted = false;
@@ -701,28 +736,42 @@
     const areaPath = `${tempPath} L${x(points.length - 1).toFixed(1)} ${(top + plotHeight).toFixed(1)} L${left} ${(top + plotHeight).toFixed(1)} Z`;
 
     const grid = [0, 1 / 3, 2 / 3, 1].map((ratio) => top + plotHeight * ratio);
-    const gridMarkup = grid.map((y) => `<path d="M${left} ${y.toFixed(1)}H${width - right}" stroke="#edf1ed" stroke-width="1"/>`).join("");
+    const plotRight = width - right;
+    const gridMarkup = grid.map((y) => `<path d="M${left} ${y.toFixed(1)}H${plotRight}" stroke="#edf1ed" stroke-width="1"/>`).join("");
     const tempLabels = [0, 0.5, 1].map((ratio) => {
       const value = maxTemp - (maxTemp - minTemp) * ratio;
       const y = top + plotHeight * ratio;
       return `<text x="5" y="${(y + 4).toFixed(1)}" fill="#9aa89f" font-size="10">${value.toFixed(1)}°</text>`;
     }).join("");
-    const soilLabels = hasSoil ? [0, 0.5, 1].map((ratio) => {
+    const percentLabels = [0, 0.5, 1].map((ratio) => {
       const value = 100 - 100 * ratio;
       const y = top + plotHeight * ratio;
       return `<text x="${width - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${value}%</text>`;
-    }).join("") : `<text x="${width - 8}" y="${(top + plotHeight / 2).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${calibrated ? "等待采样" : "未标定"}</text>`;
+    }).join("");
+    const lightLabels = [0, 0.5, 1].map((ratio) => {
+      const value = maxLight - maxLight * ratio;
+      const y = top + plotHeight * ratio;
+      const text = value >= 100 ? String(Math.round(value)) : value.toFixed(1);
+      return `<text x="${width - 60}" y="${(y + 4).toFixed(1)}" fill="#c9a227" font-size="9">${text}</text>`;
+    }).join("");
+    const soilAxisNote = hasSoil
+      ? ""
+      : `<text x="${width - 8}" y="${(top + plotHeight / 2).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${calibrated ? "等待采样" : "未标定"}</text>`;
+    const lightAxisCaption = `<text x="${width - 60}" y="12" fill="#c9a227" font-size="9">lx</text>`;
+    const percentAxisCaption = `<text x="${width - 8}" y="12" text-anchor="end" fill="#b39a6d" font-size="9">%</text>`;
     const xLabels = [0, 1, 2, 3].map((index) => {
       const pointIndex = Math.min(points.length - 1, Math.round(((points.length - 1) * index) / 3));
       const label = new Date(Number(points[pointIndex].ts) * 1000).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
       return `<text x="${x(pointIndex).toFixed(1)}" y="${height - 20}" text-anchor="middle" fill="#9aa89f" font-size="10">${label}</text>`;
     }).join("");
 
-    const svg = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="空气温度与土壤湿度历史曲线">
+    const svg = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="空气温度、空气湿度、土壤湿度与光照历史曲线">
       <defs><linearGradient id="agriArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5c9b78" stop-opacity=".2"/><stop offset="1" stop-color="#5c9b78" stop-opacity="0"/></linearGradient></defs>
-      ${gridMarkup}${tempLabels}${soilLabels}${xLabels}
+      ${gridMarkup}${tempLabels}${percentLabels}${lightLabels}${lightAxisCaption}${percentAxisCaption}${soilAxisNote}${xLabels}
       <path d="${areaPath}" fill="url(#agriArea)"/>
+      ${hasLight ? `<path d="${lightPath}" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 3"/>` : ""}
       ${hasSoil ? `<path d="${soilPath}" fill="none" stroke="#d1a45a" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/>` : ""}
+      ${hasHumidity ? `<path d="${humidityPath}" fill="none" stroke="#4e8fb5" stroke-width="2" stroke-linecap="round"/>` : ""}
       <path d="${tempPath}" fill="none" stroke="#438967" stroke-width="2.7" stroke-linecap="round"/>
     </svg>`;
     wrap.innerHTML = svg;

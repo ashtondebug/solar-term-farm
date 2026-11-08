@@ -51,14 +51,17 @@ class SolarTermTests(unittest.TestCase):
 
     def test_all_terms_have_farming_tips(self):
         from solar_terms.data import TERMS
+        from solar_terms.culture import CULTURE
 
         self.assertEqual(len(TERMS), 24)
+        self.assertEqual(len(CULTURE), 24)
         for term in TERMS:
+            content = CULTURE[term["name"]]
             self.assertTrue(term["available"], term["name"])
-            self.assertGreaterEqual(len(term["tips"]), 3, term["name"])
-            self.assertGreaterEqual(len(term["proverbs"]), 3, term["name"])
-            self.assertGreaterEqual(len(term["customs"]), 3, term["name"])
-            for title, detail in term["tips"]:
+            self.assertGreaterEqual(len(content["tips"]), 3, term["name"])
+            self.assertGreaterEqual(len(content["proverbs"]), 3, term["name"])
+            self.assertGreaterEqual(len(content["customs"]), 3, term["name"])
+            for title, detail in content["tips"]:
                 self.assertTrue(title)
                 self.assertTrue(detail)
 

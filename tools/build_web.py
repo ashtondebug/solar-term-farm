@@ -19,10 +19,12 @@ sys.path.insert(0, str(ROOT / "ESP"))
 
 def build_solar_terms():
     from solar_terms.data import TERMS
+    from solar_terms.culture import CULTURE
 
     terms = []
     for index, term in enumerate(TERMS):
         item = dict(term)
+        item.update(CULTURE.get(term["name"], {}))
         item["index"] = index
         terms.append(item)
     payload = {
