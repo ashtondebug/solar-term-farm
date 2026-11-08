@@ -24,7 +24,7 @@ from version import VERSION
 MAX_HEADER_BYTES = 8192
 MAX_BODY_BYTES = 32768
 REQUEST_TIMEOUT_S = 2
-MAX_CLIENTS = 8
+MAX_CLIENTS = 12
 
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
