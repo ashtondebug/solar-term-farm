@@ -86,6 +86,12 @@ class WebServer:
             if method == "OPTIONS":
                 await self._send(writer, 204, b"", "text/plain", {})
                 return
+            if method == "GET" and path == "/api/v1/solar-terms":
+                # The full 24-term payload is large for this device; serve the
+                # build-generated JSON directly instead of constructing it in
+                # RAM on every request.
+                await asyncio.wait_for(self._send_static(writer, "/solar-terms.json"), 10)
+                return
             if path.startswith("/api/"):
                 body = None
                 if raw_body:

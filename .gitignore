@@ -11,6 +11,7 @@ Thumbs.db
 ESP/web/static/index.html
 ESP/web/static/app.js
 ESP/web/static/app.css
+ESP/web/static/solar-terms.json
 
 # Local probes / editor scratch
 commit-msg.txt

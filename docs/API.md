@@ -69,7 +69,7 @@
 
 ### GET /api/v1/solar-terms
 
-返回 24 条元数据与当前节气。长文案未补齐的条目 `available=false`。
+返回 24 条元数据以及 `name/season/angle/date_hint/intro/proverbs/customs/tips/available/index`。设备端由构建生成的 `solar-terms.json` 直接返回，避免在板端构造大 JSON。
 
 ### GET /api/v1/config
 

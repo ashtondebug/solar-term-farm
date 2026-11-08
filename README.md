@@ -12,7 +12,7 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 - 主机模拟器：用真实 API/控制器/状态代码驱动浏览器页面，数据明确标注为模拟值。
 - Web 管理页：保留原有视觉基准，六个页面接入 `/api/v1/*`，支持离线提示、设备状态、灌溉控制、参数保存、PIN 输入、二十四节气切换、总览节气农事与土壤干湿两点标定。
 - Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；真机已连接，屏幕配网 UI 待接。
-- 主机测试：`57` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、时间纪元、Wi-Fi 配网状态机均有覆盖。
+- 主机测试：`58` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、24 节气农事内容、时间纪元、Wi-Fi 配网状态机均有覆盖。
 - 部署脚本：`tools/install.bat`、`tools/start.bat`、`tools/deploy.py`、`tools/build_web.py`。
 - 文档：架构、硬件、GPIO、API、部署、测试、串口屏资料阅读记录。
 
@@ -21,7 +21,7 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 - 已实测 SHT31、BH1750、土壤 ADC、GPIO5 默认低、继电器吸合与水泵短脉冲。
 - 触摸屏、RGB LED、长期泵运行与故障告警仍未验证。
 - 触摸屏 `.HMI` 工程（USART HMI 闭源格式，需在上位机中搭建）。
-- Wi-Fi 屏幕配网页面、完整 24 节气长文案、MCP Server。
+- Wi-Fi 屏幕配网页面、MCP Server。
 - 设备端 PIN 默认关闭（`security.require_pin=false`），M1 仅保留 API 与 UI 的 401 流程。
 
 ## 硬件
@@ -78,7 +78,7 @@ python -m unittest discover -s tests -v
 预期：
 
 ```text
-Ran 57 tests in ...
+Ran 58 tests in ...
 OK
 ```
 
@@ -152,7 +152,7 @@ python tools\provision_wifi.py --port COM10
 
 - 真机未接入时，所有传感器/灌溉结论只代表主机仿真，不代表硬件已验证。
 - 串口屏工程尚未创建；TJC 命令/变量协议只记录了已核实的页面与返回格式。
-- 18 个节气的长文案尚未补齐，UI 会显示「暂无收录」而不是编造内容。
+- 24 个节气的农事、谚语和习俗均已补齐；植物档案/阶段、适宜度权重仍待后续 M4。
 - 设备 PIN 默认关闭；启用前需要先完成屏幕或设置页的 PIN 展示流程。
 - 本项目不使用云服务器，不依赖互联网；MCP 扩展尚未实现，但 API 已为后续 MCP Server 提供稳定接口。
 

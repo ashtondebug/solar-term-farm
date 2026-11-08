@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-08（M2 真机 A1–A4 验收完成）
+> 最后更新：2026-11-08（M2 A1–A4 验收；M4 24 节气 tips/谚语/习俗完成）
 
 ## 当前状态
 
@@ -77,7 +77,7 @@
 
 ```text
 python -m compileall -q ESP tools tests    -> exit 0
-python -m unittest discover -s tests -v    -> Ran 57 tests ... OK
+python -m unittest discover -s tests -v    -> Ran 58 tests ... OK
 ```
 
 API 冒烟（模拟器 `127.0.0.1:8099`）：
@@ -115,6 +115,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - **图表更新逻辑**：图例不再仅凭历史点数显示“未标定”，改为按当前 `calibration` 显示“等待采样”；图表追加当前实时读数，土壤线/右轴能随当前值更新。
 - **HTTP 异常兼容**：`HttpError` / `ApiError` 不再调用 MicroPython 缺失的 `Exception.__init__`，修复 404/校验异常时的 `connection failed`。
 - **离线恢复**：Wi-Fi 显示 connected、RSSI −35，但 ARP/HTTP 全无响应；复位恢复。根因是浏览器并发连接耗尽 lwIP 套接字。Web 服务增加 `MAX_CLIENTS=6`、静态发送 10 秒超时、`wait_closed` 1 秒超时；30 个并发 API + 12 个混合静态/API 压测后 health=200、ping 正常。
+- **M4 内存修复**：完整节气数据约 37 KB，启动时 `network.WLAN` 报 `WiFi Out of Memory`。把 WLAN 创建提前到重模块 import 之前；`solar-terms.json` 由 `tools/build_web.py` 预生成（约 31 KB），设备端静态流式返回，避免 `/solar-terms` 在板端构造大 JSON。
 - 截图：`artifacts/overview-score-fixed.png`（本地）。
 - 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
 - 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。
@@ -134,7 +135,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 1. **真机已验收 A1–A4**：传感器、标定、Web 控制、10 分钟 soak、复位/最小间隔/20 秒最长运行/USB 拔电均已实测；Wi-Fi 断网、程序卡死/看门狗、RGB LED、屏幕仍未验证。
 2. **PIN 默认关闭**：`security.require_pin=false`；API/UI 的 401 流程已实现，等屏幕能展示 PIN 后启用。
 3. **串口屏工程缺失**：仅完成资料阅读与页面规格；`.HMI` 需 USART HMI 上位机创建。
-4. **18 个节气长文案缺失**：UI 明确显示「暂无收录」，不伪造。
+4. **M4 节气内容已补齐**：24/24 节气各有 3 条农事 tips、3 条谚语、3 条习俗；植物档案/阶段与适宜度权重仍待做。
 5. **Wi-Fi 屏幕配网 UI 未接**：设备端状态机已完成（M3A），屏幕页面仍待 M5；当前可用 `/data/wifi.json` 预置。
 6. **MCP 未实现**：`docs/` 与 API 已为 MCP Server 预留稳定接口。
 7. **`deploy.py` 已在 COM10 上执行成功**（37 个文件）；`mpremote` 已安装；Wi-Fi 已连接 `192.168.0.100`，Web 可访问。
@@ -152,10 +153,11 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - [ ] **M2 剩余安全项**：程序卡死/看门狗、Wi-Fi 断网（本次按要求跳过）；其余场景已通过。
 - [x] **M3A 配网服务**：扫描/连接/验证/5 次失败转配网/密码不入状态；主机测试通过。
 - [ ] **M3B 屏幕配网**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；PIN 展示与启用。
-- [ ] **M4 内容**：补齐 18 个节气长文案；植物档案与阶段；适宜度权重可配置。
+- [x] **M4 节气内容**：24/24 节气各 3 条详细农事 tips、3 条谚语、3 条习俗；58 项测试通过。
+- [ ] **M4 植物档案**：植物档案与阶段；适宜度权重可配置。
 - [ ] **M5 屏幕**：在 USART HMI 创建 5 页工程，按 `Touch_screen/docs/` 变量表对接 UART 协议。
 - [ ] **M6 MCP**：PC 端 stdio MCP Server，10 个工具，复用现有 REST + PIN；不成为核心依赖。
-- [ ] 提交前：跑 57 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
+- [ ] 提交前：跑 58 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
 
 ## 关键设计决策
 

@@ -17,11 +17,11 @@ exit 0
 
 ```text
 python -m unittest discover -s tests -v
-Ran 57 tests in 0.019s
+Ran 58 tests in 0.019s
 OK
 ```
 
-覆盖：配置、土壤校准、SHT31 CRC、适宜度、灌溉状态机、节气边界、API、HTTP 解析、真实 HTTP socket 往返、历史存储、时间纪元、Wi-Fi 配网状态机。
+覆盖：配置、土壤校准、SHT31 CRC、适宜度、灌溉状态机、节气边界、24 节气农事/谚语/习俗、API、HTTP 解析、真实 HTTP socket 往返、历史存储、时间纪元、Wi-Fi 配网状态机。
 
 ## 3. 模拟器 API 冒烟
 
@@ -129,6 +129,6 @@ Wi-Fi disconnect -> not tested (user request)
 - 程序卡死/看门狗复位。
 - RGB LED。
 - 超过 10 分钟的长期运行、Flash 磨损。
-- 18 个节气的完整农事文案。
+- 植物档案/阶段与适宜度权重。
 
 以上项在对应硬件/工程完成后补测，未测项不得写成「已通过」。

@@ -12,6 +12,11 @@ import time
 import machine
 import network
 
+# Reserve the Wi-Fi stack before importing the full application.  The 24-term
+# content is large; if Wi-Fi is created after those modules, MicroPython can
+# raise "WiFi Out of Memory" even though the Python heap still looks free.
+_WLAN = network.WLAN(network.STA_IF)
+
 try:
     import asyncio
 except ImportError:  # pragma: no cover
@@ -88,6 +93,18 @@ class Application:
             "pin_required": bool(self.config["security"].get("require_pin"))
         })
 
+        # The Wi-Fi stack was reserved at import time; reuse that object.
+        gc.collect()
+        wlan = _WLAN
+        self.network = NetworkManager(
+            wlan,
+            WifiStore(kv, self.logger),
+            self.state,
+            self.logger,
+            self.clock,
+        )
+        self.network.start()
+
         i2c = machine.SoftI2C(
             scl=machine.Pin(self.config["pins"]["i2c_scl"]),
             sda=machine.Pin(self.config["pins"]["i2c_sda"]),
@@ -135,16 +152,6 @@ class Application:
             self.logger,
             source="device",
         )
-
-        wlan = network.WLAN(network.STA_IF)
-        self.network = NetworkManager(
-            wlan,
-            WifiStore(kv, self.logger),
-            self.state,
-            self.logger,
-            self.clock,
-        )
-        self.network.start()
 
         self.web = WebServer(
             self.api,

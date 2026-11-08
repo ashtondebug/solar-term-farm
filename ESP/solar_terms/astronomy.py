@@ -136,10 +136,9 @@ def term_payload(name, epoch):
 
 def all_payloads(epoch):
     current_name = current_term(epoch)["name"]
-    result = []
     for index, data in enumerate(TERMS):
-        item = dict(data)
-        item["index"] = index
-        item["is_current"] = data["name"] == current_name
-        result.append(item)
-    return result
+        # Reuse the loaded term dictionaries instead of copying every
+        # proverb/custom/tip; the full 24-term payload is memory-sensitive.
+        data["index"] = index
+        data["is_current"] = data["name"] == current_name
+    return TERMS

@@ -6,6 +6,7 @@ the visual design.  This script copies it plus the app assets into
 ``ESP/web/static`` so the firmware serves exactly what was reviewed.
 """
 
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -13,6 +14,27 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 STATIC = ROOT / "ESP" / "web" / "static"
 FILES = ("agriverse_admin_dashboard.html", "app.js", "app.css")
+sys.path.insert(0, str(ROOT / "ESP"))
+
+
+def build_solar_terms():
+    from solar_terms.data import TERMS
+
+    terms = []
+    for index, term in enumerate(TERMS):
+        item = dict(term)
+        item["index"] = index
+        terms.append(item)
+    payload = {
+        "ok": True,
+        "data": {"current": None, "time_synced": True, "terms": terms},
+    }
+    target = STATIC / "solar-terms.json"
+    target.write_text(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    return target
 
 
 def main():
@@ -24,9 +46,10 @@ def main():
     shutil.copyfile(ROOT / FILES[0], STATIC / "index.html")
     shutil.copyfile(ROOT / "app.js", STATIC / "app.js")
     shutil.copyfile(ROOT / "app.css", STATIC / "app.css")
+    solar = build_solar_terms()
     print("built %s" % STATIC)
-    for name in ("index.html", "app.js", "app.css"):
-        print("  %-12s %6d bytes" % (name, (STATIC / name).stat().st_size))
+    for name in ("index.html", "app.js", "app.css", solar.name):
+        print("  %-18s %6d bytes" % (name, (STATIC / name).stat().st_size))
     return 0
 
 

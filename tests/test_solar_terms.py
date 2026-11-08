@@ -49,6 +49,19 @@ class SolarTermTests(unittest.TestCase):
         self.assertEqual(len(payload), 24)
         self.assertEqual(sum(1 for item in payload if item["is_current"]), 1)
 
+    def test_all_terms_have_farming_tips(self):
+        from solar_terms.data import TERMS
+
+        self.assertEqual(len(TERMS), 24)
+        for term in TERMS:
+            self.assertTrue(term["available"], term["name"])
+            self.assertGreaterEqual(len(term["tips"]), 3, term["name"])
+            self.assertGreaterEqual(len(term["proverbs"]), 3, term["name"])
+            self.assertGreaterEqual(len(term["customs"]), 3, term["name"])
+            for title, detail in term["tips"]:
+                self.assertTrue(title)
+                self.assertTrue(detail)
+
 
 if __name__ == "__main__":
     unittest.main()
