@@ -29,6 +29,39 @@
     strawberry: "草莓"
   };
 
+  const PLANT_STAGE_NAMES = {
+    seedling: "苗期",
+    growth: "生长期",
+    flowering: "开花结果期",
+    harvest: "成熟采收期"
+  };
+
+  const PLANT_METRICS = [
+    ["soil", "土壤"],
+    ["temp", "温度"],
+    ["humidity", "湿度"],
+    ["light", "光照"]
+  ];
+
+  const HABIT_LABELS = {
+    upright: "直立",
+    bush: "丛生/灌木",
+    vining: "蔓生",
+    climbing: "攀援",
+    rosette: "莲座"
+  };
+  const LIFE_LABELS = { annual: "一年生", biennial: "二年生", perennial: "多年生" };
+  const ROOT_LABELS = { taproot: "直根系", fibrous: "须根系", adventitious: "不定根" };
+  const PHOTOPERIOD_LABELS = { short_day: "短日照", long_day: "长日照", day_neutral: "日中性" };
+  const SENSITIVITY_LABELS = { low: "低", medium: "中", high: "高" };
+  const POLLINATION_LABELS = {
+    self: "自花授粉",
+    wind: "风媒",
+    insect: "虫媒",
+    self_or_insect: "自花/虫媒"
+  };
+  const SUPPORT_LABELS = { none: "不需要", stake: "支柱", trellis: "棚架", cage: "笼架" };
+
   const state = {
     data: null,
     online: false,
@@ -46,6 +79,7 @@
     calibrationDraft: null,
     currentView: "overview",
     settingsKey: null,
+    plantProfiles: null,
     pollTimer: null,
     modal: null,
     pinPromise: null
@@ -180,6 +214,7 @@
     } else if (name === "device") {
       renderDevice();
     } else if (name === "settings") {
+      fetchPlantProfiles();
       renderSettings(true);
     }
   }
@@ -250,7 +285,8 @@
 
   async function api(path, options = {}, retried = false) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3000);
+    const timeout = options.timeout || 3000;
+    const timer = setTimeout(() => controller.abort(), timeout);
     const headers = { "Content-Type": "application/json" };
     if (state.pin) headers["X-AgriVerse-Pin"] = state.pin;
     try {
@@ -355,6 +391,17 @@
     }
   }
 
+  async function fetchPlantProfiles(force = false) {
+    if (!force && state.plantProfiles) return;
+    try {
+      const data = await api("/plant-profiles");
+      state.plantProfiles = data.profiles || [];
+      if (state.currentView === "settings") renderSettings(true);
+    } catch (_error) {
+      /* built-in profile names remain available */
+    }
+  }
+
   // ----------------------------------------------------------------- render
   function renderAll() {
     renderOverview();
@@ -450,6 +497,112 @@
       } else {
         nextBox.appendChild(document.createTextNode("查看完整二十四节气农事 →"));
       }
+    }
+    renderPlantProfile();
+  }
+
+  function traitLabel(value, labels) {
+    if (value === undefined || value === null || value === "") return "";
+    return labels[value] || String(value);
+  }
+
+  function rangeText(value, unit) {
+    if (!Array.isArray(value) || value.length !== 2) return "";
+    return `${value[0]}–${value[1]}${unit || ""}`;
+  }
+
+  function renderPlantProfile() {
+    const suit = (state.data && state.data.suitability) || {};
+    const traits = suit.traits || {};
+    const stageInfo = suit.stage_info || {};
+    const profileName = suit.profile_name || "";
+    const stageName = suit.stage_name || "";
+    const line = $("#overviewPlantLine");
+    if (line) {
+      if (!profileName) {
+        line.textContent = "";
+      } else {
+        const bits = [`当前作物：${profileName} · ${stageName}`];
+        if (traits.plant_habit) bits.push(`株型：${traitLabel(traits.plant_habit, HABIT_LABELS)}`);
+        if (typeof traits.root_depth_cm === "number") bits.push(`根深约 ${traits.root_depth_cm} cm`);
+        if (traits.pollination) bits.push(`授粉：${traitLabel(traits.pollination, POLLINATION_LABELS)}`);
+        line.textContent = bits.join(" · ");
+      }
+    }
+
+    const panel = $("#plantProfilePanel");
+    if (!panel) return;
+    const sub = $("#plantProfileSub");
+    const grid = $("#plantTraits");
+    const note = $("#plantStageNote");
+    if (!grid) return;
+    if (!profileName) {
+      if (sub) sub.textContent = "等待作物档案";
+      grid.textContent = "";
+      if (note) note.textContent = "设备上报作物档案后显示。";
+      return;
+    }
+    if (sub) {
+      const review = traits.control_eligible === true ? "已审核" : "档案参考";
+      sub.textContent = `${profileName} · ${stageName} · ${review}`;
+    }
+    grid.textContent = "";
+    const add = (label, value) => {
+      if (value === undefined || value === null || value === "" || (Array.isArray(value) && !value.length)) return;
+      const box = make("div", "plant-trait");
+      box.appendChild(make("small", "", label));
+      box.appendChild(make("strong", "", Array.isArray(value) ? value.join("、") : String(value)));
+      grid.appendChild(box);
+    };
+    if (!Object.keys(traits).length) {
+      grid.appendChild(make("div", "agri-muted", "该档案未提供扩展特性。可在设置中导入包含 traits 的 JSON。"));
+    } else {
+      add("株型", traitLabel(traits.plant_habit, HABIT_LABELS));
+      add("生命周期", traitLabel(traits.lifecycle, LIFE_LABELS));
+      add("根系", traitLabel(traits.root_type, ROOT_LABELS));
+      add("根深", typeof traits.root_depth_cm === "number" ? `${traits.root_depth_cm} cm` : "");
+      add("株高", typeof traits.mature_height_cm === "number" ? `${traits.mature_height_cm} cm` : "");
+      add("株距", typeof traits.spacing_cm === "number" ? `${traits.spacing_cm} cm` : "");
+      add("支撑", traitLabel(traits.support, SUPPORT_LABELS));
+      add("修剪", traits.pruning);
+      add("授粉", traitLabel(traits.pollination, POLLINATION_LABELS));
+      add("光周期", `${traitLabel(traits.photoperiod_type, PHOTOPERIOD_LABELS)}${typeof traits.critical_daylength_h === "number" ? ` · 临界 ${traits.critical_daylength_h} h` : ""}`);
+      add("积温基点", typeof traits.gdd_base_c === "number" ? `${traits.gdd_base_c} °C` : "");
+      add("耐寒", typeof traits.frost_tolerance_c === "number" ? `${traits.frost_tolerance_c} °C` : "");
+      add("热害", typeof traits.heat_stress_c === "number" ? `${traits.heat_stress_c} °C` : "");
+      add("水分策略", traitLabel(traits.irrigation_strategy, { pulse: "少量多次", deep: "深灌" }));
+      add("最大干燥", typeof traits.max_dry_down_pct === "number" ? `${traits.max_dry_down_pct}%` : "");
+      add("耐旱", traitLabel(traits.drought_sensitivity, SENSITIVITY_LABELS));
+      add("耐涝", traitLabel(traits.waterlogging_sensitivity, SENSITIVITY_LABELS));
+      add("病害", traits.disease_risks);
+      add("虫害", traits.pest_risks);
+      add("土壤参考", traits.soil_ph_range ? `pH ${rangeText(traits.soil_ph_range)} · EC ${rangeText(traits.soil_ec_range) || "—"} · CO₂ ${rangeText(traits.co2_range) || "—"}` : "");
+      add("采收", traits.harvest_window);
+      add("来源", traits.source);
+      add("置信度", traitLabel(traits.confidence, SENSITIVITY_LABELS));
+    }
+
+    if (note) {
+      note.textContent = "";
+      const notes = [];
+      if (Array.isArray(stageInfo.advice)) notes.push(...stageInfo.advice);
+      if (typeof stageInfo.days_to_next_stage === "number") {
+        notes.push(`距下一阶段约 ${stageInfo.days_to_next_stage} 天（档案参考）。`);
+      }
+      if (typeof stageInfo.gdd_to_next_stage === "number") {
+        notes.push(`距下一阶段积温约 ${stageInfo.gdd_to_next_stage} °C·d（档案参考）。`);
+      }
+      const ranges = suit.ranges || {};
+      if (Array.isArray(ranges.air_temp_day) || Array.isArray(ranges.air_temp_night)) {
+        notes.push(`日温 ${rangeText(ranges.air_temp_day, " °C") || "未提供"} / 夜温 ${rangeText(ranges.air_temp_night, " °C") || "未提供"}。`);
+      }
+      if (Array.isArray(ranges.vpd_kpa)) {
+        notes.push(`VPD 目标 ${rangeText(ranges.vpd_kpa, " kPa")}（档案参考，不参与评分）。`);
+      }
+      if (Array.isArray(ranges.dli_mol_m2_day)) {
+        notes.push(`DLI 目标 ${rangeText(ranges.dli_mol_m2_day, " mol/m²·d")}（档案参考，不参与评分）。`);
+      }
+      note.textContent = notes.length ? notes.join(" ") : "当前阶段没有额外档案提示。";
     }
   }
 
@@ -797,6 +950,10 @@
     const status = $(".score-status");
     const circle = $(".score-ring circle:nth-child(2)");
     const topNote = $(".score-top span:last-child");
+    const sub = $(".score-card .card-sub");
+    if (sub && suit.profile_name) {
+      sub.textContent = `${suit.profile_name} · ${suit.stage_name || ""} · 当前环境评估`;
+    }
     if (topNote) topNote.textContent = score === null || score === undefined ? "数据不足" : "实时计算";
 
     if (score === null || score === undefined) {
@@ -992,6 +1149,7 @@
       const label = chip.childNodes[0] ? chip.childNodes[0].textContent.trim() : "";
       chip.classList.toggle("active", label === term.name);
     });
+    renderPlantProfile();
   }
 
   // ------------------------------------------------------------------ device
@@ -1187,14 +1345,51 @@
     form.appendChild(labeled("自动灌溉最小间隔（分钟）", interval));
 
     const profile = make("select", "agri-input");
-    Object.keys(PLANT_NAMES).forEach((value) => {
+    const profileOptions = state.plantProfiles && state.plantProfiles.length
+      ? state.plantProfiles
+      : Object.keys(PLANT_NAMES).map((key) => ({ key, name: PLANT_NAMES[key] }));
+    profileOptions.forEach((item) => {
       const option = document.createElement("option");
-      option.value = value;
-      option.textContent = PLANT_NAMES[value];
+      option.value = item.key;
+      option.textContent = item.name;
       profile.appendChild(option);
     });
+    if (!profileOptions.some((item) => item.key === plant.profile)) {
+      const option = document.createElement("option");
+      option.value = plant.profile || "general";
+      option.textContent = plant.profile || "general";
+      profile.appendChild(option);
+    }
     profile.value = plant.profile || "general";
-    form.appendChild(labeled("植物配置", profile));
+    form.appendChild(labeled("植物档案", profile));
+
+    const stage = make("select", "agri-input");
+    Object.keys(PLANT_STAGE_NAMES).forEach((value) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = PLANT_STAGE_NAMES[value];
+      stage.appendChild(option);
+    });
+    stage.value = plant.stage || "growth";
+    form.appendChild(labeled("生长阶段", stage));
+
+    const weightGrid = make("div");
+    weightGrid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:12px";
+    const weightInputs = {};
+    const configuredWeights = plant.weights && typeof plant.weights === "object" ? plant.weights : {};
+    PLANT_METRICS.forEach(([key, label]) => {
+      const input = make("input", "agri-input");
+      input.type = "number";
+      input.min = "0";
+      input.max = "1";
+      input.step = "0.01";
+      input.placeholder = "默认";
+      if (typeof configuredWeights[key] === "number") input.value = String(configuredWeights[key]);
+      weightInputs[key] = input;
+      weightGrid.appendChild(labeled(`${label}权重（0–1）`, input));
+    });
+    form.appendChild(weightGrid);
+    form.appendChild(make("p", "agri-muted", "四项权重全部留空时使用档案/阶段默认权重；填写时必须四项都填。"));
 
     const note = make("p", "agri-muted", "参数由设备端校验并保存；网页不会提前显示未执行的配置。");
     form.appendChild(note);
@@ -1211,6 +1406,19 @@
       }
       submit.disabled = true;
       try {
+        const customWeights = {};
+        let weightCount = 0;
+        PLANT_METRICS.forEach(([key]) => {
+          const raw = weightInputs[key].value.trim();
+          if (raw !== "") {
+            customWeights[key] = Number(raw);
+            weightCount += 1;
+          }
+        });
+        if (weightCount > 0 && weightCount < 4) {
+          notify("权重需要四项全部填写，或全部留空");
+          return;
+        }
         await api("/config", {
           method: "PUT",
           body: {
@@ -1220,7 +1428,11 @@
               max_run_s: Number(maxRun.value),
               min_interval_s: Math.round(Number(interval.value) * 60)
             },
-            plant: { profile: profile.value }
+            plant: {
+              profile: profile.value,
+              stage: stage.value,
+              weights: weightCount === 4 ? customWeights : null
+            }
           }
         });
         state.settingsKey = null;
@@ -1380,6 +1592,38 @@
     if (saveCal) saveCal.addEventListener("click", saveCalibration);
     const clearCal = $("#clearCalibration");
     if (clearCal) clearCal.addEventListener("click", clearCalibration);
+
+    const plantFile = $("#plantFile");
+    const importPlants = $("#importPlants");
+    const plantStatus = $("#plantImportStatus");
+    if (importPlants) {
+      importPlants.addEventListener("click", async () => {
+        if (!plantFile || !plantFile.files || !plantFile.files.length) {
+          if (plantStatus) plantStatus.textContent = "请先选择一个 JSON 文件。";
+          return;
+        }
+        importPlants.disabled = true;
+        if (plantStatus) plantStatus.textContent = "正在读取并导入…";
+        try {
+          const text = await plantFile.files[0].text();
+          const payload = JSON.parse(text);
+          const result = await api("/plant-profiles/import", { method: "POST", body: payload, timeout: 15000 });
+          state.plantProfiles = result.profiles || [];
+          if (plantStatus) {
+            plantStatus.textContent = `已导入：${(result.imported || []).join("、") || "（无）"}`;
+          }
+          plantFile.value = "";
+          notify("植物档案已导入设备");
+          await fetchState();
+          renderSettings(true);
+        } catch (error) {
+          if (plantStatus) plantStatus.textContent = `导入失败：${error.message || "文件无效"}`;
+          notify("植物档案导入失败");
+        } finally {
+          importPlants.disabled = false;
+        }
+      });
+    }
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         clearTimeout(state.pollTimer);
@@ -1505,6 +1749,7 @@
     clearDemoValues();
     bind();
     fetchTerms();
+    fetchPlantProfiles();
     fetchState();
     fetchHistory();
     applyHash();

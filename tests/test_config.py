@@ -39,6 +39,18 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(merged["a"]["b"], 9)
         self.assertEqual(merged["a"]["c"], 2)
 
+    def test_plant_stage_and_weights(self):
+        config = default_config()
+        config["plant"].update(
+            {"profile": "tomato", "stage": "flowering", "weights": {"soil": 0.5, "temp": 0.2, "humidity": 0.2, "light": 0.1}}
+        )
+        self.assertEqual(validate_config(config), [])
+        config["plant"]["stage"] = "unknown"
+        self.assertTrue(any("plant.stage" in item for item in validate_config(config)))
+        config["plant"].update({"stage": "growth", "weights": {"soil": 0.5}})
+        errors = validate_config(config)
+        self.assertTrue(any("plant.weights.temp" in item for item in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

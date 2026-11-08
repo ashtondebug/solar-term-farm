@@ -71,6 +71,29 @@
 
 返回 24 条元数据以及 `name/season/angle/date_hint/intro/proverbs/customs/tips/available/index`。设备端由构建生成的 `solar-terms.json` 直接返回，避免在板端构造大 JSON。
 
+### GET /api/v1/plant-profiles
+
+返回内置与导入档案的 `key`、`name`、`builtin`、`stages`，以及阶段列表。
+
+### POST /api/v1/plant-profiles/import
+
+导入一个或一组植物档案。请求体格式见 `docs/plant-profiles.example.json`：
+
+```json
+{"version":1,"plants":[{"key":"my-tomato","name":"我的番茄","stages":{
+  "seedling":{"ranges":{
+    "soil_moisture":[55,70],"air_temp":[18,24],"air_humidity":[60,80],
+    "light":[8000,20000],"soil_temp":[16,22]},
+   "weights":{"soil_moisture":0.35,"air_temp":0.3,"air_humidity":0.15,"light":0.2}
+  }}}]}
+```
+
+- 档案保存在设备 `/data/plants.json`，重启后自动加载；同名导入档案覆盖旧版本。
+- 内置 key（`general/lettuce/tomato/strawberry`）不可覆盖。
+- 每个阶段至少需要 `soil_moisture`、`air_temp`、`air_humidity`、`light` 四项范围；`weights` 可省略，省略时四项等权。
+- `soil_temp` 会保存为档案元数据，但当前硬件没有土壤温度传感器，不参与评分。
+- 可选 `traits` 保存整株特性（株型、根系、根深、授粉、病害、光周期、水分策略等），用于“农事建议”展示；其中 `reviewed/control_eligible` 默认 false。
+
 ### GET /api/v1/config
 
 返回公开配置；不包含 PIN、Wi-Fi 密码。
@@ -81,9 +104,13 @@
 
 ```json
 {"irrigation":{"mode":"manual","soil_threshold":35,"max_run_s":20,"min_interval_s":1800},
- "plant":{"profile":"general"},
+ "plant":{"profile":"tomato","stage":"flowering",
+          "weights":{"soil":0.4,"temp":0.3,"humidity":0.1,"light":0.2}},
  "calibration":{"soil_dry":18000,"soil_wet":9000}}
 ```
+
+- `plant.profile`：`general` / `lettuce` / `tomato` / `strawberry`；`plant.stage`：`seedling` / `growth` / `flowering` / `harvest`。
+- `plant.weights` 可省略或为 `null`，使用档案/阶段默认权重；填写时四项必须是 0–1 且总和大于 0。
 
 - `calibration.soil_dry` / `soil_wet` 是 ADC 原始计数（0–65535），必须同时设置或同时为 `null`；差值至少 500。
 - 标定保存后，下一轮传感器采样生效；`GET /api/v1/state` 的 `sensors.soil.raw` 可用于“读取当前值”。

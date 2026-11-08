@@ -359,3 +359,14 @@ body.agri-offline .score-number {
     font-size: 24px;
   }
 }
+
+/* Plant profile traits shown with the farming advice. */
+.solar-plant-line{margin-top:10px;padding-top:10px;border-top:1px solid #edf1ed;font-size:11px;color:#7c897f;line-height:1.6}
+.solar-plant-line b{color:#3c4a40;font-weight:600}
+.plant-traits-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.plant-trait{background:#f7f9f6;border:1px solid #edf1ed;border-radius:8px;padding:9px 10px;min-width:0}
+.plant-trait small{display:block;font-size:10px;color:#9aa89f;margin-bottom:3px}
+.plant-trait strong{display:block;font-size:12px;color:#3c4a40;font-weight:600;line-height:1.5;word-break:break-word}
+.plant-stage-note{margin-top:10px;font-size:11px;color:#7c897f;line-height:1.7}
+.plant-stage-note b{color:#3c4a40}
+@media(max-width:800px){.plant-traits-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

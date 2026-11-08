@@ -8,6 +8,7 @@ irrigation controller, validates configuration and returns the envelope
 from config import ConfigError, deep_merge, public_config, validate_config
 from core.timeutil import format_local
 from solar_terms.astronomy import all_payloads, current_term
+from suitability.plants import normalize_import, profile_names, stage_names
 from version import VERSION
 
 
@@ -19,7 +20,7 @@ class ApiError(Exception):
 
 
 class DeviceApi:
-    def __init__(self, state, controller, config_store, history, config, clock, logger, source="device"):
+    def __init__(self, state, controller, config_store, history, config, clock, logger, source="device", plant_store=None):
         self.state = state
         self.controller = controller
         self.config_store = config_store
@@ -28,6 +29,7 @@ class DeviceApi:
         self.clock = clock
         self.logger = logger
         self.source = source
+        self.plant_store = plant_store
         self._term_cache = None
         self._term_cache_ts = 0
 
@@ -42,6 +44,11 @@ class DeviceApi:
                 return self._ok(self.get_history(query))
             if method == "GET" and path == "/api/v1/solar-terms":
                 return self._ok(self.get_solar_terms())
+            if method == "GET" and path == "/api/v1/plant-profiles":
+                return self._ok(self.get_plant_profiles())
+            if method == "POST" and path == "/api/v1/plant-profiles/import":
+                self._authorize(headers)
+                return self._ok(self.import_plant_profiles(body or {}))
             if method == "GET" and path == "/api/v1/config":
                 return self._ok(self.config_store.public())
             if method == "PUT" and path == "/api/v1/config":
@@ -92,6 +99,29 @@ class DeviceApi:
         if not synced:
             return {"current": None, "time_synced": False, "terms": all_payloads(now)}
         return {"current": current_term(now)["name"], "time_synced": True, "terms": all_payloads(now)}
+
+    def get_plant_profiles(self):
+        return {"profiles": profile_names(), "stages": stage_names()}
+
+    def import_plant_profiles(self, payload):
+        if self.plant_store is None:
+            raise ApiError(500, "PLANT_STORE_MISSING", "plant profile store is not available")
+        try:
+            profiles = normalize_import(payload)
+        except ValueError as exc:
+            raise ApiError(422, "INVALID_PROFILES", str(exc))
+        merged = {item["key"]: item for item in self.plant_store.profiles}
+        for profile in profiles:
+            merged[profile["key"]] = profile
+        try:
+            self.plant_store.save(list(merged.values()))
+        except Exception as exc:
+            raise ApiError(500, "PROFILE_SAVE_FAILED", "could not save plant profiles: %s" % exc)
+        return {
+            "profiles": profile_names(),
+            "stages": stage_names(),
+            "imported": [profile["key"] for profile in profiles],
+        }
 
     def health(self):
         now = self.clock.now()

@@ -63,6 +63,14 @@ def evaluate(readings, profile, now, stale_s=90):
             "status": "unavailable",
             "components": {},
             "reasons": reasons,
+            "profile": profile.get("key", "general"),
+            "profile_name": profile.get("name", ""),
+            "stage": profile.get("stage", "growth"),
+            "stage_name": profile.get("stage_name", ""),
+            "weights": profile.get("weights", {}),
+            "ranges": profile.get("ranges", {}),
+            "traits": profile.get("traits", {}),
+            "stage_info": profile.get("stage_info", {}),
             "ts": int(now),
         }
 
@@ -89,5 +97,13 @@ def evaluate(readings, profile, now, stale_s=90):
         "status": _status(score_int),
         "components": components,
         "reasons": [],
+        "profile": profile.get("key", "general"),
+        "profile_name": profile.get("name", ""),
+        "stage": profile.get("stage", "growth"),
+        "stage_name": profile.get("stage_name", ""),
+        "weights": profile.get("weights", {}),
+        "ranges": ranges,
+        "traits": profile.get("traits", {}),
+        "stage_info": profile.get("stage_info", {}),
         "ts": int(now),
     }

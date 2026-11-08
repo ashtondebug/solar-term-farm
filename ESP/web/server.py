@@ -22,7 +22,7 @@ except ImportError:  # pragma: no cover - MicroPython without urllib.parse
 from version import VERSION
 
 MAX_HEADER_BYTES = 8192
-MAX_BODY_BYTES = 4096
+MAX_BODY_BYTES = 32768
 REQUEST_TIMEOUT_S = 5
 MAX_CLIENTS = 6
 
@@ -143,12 +143,36 @@ class WebServer:
             if key:
                 headers[key.strip().lower()] = value.strip()
 
-        length = int(headers.get("content-length", "0") or 0)
-        if length < 0 or length > MAX_BODY_BYTES:
-            raise HttpError(413, "body too large")
         body = b""
-        if length:
-            body = await asyncio.wait_for(reader.readexactly(length), REQUEST_TIMEOUT_S)
+        if "chunked" in headers.get("transfer-encoding", "").lower():
+            chunks = []
+            total = 0
+            while True:
+                size_line = await asyncio.wait_for(reader.readline(), REQUEST_TIMEOUT_S)
+                if not size_line:
+                    raise HttpError(400, "malformed chunked body")
+                try:
+                    size = int(size_line.split(b";", 1)[0].strip(), 16)
+                except Exception:
+                    raise HttpError(400, "malformed chunked body")
+                if size == 0:
+                    while True:
+                        trailer = await asyncio.wait_for(reader.readline(), REQUEST_TIMEOUT_S)
+                        if trailer in (b"\r\n", b"\n", b""):
+                            break
+                    break
+                total += size
+                if total > MAX_BODY_BYTES:
+                    raise HttpError(413, "body too large")
+                chunks.append(await asyncio.wait_for(reader.readexactly(size), REQUEST_TIMEOUT_S))
+                await asyncio.wait_for(reader.readexactly(2), REQUEST_TIMEOUT_S)
+            body = b"".join(chunks)
+        else:
+            length = int(headers.get("content-length", "0") or 0)
+            if length < 0 or length > MAX_BODY_BYTES:
+                raise HttpError(413, "body too large")
+            if length:
+                body = await asyncio.wait_for(reader.readexactly(length), REQUEST_TIMEOUT_S)
         return method.upper(), unquote(path), headers, body
 
     async def _send_json(self, writer, status, payload):

@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-08（M2 A1–A4；M4 24 节气内容；环境趋势四序列；内存拆分）
+> 最后更新：2026-11-08（M2 A1–A4；M4 节气内容；M4B 植物档案/阶段/权重/JSON 导入/traits 展示；环境趋势四序列；内存拆分）
 
 ## 当前状态
 
@@ -42,7 +42,7 @@
 - `sensors/sht31.py`：单次高重复性读取、CRC8、错误成对返回。
 - `sensors/bh1750.py`：连续高分辨率模式。
 - `sensors/manager.py`：轮询、异常隔离、失败计数、`air_temp`/`air_humidity` 拆分。
-- `suitability/`：区间得分 + 权重 + 严重异常封顶；数据无效/过期返回 `None`，不出假分数。
+- `suitability/`：区间得分 + 档案/阶段权重 + 严重异常封顶；数据无效/过期返回 `None`，不出假分数。
 - `solar_terms/`：24 节气元数据 + Meeus 低精度太阳视黄经边界；2024 立春/春分/冬至测试通过。
 
 ### 4. 灌溉安全
@@ -77,7 +77,7 @@
 
 ```text
 python -m compileall -q ESP tools tests    -> exit 0
-python -m unittest discover -s tests -v    -> Ran 58 tests ... OK
+python -m unittest discover -s tests -v    -> Ran 64 tests ... OK
 ```
 
 API 冒烟（模拟器 `127.0.0.1:8099`）：
@@ -108,7 +108,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - 前端修复：土壤未标定时图表仍绘制温度线，图例显示“土壤湿度未标定”；适宜度原因改为中文。
 - 配置 API 已支持 `calibration`（`soil_dry`/`soil_wet`）；等待湿端原始值后写入。
 - **总览改版**：底部“传感器状态”替换为“节气农事”卡：显示当前节气、季节/序号、本节气剩余天数、3 条农事建议和下一个节气；“查看全部”进入 24 节气页。1024px 下适宜度卡改回单列，修复重叠。
-- **节气内容真实性**：`ESP/solar_terms/data.py` 中仅 6 个节气有完整农事 tips，其余 18 个只有简介；总览卡对未收录节气显示简介 + “农事建议待补充”，不编造。
+- **节气内容完整性**：24/24 节气均有 3 条农事 tips、3 条谚语、3 条习俗；全文放在 `culture.py`，设备端使用构建生成的 `solar-terms.json`，避免启动时把全文载入 RAM。
 - **设备管理标定**：新增土壤干湿两点标定卡，可“读取当前 ADC”、保存/清除标定；`state.sensors.soil.raw` 已暴露到 API。标定保存后下一轮采样生效。
 - **标定输入修复**：2 秒轮询不再覆盖未保存的输入；加入本地 `calibrationDraft`。CDP 实测：输入 `12345` 等 3 秒保留，读取当前填入 `50860` 后等 3 秒保留，湿端输入 `6789` 同样保留。
 - **适宜度显示修正**：分项行改为“温度分/湿度分/土壤分/光照分”，并注明“分项得分（0–100），不是传感器读数”；100% 土壤对应土壤分 0、总分 45（过湿）。
@@ -117,6 +117,8 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - **离线恢复**：Wi-Fi 显示 connected、RSSI −35，但 ARP/HTTP 全无响应；复位恢复。根因是浏览器并发连接耗尽 lwIP 套接字。Web 服务增加 `MAX_CLIENTS=6`、静态发送 10 秒超时、`wait_closed` 1 秒超时；30 个并发 API + 12 个混合静态/API 压测后 health=200、ping 正常。
 - **M4 内存拆分**：`data.py` 核心元数据约 6.7 KB；谚语/习俗/农事全文放在仅构建时使用的 `culture.py`（约 28 KB）；`solar-terms.json`（约 31 KB）由构建生成并静态返回。设备空闲堆从约 40 KB 提升到约 83 KB，HTML 页面加载后仍保持 health=200。
 - **环境趋势图**：温度左轴 °C、空气湿度/土壤湿度外右轴 %、光照内右轴 lx；四序列图例和轴标题已显示，并追加当前实时点。
+- **M4B 植物特性展示**：导入档案支持 `traits`（株型、根系、根深、株高/株距、支撑、修剪、授粉、病害/虫害、光周期、耐寒/热害、水分策略、耐旱/涝、VPD/DLI、GDD、pH/EC/CO₂ 参考、来源/置信度）及阶段级 `days_to_next_stage`/`gdd_to_next_stage`/`advice`；节气“时令农事建议”下方和总览农事卡展示，实测 23 项。
+- 截图：`artifacts/plant-traits-advice.png`（本地）。
 - 截图：`artifacts/overview-score-fixed.png`（本地）。
 - 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
 - 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。
@@ -136,7 +138,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 1. **真机已验收 A1–A4**：传感器、标定、Web 控制、10 分钟 soak、复位/最小间隔/20 秒最长运行/USB 拔电均已实测；Wi-Fi 断网、程序卡死/看门狗、RGB LED、屏幕仍未验证。
 2. **PIN 默认关闭**：`security.require_pin=false`；API/UI 的 401 流程已实现，等屏幕能展示 PIN 后启用。
 3. **串口屏工程缺失**：仅完成资料阅读与页面规格；`.HMI` 需 USART HMI 上位机创建。
-4. **M4 节气内容已补齐**：24/24 节气各有 3 条农事 tips、3 条谚语、3 条习俗；植物档案/阶段与适宜度权重仍待做。
+4. **M4 内容完成**：24/24 节气 tips/谚语/习俗；植物档案/阶段/权重已实现；串口屏和 MCP 仍待完成。
 5. **Wi-Fi 屏幕配网 UI 未接**：设备端状态机已完成（M3A），屏幕页面仍待 M5；当前可用 `/data/wifi.json` 预置。
 6. **MCP 未实现**：`docs/` 与 API 已为 MCP Server 预留稳定接口。
 7. **`deploy.py` 已在 COM10 上执行成功**（37 个文件）；`mpremote` 已安装；Wi-Fi 已连接 `192.168.0.100`，Web 可访问。
@@ -154,11 +156,13 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - [ ] **M2 剩余安全项**：程序卡死/看门狗、Wi-Fi 断网（本次按要求跳过）；其余场景已通过。
 - [x] **M3A 配网服务**：扫描/连接/验证/5 次失败转配网/密码不入状态；主机测试通过。
 - [ ] **M3B 屏幕配网**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；PIN 展示与启用。
-- [x] **M4 节气内容**：24/24 节气各 3 条详细农事 tips、3 条谚语、3 条习俗；58 项测试通过。
-- [ ] **M4 植物档案**：植物档案与阶段；适宜度权重可配置。
+- [x] **M4 节气内容**：24/24 节气各 3 条详细农事 tips、3 条谚语、3 条习俗；64 项测试通过。
+- [x] **M4 植物档案/阶段/权重**：profile/stage、通用阶段倍率、四项自定义权重、设置页与评分结果展示；设备实测通过。
+- [x] **M4B JSON 导入**：设置页文件导入、阶段级 ranges/weights、`/data/plants.json` 持久化、重启注册；JSON 校验与 64 项测试通过。
+- [x] **M4B traits 展示**：株型/根系/根深/授粉/病害/水分策略/光周期/VPD/DLI 等特性在农事建议区展示；阶段 advice/积温/日温夜温参考；设备实测 23 项。
 - [ ] **M5 屏幕**：在 USART HMI 创建 5 页工程，按 `Touch_screen/docs/` 变量表对接 UART 协议。
 - [ ] **M6 MCP**：PC 端 stdio MCP Server，10 个工具，复用现有 REST + PIN；不成为核心依赖。
-- [ ] 提交前：跑 58 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
+- [ ] 提交前：跑 64 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
 
 ## 关键设计决策
 

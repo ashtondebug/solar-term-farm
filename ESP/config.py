@@ -11,6 +11,7 @@ function the API layer should use.
 
 import os
 
+from suitability.plants import PROFILES as PLANT_PROFILES, STAGES as PLANT_STAGES
 from version import VERSION
 
 DEFAULT_CONFIG = {
@@ -26,6 +27,7 @@ DEFAULT_CONFIG = {
     "plant": {
         "profile": "general",
         "stage": "growth",
+        "weights": None,
     },
     "irrigation": {
         "mode": "auto",
@@ -130,10 +132,23 @@ def validate_config(config):
     _check_range(errors, "sampling.history_days", sampling.get("history_days"), 1, 30)
 
     plant = config.get("plant", {})
-    if not isinstance(plant.get("profile"), str) or not plant.get("profile"):
-        errors.append("plant.profile must be a non-empty string")
-    if not isinstance(plant.get("stage"), str) or not plant.get("stage"):
-        errors.append("plant.stage must be a non-empty string")
+    if plant.get("profile") not in PLANT_PROFILES:
+        errors.append("plant.profile must be one of: %s" % ", ".join(sorted(PLANT_PROFILES)))
+    if plant.get("stage") not in PLANT_STAGES:
+        errors.append("plant.stage must be one of: %s" % ", ".join(sorted(PLANT_STAGES)))
+    weights = plant.get("weights")
+    if weights is not None:
+        if not isinstance(weights, dict):
+            errors.append("plant.weights must be an object or null")
+        else:
+            metric_weights = []
+            for metric in ("soil", "temp", "humidity", "light"):
+                value = weights.get(metric)
+                _check_range(errors, "plant.weights.%s" % metric, value, 0, 1)
+                if is_number(value):
+                    metric_weights.append(value)
+            if len(metric_weights) == 4 and sum(metric_weights) <= 0:
+                errors.append("plant.weights must have a positive total")
 
     irrigation = config.get("irrigation", {})
     if irrigation.get("mode") not in VALID_MODES:

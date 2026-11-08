@@ -39,6 +39,29 @@ class SuitabilityTests(unittest.TestCase):
         self.assertIsNone(result["score"])
         self.assertTrue(any("stale" in reason for reason in result["reasons"]))
 
+    def test_stage_changes_weights(self):
+        growth = get_profile("tomato", "growth")
+        flowering = get_profile("tomato", "flowering")
+        self.assertEqual(flowering["stage_name"], "开花结果期")
+        self.assertAlmostEqual(sum(flowering["weights"].values()), 1.0)
+        self.assertNotEqual(growth["weights"], flowering["weights"])
+        result = evaluate(readings(), flowering, now=1000)
+        self.assertEqual(result["profile"], "tomato")
+        self.assertEqual(result["stage"], "flowering")
+        self.assertEqual(result["profile_name"], "番茄")
+
+    def test_custom_weights_override_profile(self):
+        profile = get_profile(
+            "general",
+            "growth",
+            {"soil": 1.0, "temp": 0.0, "humidity": 0.0, "light": 0.0},
+        )
+        self.assertEqual(profile["weights"]["soil"], 1.0)
+        self.assertEqual(profile["weights"]["temp"], 0.0)
+        result = evaluate(readings(soil=50, temp=5), profile, now=1000)
+        self.assertEqual(result["components"]["soil"], 100)
+        self.assertNotIn("temp: missing", result["reasons"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -39,6 +39,7 @@ from storage.history_store import HistoryStore
 from storage.kvstore import KVStore
 from suitability.model import evaluate
 from suitability.plants import get_profile
+from suitability.store import PlantProfileStore
 from version import DEVICE_MODEL, FIRMWARE, VERSION
 from web.api import DeviceApi
 from web.server import WebServer
@@ -75,6 +76,11 @@ class Application:
         self.state.mark_boot(self.clock.now())
 
         kv = KVStore("/data", self.logger)
+        self.plant_store = PlantProfileStore(kv, self.logger)
+        try:
+            self.plant_store.load()
+        except Exception as exc:
+            self.logger.warn("plant profile load failed: %s", exc)
         self.config_store = ConfigStore(kv, self.logger)
         self.config = self.config_store.load()
         relay_number = int(self.config["pins"].get("relay", 5))
@@ -151,6 +157,7 @@ class Application:
             self.clock,
             self.logger,
             source="device",
+            plant_store=self.plant_store,
         )
 
         self.web = WebServer(
@@ -169,7 +176,12 @@ class Application:
         while True:
             now = self.clock.now()
             readings = self.manager.poll(now)
-            profile = get_profile(self.config["plant"].get("profile", "general"))
+            plant = self.config["plant"]
+            profile = get_profile(
+                plant.get("profile", "general"),
+                plant.get("stage", "growth"),
+                plant.get("weights"),
+            )
             result = evaluate(
                 readings,
                 profile,
