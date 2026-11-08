@@ -23,8 +23,8 @@ from version import VERSION
 
 MAX_HEADER_BYTES = 8192
 MAX_BODY_BYTES = 32768
-REQUEST_TIMEOUT_S = 5
-MAX_CLIENTS = 6
+REQUEST_TIMEOUT_S = 2
+MAX_CLIENTS = 8
 
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -203,11 +203,15 @@ class WebServer:
         writer.write(header.encode("utf-8"))
         with open(file_path, "rb") as handle:
             while True:
-                chunk = handle.read(2048)
+                chunk = handle.read(1024)
                 if not chunk:
                     break
                 writer.write(chunk)
-                await writer.drain()
+                # Let the WiFi/lwIP stack drain its socket buffer.  A blocking
+                # drain() here can stall forever on a large page even when the
+                # client is reading; yielding keeps the asyncio loop alive.
+                await asyncio.sleep_ms(1)
+        await asyncio.sleep_ms(20)
 
     async def _send(self, writer, status, body, content_type, extra_headers):
         reason = {200: "OK", 204: "No Content", 400: "Bad Request", 401: "Unauthorized",

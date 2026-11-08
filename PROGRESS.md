@@ -114,7 +114,7 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - **适宜度显示修正**：分项行改为“温度分/湿度分/土壤分/光照分”，并注明“分项得分（0–100），不是传感器读数”；100% 土壤对应土壤分 0、总分 45（过湿）。
 - **图表更新逻辑**：图例不再仅凭历史点数显示“未标定”，改为按当前 `calibration` 显示“等待采样”；图表追加当前实时读数，土壤线/右轴能随当前值更新。
 - **HTTP 异常兼容**：`HttpError` / `ApiError` 不再调用 MicroPython 缺失的 `Exception.__init__`，修复 404/校验异常时的 `connection failed`。
-- **离线恢复**：Wi-Fi 显示 connected、RSSI −35，但 ARP/HTTP 全无响应；复位恢复。根因是浏览器并发连接耗尽 lwIP 套接字。Web 服务增加 `MAX_CLIENTS=6`、静态发送 10 秒超时、`wait_closed` 1 秒超时；30 个并发 API + 12 个混合静态/API 压测后 health=200、ping 正常。
+- **离线恢复 / HTML 稳定性**：浏览器并发加载 6 个资源时，旧的 `MAX_CLIENTS=6` 会把健康/轮询请求挡在门外；静态文件 `writer.drain()` 还会在约 7.5 KB 处卡死。现改为 1 KB 分块写入并让出事件循环，`MAX_CLIENTS=8`、请求超时 2 秒；headless 页面完整加载后 health=200。
 - **M4 内存拆分**：`data.py` 核心元数据约 6.7 KB；谚语/习俗/农事全文放在仅构建时使用的 `culture.py`（约 28 KB）；`solar-terms.json`（约 31 KB）由构建生成并静态返回。设备空闲堆从约 40 KB 提升到约 83 KB，HTML 页面加载后仍保持 health=200。
 - **环境趋势图**：温度左轴 °C、空气湿度/土壤湿度外右轴 %、光照内右轴 lx；四序列图例和轴标题已显示，并追加当前实时点。
 - **M4B 植物特性展示**：导入档案支持 `traits`（株型、根系、根深、株高/株距、支撑、修剪、授粉、病害/虫害、光周期、耐寒/热害、水分策略、耐旱/涝、VPD/DLI、GDD、pH/EC/CO₂ 参考、来源/置信度）及阶段级 `days_to_next_stage`/`gdd_to_next_stage`/`advice`；节气“时令农事建议”下方和总览农事卡展示，实测 23 项。
