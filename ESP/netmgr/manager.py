@@ -72,6 +72,7 @@ class NetworkManager:
             self.attempts = 0
             self.last_attempt = int(now)
             self.last_error = "disconnected"
+            self._was_connected = False
             self.logger.warn("wifi disconnected")
 
         if self.state_name == STATE_CONNECTING:
@@ -101,7 +102,8 @@ class NetworkManager:
 
     def _on_connected(self, now):
         if not self._was_connected:
-            self.logger.info("wifi connected")
+            status = self.status()
+            self.logger.info("wifi connected: %s", status.get("ip", ""))
         self._was_connected = True
         self.attempts = 0
         self.last_error = None

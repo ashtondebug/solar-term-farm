@@ -43,6 +43,7 @@
     historyAt: 0,
     historyRange: "12h",
     chartBusy: false,
+    calibrationDraft: null,
     currentView: "overview",
     settingsKey: null,
     pollTimer: null,
@@ -347,6 +348,7 @@
       state.terms = data.terms || [];
       state.termsAt = Date.now();
       populateSeasonSelect();
+      if (state.currentView === "overview") renderOverviewSolar();
       if (state.currentView === "calendar") renderCalendar();
     } catch (_error) {
       /* keep the current content; the banner shows offline */
@@ -378,13 +380,77 @@
       { value: light, unit: "lx", digits: 0, label: "BH1750" }
     ]);
 
-    renderSensorList();
+    renderOverviewSolar();
     renderPump();
     renderScore();
     const sub = $(".chart-card .card-sub");
     if (sub) sub.textContent = "传感器历史数据 · 实时";
     if (!state.history || Date.now() - state.historyAt > 60000) fetchHistory();
     else renderChart();
+  }
+
+  function renderOverviewSolar() {
+    const tipsBox = $("#overviewSolarTips");
+    const nextBox = $("#overviewSolarNext");
+    if (!tipsBox) return;
+    const current = state.data && state.data.solar_term ? state.data.solar_term : null;
+    const terms = state.terms || [];
+    const currentName = current && current.name && current.name !== "—" ? current.name : "";
+    const term = currentName ? termByName(currentName) || current : null;
+    const sub = $("#overviewSolarSub");
+    const nameNode = $("#overviewSolarName");
+    const seasonNode = $("#overviewSolarSeason");
+    const dateNode = $("#overviewSolarDate");
+    const now = state.data && state.data.device ? Number(state.data.device.now) : 0;
+    const endTs = Number((current && current.end_ts) || (term && term.end_ts) || 0);
+    let daysLeft = null;
+    if (endTs && now) {
+      const remaining = (endTs - now) / 86400;
+      if (Number.isFinite(remaining)) daysLeft = Math.max(0, Math.ceil(remaining));
+    }
+    if (sub) sub.textContent = term ? `当前：${term.name}${term.season ? ` · ${term.season}` : ""}` : "当前：等待设备校时";
+    if (nameNode) nameNode.textContent = term ? term.name : "—";
+    if (seasonNode) {
+      const index = Number(term && term.index);
+      seasonNode.textContent = term
+        ? `${term.season || "—"}${Number.isFinite(index) ? ` · 第 ${index + 1} 个节气` : ""}${daysLeft === null ? "" : ` · 本节气还剩 ${daysLeft} 天`}`
+        : "—";
+    }
+    if (dateNode) {
+      dateNode.textContent = term
+        ? (term.date_hint ? `通常在 ${term.date_hint} 前后` : `太阳黄经约 ${term.angle}°`)
+        : "—";
+    }
+
+    tipsBox.textContent = "";
+    const tips = term && Array.isArray(term.tips) ? term.tips : [];
+    if (tips.length) {
+      tips.forEach((item) => {
+        const box = make("div", "solar-tip");
+        box.appendChild(make("b", "", item[0]));
+        box.appendChild(make("p", "", item[1]));
+        tipsBox.appendChild(box);
+      });
+    } else if (term) {
+      const box = make("div", "solar-tip solar-tip-empty");
+      box.appendChild(make("b", "", "农事建议待补充"));
+      box.appendChild(make("p", "", term.intro || "该节气的农事内容暂未收录。"));
+      tipsBox.appendChild(box);
+    } else {
+      tipsBox.appendChild(make("div", "solar-tip solar-tip-empty", "设备时间同步后显示当前节气农事。"));
+    }
+
+    if (nextBox) {
+      nextBox.textContent = "";
+      if (term && terms.length) {
+        const index = Number(term.index);
+        const next = terms[(Number.isFinite(index) ? index + 1 : 0) % terms.length];
+        nextBox.appendChild(make("b", "", "下一个节气："));
+        nextBox.appendChild(document.createTextNode(`${next.name}${next.date_hint ? ` · ${next.date_hint}` : ""}`));
+      } else {
+        nextBox.appendChild(document.createTextNode("查看完整二十四节气农事 →"));
+      }
+    }
   }
 
   function setStatCards(containerSelector, entries) {
@@ -562,11 +628,40 @@
     const wrap = $(".chart-card .chart-wrap");
     if (!wrap) return;
     const points = (state.history || []).filter(
-      (point) => point && typeof point.temp === "number" && typeof point.soil === "number"
+      (point) => point && typeof point.temp === "number"
     );
+    const liveTemp = reading("air_temp");
+    const liveHumidity = reading("air_humidity");
+    const liveSoil = reading("soil");
+    const liveLight = reading("light");
+    const liveTs = state.data && state.data.meta ? Number(state.data.meta.ts) : 0;
+    if (liveTs && points.length && liveTemp && liveTemp.valid) {
+      const lastTs = Number(points[points.length - 1].ts || 0);
+      if (liveTs > lastTs + 30) {
+        points.push({
+          ts: liveTs,
+          temp: liveTemp.value,
+          humidity: liveHumidity && liveHumidity.valid ? liveHumidity.value : null,
+          soil: liveSoil && liveSoil.valid ? liveSoil.value : null,
+          light: liveLight && liveLight.valid ? liveLight.value : null
+        });
+      }
+    }
+    const soilPoints = points.filter((point) => typeof point.soil === "number");
+    const hasSoil = soilPoints.length >= 2;
+    const calibration = state.data && state.data.config ? state.data.config.calibration || {} : {};
+    const calibrated = calibration.soil_dry !== null && calibration.soil_dry !== undefined
+      && calibration.soil_wet !== null && calibration.soil_wet !== undefined;
+    const soilLegend = hasSoil
+      ? "土壤湿度（右轴）"
+      : calibrated ? "土壤湿度（等待采样）" : "土壤湿度未标定";
+    const legend = $(".chart-card .legend");
+    if (legend) {
+      legend.innerHTML = `<span><i></i>空气温度（左轴）</span><span><i></i>${soilLegend}</span>`;
+    }
     if (points.length < 2) {
       wrap.textContent = "";
-      wrap.appendChild(make("div", "empty", "暂无历史数据"));
+      wrap.appendChild(make("div", "empty", points.length ? "历史点不足，等待下一采样" : "暂无历史数据"));
       return;
     }
     const width = 650;
@@ -593,7 +688,16 @@
     const ySoil = (value) => top + plotHeight - (Math.max(0, Math.min(100, value)) / 100) * plotHeight;
 
     const tempPath = points.map((point, index) => `${index ? "L" : "M"}${x(index).toFixed(1)} ${yTemp(Number(point.temp)).toFixed(1)}`).join(" ");
-    const soilPath = points.map((point, index) => `${index ? "L" : "M"}${x(index).toFixed(1)} ${ySoil(Number(point.soil)).toFixed(1)}`).join(" ");
+    let soilPath = "";
+    let soilStarted = false;
+    points.forEach((point, index) => {
+      if (typeof point.soil === "number") {
+        soilPath += `${soilStarted ? "L" : "M"}${x(index).toFixed(1)} ${ySoil(Number(point.soil)).toFixed(1)} `;
+        soilStarted = true;
+      } else {
+        soilStarted = false;
+      }
+    });
     const areaPath = `${tempPath} L${x(points.length - 1).toFixed(1)} ${(top + plotHeight).toFixed(1)} L${left} ${(top + plotHeight).toFixed(1)} Z`;
 
     const grid = [0, 1 / 3, 2 / 3, 1].map((ratio) => top + plotHeight * ratio);
@@ -603,11 +707,11 @@
       const y = top + plotHeight * ratio;
       return `<text x="5" y="${(y + 4).toFixed(1)}" fill="#9aa89f" font-size="10">${value.toFixed(1)}°</text>`;
     }).join("");
-    const soilLabels = [0, 0.5, 1].map((ratio) => {
+    const soilLabels = hasSoil ? [0, 0.5, 1].map((ratio) => {
       const value = 100 - 100 * ratio;
       const y = top + plotHeight * ratio;
       return `<text x="${width - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${value}%</text>`;
-    }).join("");
+    }).join("") : `<text x="${width - 8}" y="${(top + plotHeight / 2).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${calibrated ? "等待采样" : "未标定"}</text>`;
     const xLabels = [0, 1, 2, 3].map((index) => {
       const pointIndex = Math.min(points.length - 1, Math.round(((points.length - 1) * index) / 3));
       const label = new Date(Number(points[pointIndex].ts) * 1000).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
@@ -618,14 +722,23 @@
       <defs><linearGradient id="agriArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5c9b78" stop-opacity=".2"/><stop offset="1" stop-color="#5c9b78" stop-opacity="0"/></linearGradient></defs>
       ${gridMarkup}${tempLabels}${soilLabels}${xLabels}
       <path d="${areaPath}" fill="url(#agriArea)"/>
-      <path d="${soilPath}" fill="none" stroke="#d1a45a" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/>
+      ${hasSoil ? `<path d="${soilPath}" fill="none" stroke="#d1a45a" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/>` : ""}
       <path d="${tempPath}" fill="none" stroke="#438967" stroke-width="2.7" stroke-linecap="round"/>
     </svg>`;
     wrap.innerHTML = svg;
-    const legend = $(".chart-card .legend");
-    if (legend) {
-      legend.innerHTML = "<span><i></i>空气温度（左轴）</span><span><i></i>土壤湿度（右轴）</span>";
-    }
+  }
+
+  function reasonText(reason) {
+    if (!reason) return "数据不足";
+    const parts = String(reason).split(":");
+    const key = parts[0];
+    const labels = { soil: "土壤湿度", temp: "空气温度", humidity: "空气湿度", light: "光照" };
+    const label = labels[key] || key;
+    const detail = parts.slice(1).join(":").trim();
+    if (detail === "uncalibrated") return `${label}未标定（需干湿两点校准）`;
+    if (detail === "stale") return `${label}数据过期`;
+    if (detail === "missing") return `${label}无数据`;
+    return detail ? `${label}：${detail}` : `${label}数据不可用`;
   }
 
   function renderScore() {
@@ -639,7 +752,10 @@
 
     if (score === null || score === undefined) {
       if (number) number.textContent = "—";
-      if (status) status.textContent = (suit.reasons && suit.reasons[0]) || "等待有效数据";
+      if (status) {
+        const reasons = (suit.reasons || []).map(reasonText);
+        status.textContent = reasons[0] || "等待有效数据";
+      }
       if (circle) circle.setAttribute("stroke-dashoffset", "371");
       $$(".score-detail .score-row").forEach((row) => {
         const bar = row.querySelector(".bar b");
@@ -830,8 +946,111 @@
   }
 
   // ------------------------------------------------------------------ device
+  function soilRaw() {
+    const soil = state.data && state.data.sensors ? state.data.sensors.soil : null;
+    return soil && typeof soil.raw === "number" ? soil.raw : null;
+  }
+
+  function renderCalibration() {
+    const card = $("#calibrationCard");
+    if (!card) return;
+    const config = (state.data && state.data.config) || {};
+    const cal = config.calibration || {};
+    const dry = $("#soilDry");
+    const wet = $("#soilWet");
+    const dryValue = cal.soil_dry === null || cal.soil_dry === undefined ? "" : String(cal.soil_dry);
+    const wetValue = cal.soil_wet === null || cal.soil_wet === undefined ? "" : String(cal.soil_wet);
+    if (!state.calibrationDraft) {
+      if (dry && document.activeElement !== dry) dry.value = dryValue;
+      if (wet && document.activeElement !== wet) wet.value = wetValue;
+    }
+    const raw = soilRaw();
+    const hint = $("#calibrationHint");
+    if (hint) hint.textContent = raw === null ? "当前 ADC：—" : `当前 ADC：${raw}`;
+    const badge = $("#calibrationBadge");
+    const calibrated = cal.soil_dry !== null && cal.soil_dry !== undefined && cal.soil_wet !== null && cal.soil_wet !== undefined;
+    if (badge) {
+      badge.textContent = calibrated ? "已标定" : "未标定";
+      badge.classList.toggle("ok", calibrated);
+    }
+  }
+
+  function captureCalibration(input) {
+    const raw = soilRaw();
+    if (raw === null) {
+      notify("设备暂未返回 ADC 原始值，等下一轮采样后再试");
+      return;
+    }
+    if (input) input.value = String(raw);
+    syncCalibrationDraft();
+    notify(`已填入当前 ADC：${raw}`);
+  }
+
+  function syncCalibrationDraft() {
+    const dry = $("#soilDry");
+    const wet = $("#soilWet");
+    state.calibrationDraft = {
+      dry: dry ? dry.value : "",
+      wet: wet ? wet.value : ""
+    };
+  }
+
+  async function saveCalibration() {
+    const dry = Number($("#soilDry").value);
+    const wet = Number($("#soilWet").value);
+    if (!Number.isInteger(dry) || !Number.isInteger(wet) || dry < 0 || dry > 65535 || wet < 0 || wet > 65535) {
+      notify("请输入 0–65535 的 ADC 原始值");
+      return;
+    }
+    if (Math.abs(dry - wet) < 500) {
+      notify("干端与湿端差值至少 500，请重新取样");
+      return;
+    }
+    const button = $("#saveCalibration");
+    if (button) button.disabled = true;
+    try {
+      const config = await api("/config", {
+        method: "PUT",
+        body: { calibration: { soil_dry: dry, soil_wet: wet } }
+      });
+      if (state.data) state.data.config = config;
+      state.calibrationDraft = null;
+      renderCalibration();
+      notify("标定已保存，下一轮采样生效");
+      setTimeout(fetchState, 1200);
+    } catch (error) {
+      notify(error.message || "标定保存失败");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function clearCalibration() {
+    if (!window.confirm("清除土壤干湿标定？清除后土壤显示未标定，自动灌溉不会启动。")) return;
+    const button = $("#clearCalibration");
+    if (button) button.disabled = true;
+    try {
+      const config = await api("/config", {
+        method: "PUT",
+        body: { calibration: { soil_dry: null, soil_wet: null } }
+      });
+      if (state.data) state.data.config = config;
+      state.calibrationDraft = null;
+      renderCalibration();
+      notify("标定已清除");
+      setTimeout(fetchState, 1200);
+    } catch (error) {
+      notify(error.message || "清除标定失败");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
   function renderDevice() {
-    if (!state.data) return;
+    if (!state.data) {
+      renderCalibration();
+      return;
+    }
     const card = $("#device .card");
     if (!card) return;
     card.textContent = "";
@@ -853,6 +1072,7 @@
     grid.appendChild(field("数据来源", source));
     grid.appendChild(field("最近更新", timeText(data.meta && data.meta.ts)));
     card.appendChild(grid);
+    renderCalibration();
   }
 
   // ---------------------------------------------------------------- settings
@@ -1099,6 +1319,18 @@
         renderTerm(label);
       });
     });
+    const captureDry = $("#captureDry");
+    if (captureDry) captureDry.addEventListener("click", () => captureCalibration($("#soilDry")));
+    const captureWet = $("#captureWet");
+    if (captureWet) captureWet.addEventListener("click", () => captureCalibration($("#soilWet")));
+    ["#soilDry", "#soilWet"].forEach((selector) => {
+      const input = $(selector);
+      if (input) input.addEventListener("input", syncCalibrationDraft);
+    });
+    const saveCal = $("#saveCalibration");
+    if (saveCal) saveCal.addEventListener("click", saveCalibration);
+    const clearCal = $("#clearCalibration");
+    if (clearCal) clearCal.addEventListener("click", clearCalibration);
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         clearTimeout(state.pollTimer);

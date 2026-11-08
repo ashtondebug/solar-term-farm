@@ -194,3 +194,168 @@ body.agri-offline .score-number {
     display: none;
   }
 }
+
+/* Overview: compact 24 solar-term card replaces the old sensor-status card. */
+.solar-card {
+  padding: 19px 21px;
+}
+.solar-now {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  margin: 13px 0 11px;
+}
+.solar-name {
+  font-family: Georgia, "Noto Serif SC", serif;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--green);
+  letter-spacing: 2px;
+  line-height: 1.1;
+}
+.solar-meta {
+  display: flex;
+  gap: 6px 14px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 11px;
+}
+.solar-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.solar-grid .term-chip {
+  padding: 7px 3px;
+  font-size: 10px;
+  line-height: 1.15;
+}
+.solar-grid .term-chip small {
+  font-size: 8px;
+  margin-top: 2px;
+}
+
+/* Device management: two-point soil calibration. */
+.calibration-card {
+  padding: 19px 21px;
+  margin-top: 16px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+.cal-field label {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+.cal-input-row {
+  display: flex;
+  gap: 8px;
+}
+.cal-input-row .select {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+.cal-input-row .btn {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  white-space: nowrap;
+}
+.cal-field small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.cal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.cal-hint {
+  color: var(--muted);
+  font-size: 10px;
+}
+.cal-badge {
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #9a7945;
+  background: #fbf3e2;
+}
+.cal-badge.ok {
+  color: #2d6948;
+  background: #edf5ee;
+}
+
+@media (max-width: 900px) {
+  .bottom {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .cal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.solar-farming {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.solar-tip {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px;
+  background: #f7f9f6;
+}
+.solar-tip b {
+  display: block;
+  color: var(--green);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+.solar-tip p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.solar-tip-empty {
+  grid-column: 1 / -1;
+  background: #fbf8f1;
+  border-color: #eee2cc;
+}
+.solar-tip-empty b {
+  color: #9a7945;
+}
+.solar-next {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.solar-next b {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .solar-name {
+    font-size: 24px;
+  }
+}

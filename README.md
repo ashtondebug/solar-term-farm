@@ -10,15 +10,16 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 
 - ESP32-S3 固件骨架：配置、状态、时间、日志、存储、传感器、适宜度、节气、灌溉安全状态机、HTTP API。
 - 主机模拟器：用真实 API/控制器/状态代码驱动浏览器页面，数据明确标注为模拟值。
-- Web 管理页：保留原有视觉基准，六个页面接入 `/api/v1/*`，支持离线提示、设备状态、灌溉控制、参数保存、PIN 输入与二十四节气切换。
-- Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；屏幕 UI 待接。
+- Web 管理页：保留原有视觉基准，六个页面接入 `/api/v1/*`，支持离线提示、设备状态、灌溉控制、参数保存、PIN 输入、二十四节气切换、总览节气农事与土壤干湿两点标定。
+- Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；真机已连接，屏幕配网 UI 待接。
 - 主机测试：`57` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、时间纪元、Wi-Fi 配网状态机均有覆盖。
 - 部署脚本：`tools/install.bat`、`tools/start.bat`、`tools/deploy.py`、`tools/build_web.py`。
 - 文档：架构、硬件、GPIO、API、部署、测试、串口屏资料阅读记录。
 
-尚未完成 / 未验证：
+## 真机状态与未验证项
 
-- 真实硬件读数、继电器电气行为、RGB LED 引脚、屏幕电平与串口屏工程。
+- 已实测 SHT31、BH1750、土壤 ADC、GPIO5 默认低、继电器吸合与水泵短脉冲。
+- 触摸屏、RGB LED、长期泵运行与故障告警仍未验证。
 - 触摸屏 `.HMI` 工程（USART HMI 闭源格式，需在上位机中搭建）。
 - Wi-Fi 屏幕配网页面、完整 24 节气长文案、MCP Server。
 - 设备端 PIN 默认关闭（`security.require_pin=false`），M1 仅保留 API 与 UI 的 401 流程。
@@ -103,7 +104,7 @@ AgriVerse/
 │  ├─ solar_terms/                  # 24 节气数据 + 太阳黄经
 │  ├─ irrigation/                   # 继电器、状态机、历史
 │  ├─ storage/                      # 原子 JSON / 历史 JSONL
-│  ├─ network/                      # Wi-Fi 状态机
+│  ├─ netmgr/                       # Wi-Fi 状态机
 │  └─ web/                          # HTTP API / 静态服务
 ├─ Touch_screen/                    # 串口屏页面规格与资源说明
 ├─ docs/                            # 架构、硬件、API、测试、TJC 资料
@@ -139,7 +140,13 @@ AgriVerse/
 python tools\deploy.py --port COM6
 ```
 
-部署脚本会把 `ESP/` 下的 `.py` 与构建后的 Web 静态文件写入板端；`/data/wifi.json` 需要按你的网络填写（格式见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)）。
+部署脚本会把 `ESP/` 下的 `.py` 与构建后的 Web 静态文件写入板端。屏幕未接时，Wi-Fi 用本地脚本配置（密码不经过聊天）：
+
+```bat
+python tools\provision_wifi.py --port COM10
+```
+
+脚本会提示输入 SSID/密码，上传 `/data/wifi.json` 并复位，然后读取串口显示 IP 或失败原因。详见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
 ## 已知限制
 

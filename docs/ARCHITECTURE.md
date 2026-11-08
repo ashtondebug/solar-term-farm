@@ -54,8 +54,8 @@ Relay(GPIO5) / I²C / ADC / Wi-Fi
 ## 6. 存储
 
 - `/data/config.json`：设备名、采样、灌溉、植物、校准、GPIO、特性开关、PIN。
-- `/data/wifi.json`：SSID / 密码，单独文件；由 `network/store.py` 原子写，不通过 API 返回。
-- Wi-Fi 配网：`network/manager.py` 负责扫描、连接、验证；只有新网络验证成功后才替换旧配置，连续 5 次失败转 `provisioning`；密码不进公开状态。
+- `/data/wifi.json`：SSID / 密码，单独文件；由 `netmgr/store.py` 原子写，不通过 API 返回。
+- Wi-Fi 配网：`netmgr/manager.py` 负责扫描、连接、验证；只有新网络验证成功后才替换旧配置，连续 5 次失败转 `provisioning`；密码不进公开状态。
 - `/data/history/history.jsonl`：5 分钟一点，7 天保留，256KB 轮转。
 - 配置采用 tmp + rename 原子写；损坏时备份 `.bak` 并使用默认配置。
 - 断电最多丢 5 分钟历史；历史写入频率约 288 次/天，远低于 Flash 寿命压力。

@@ -97,6 +97,21 @@ class ApiTests(unittest.TestCase):
         good = api.handle("PUT", "/api/v1/config", {"irrigation": {"max_run_s": 30}}, {})
         self.assertEqual(good["status"], 200)
         self.assertEqual(config["irrigation"]["max_run_s"], 30)
+        cal = api.handle(
+            "PUT",
+            "/api/v1/config",
+            {"calibration": {"soil_dry": 17000, "soil_wet": 9000}},
+            {},
+        )
+        self.assertEqual(cal["status"], 200)
+        self.assertEqual(config["calibration"]["soil_wet"], 9000)
+        bad_cal = api.handle(
+            "PUT",
+            "/api/v1/config",
+            {"calibration": {"soil_dry": 17000, "soil_wet": 16800}},
+            {},
+        )
+        self.assertEqual(bad_cal["status"], 422)
 
     def test_time_sync(self):
         api, config, controller, clock = make_api(require_pin=False)

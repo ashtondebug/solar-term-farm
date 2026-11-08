@@ -23,8 +23,8 @@ from core.timeutil import SystemClock, format_local
 from irrigation.controller import IrrigationController
 from irrigation.history import IrrigationHistory
 from irrigation.relay import Relay
-from network.manager import NetworkManager
-from network.store import WifiStore
+from netmgr.manager import NetworkManager
+from netmgr.store import WifiStore
 from sensors.bh1750 import BH1750
 from sensors.manager import SensorManager
 from sensors.sht31 import SHT31

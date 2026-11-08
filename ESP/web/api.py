@@ -13,7 +13,6 @@ from version import VERSION
 
 class ApiError(Exception):
     def __init__(self, status, code, message):
-        Exception.__init__(self, message)
         self.status = status
         self.code = code
         self.message = message
@@ -103,7 +102,7 @@ class DeviceApi:
         if not isinstance(payload, dict):
             raise ApiError(400, "BAD_BODY", "body must be a JSON object")
         allowed = {}
-        for key in ("irrigation", "plant"):
+        for key in ("irrigation", "plant", "calibration"):
             if key in payload:
                 if not isinstance(payload[key], dict):
                     raise ApiError(400, "BAD_BODY", "%s must be an object" % key)

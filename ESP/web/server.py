@@ -24,6 +24,7 @@ from version import VERSION
 MAX_HEADER_BYTES = 8192
 MAX_BODY_BYTES = 4096
 REQUEST_TIMEOUT_S = 5
+MAX_CLIENTS = 6
 
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -38,7 +39,6 @@ CONTENT_TYPES = {
 
 class HttpError(Exception):
     def __init__(self, status, message):
-        Exception.__init__(self, message)
         self.status = status
         self.message = message
 
@@ -51,6 +51,7 @@ class WebServer:
         self.port = port
         self.logger = logger
         self.server = None
+        self._active = 0
 
     async def start(self):
         self.server = await asyncio.start_server(self._handle_client, self.host, self.port)
@@ -73,6 +74,13 @@ class WebServer:
             self.server = None
 
     async def _handle_client(self, reader, writer):
+        if self._active >= MAX_CLIENTS:
+            try:
+                writer.close()
+            except Exception:
+                pass
+            return
+        self._active += 1
         try:
             method, path, headers, raw_body = await self._read_request(reader)
             if method == "OPTIONS":
@@ -89,7 +97,7 @@ class WebServer:
                 result = self.api.handle(method, path, body, headers)
                 await self._send_json(writer, result["status"], result["body"])
                 return
-            await self._send_static(writer, path)
+            await asyncio.wait_for(self._send_static(writer, path), 10)
         except HttpError as exc:
             await self._send_json(writer, exc.status, _error_body("HTTP_%s" % exc.status, exc.message))
         except Exception as exc:
@@ -100,9 +108,10 @@ class WebServer:
             except Exception:
                 pass
         finally:
+            self._active = max(0, self._active - 1)
             try:
                 writer.close()
-                await writer.wait_closed()
+                await asyncio.wait_for(writer.wait_closed(), 1)
             except Exception:
                 pass
 
@@ -124,7 +133,7 @@ class WebServer:
             total += len(raw)
             if total > MAX_HEADER_BYTES:
                 raise HttpError(431, "headers too large")
-            key, _, value = raw.decode("latin-1").partition(":")
+            key, _, value = raw.decode("utf-8").partition(":")
             if key:
                 headers[key.strip().lower()] = value.strip()
 
@@ -161,14 +170,14 @@ class WebServer:
             "X-Content-Type-Options: nosniff\r\n"
             "Connection: close\r\n\r\n"
         ) % (content_type, size)
-        writer.write(header.encode("latin-1"))
+        writer.write(header.encode("utf-8"))
         with open(file_path, "rb") as handle:
             while True:
-                chunk = handle.read(1024)
+                chunk = handle.read(2048)
                 if not chunk:
                     break
                 writer.write(chunk)
-        await writer.drain()
+                await writer.drain()
 
     async def _send(self, writer, status, body, content_type, extra_headers):
         reason = {200: "OK", 204: "No Content", 400: "Bad Request", 401: "Unauthorized",
@@ -181,14 +190,14 @@ class WebServer:
         for key, value in (extra_headers or {}).items():
             header += "%s: %s\r\n" % (key, value)
         header += "\r\n"
-        writer.write(header.encode("latin-1"))
+        writer.write(header.encode("utf-8"))
         if body:
             writer.write(body)
         await writer.drain()
 
 
 def parse_request_line(line):
-    text = line.decode("latin-1").strip()
+    text = line.decode("utf-8").strip()
     parts = text.split(" ")
     if len(parts) != 3:
         raise ValueError("bad request line")

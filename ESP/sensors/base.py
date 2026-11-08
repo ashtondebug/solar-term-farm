@@ -7,14 +7,15 @@ the hardware seam explicit in ``main.py``.
 
 
 class Reading:
-    __slots__ = ("value", "unit", "valid", "ts", "error")
+    __slots__ = ("value", "unit", "valid", "ts", "error", "raw")
 
-    def __init__(self, value, unit, valid, ts, error=None):
+    def __init__(self, value, unit, valid, ts, error=None, raw=None):
         self.value = value
         self.unit = unit
         self.valid = bool(valid)
         self.ts = int(ts)
         self.error = error
+        self.raw = raw
 
     def as_dict(self):
         return {
@@ -23,6 +24,7 @@ class Reading:
             "valid": self.valid,
             "ts": self.ts,
             "error": self.error,
+            "raw": self.raw,
         }
 
     def __repr__(self):

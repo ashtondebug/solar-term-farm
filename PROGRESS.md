@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-07（M1 垂直切片 + M3A 配网状态机）
+> 最后更新：2026-11-08（M2 真机 bring-up，BH1750 待查）
 
 ## 当前状态
 
@@ -32,7 +32,7 @@
 - `ESP/config.py`：默认配置、深度合并、范围/校准/PIN/GPIO 唯一性校验。
 - `ESP/core/`：`DeviceState` 单一状态源、日志、`SystemClock`、校验工具。
 - `ESP/storage/`：原子 JSON 配置、JSONL 历史、容量/保留策略。
-- `ESP/network/`：非阻塞 Wi-Fi 自动重连 + M3A 配网状态机（扫描/连接/验证/5 次失败转配网）。
+- `ESP/netmgr/`：非阻塞 Wi-Fi 自动重连 + M3A 配网状态机（扫描/连接/验证/5 次失败转配网）。
 - `ESP/main.py`：安全优先的组合根；GPIO5 先拉低，再加载配置/服务/任务。
 - `tools/`：`build_web.py`、`devserver.py`、`deploy.py`、`run_tests.py`、`install.bat`、`start.bat`。
 
@@ -65,8 +65,9 @@
 
 ### 6. M3A Wi-Fi 配网状态机
 
-- `network/store.py`：`/data/wifi.json` 原子保存/读取/清除；密码不进入公开配置或日志。
-- `network/manager.py`：`unconfigured → idle → connecting → connected`，失败后 15 秒重试、最多 5 次，达到上限转 `provisioning`；连接超时 20 秒；错误码分类 `wrong_password` / `no_ap_found` / `connect_failed`。
+- `netmgr/store.py`：`/data/wifi.json` 原子保存/读取/清除；密码不进入公开配置或日志。
+- `netmgr/manager.py`：`unconfigured → idle → connecting → connected`，失败后 15 秒重试、最多 5 次，达到上限转 `provisioning`；连接超时 20 秒；错误码分类 `wrong_password` / `no_ap_found` / `connect_failed`。
+- **真机发现**：`network` 与 MicroPython 内置模块重名，包已改名为 `netmgr`；主机测试没有覆盖这个导入冲突。
 - 手动 `connect(ssid, password)`：验证成功后才替换旧配置；`cancel_provisioning()` 恢复旧网络；`forget()` 需显式调用。
 - `main.py` 改为注入 `WifiStore` 并启动自动连接；网络任务仍由 supervised task 隔离。
 - 新增 `tests/test_network.py`（7 项）：未配置、成功后保存、密码不出现在状态、5 次失败转配网、取消恢复、扫描去重排序、存储往返。
@@ -92,20 +93,51 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 
 截图：`artifacts/m1-overview-final.png` 等（本地产物，未入库）。
 
+## M2 真机 bring-up 记录（2026-11-08）
+
+- 板子：ESP32-S3 N16R8，串口 `COM10`，USB `VID_303A&PID_4001`；MicroPython **1.29.0**（`ESP32_GENERIC_S3`）；板端仅有 `boot.py`，无旧 `main.py`。
+- `GPIO5` 作为输入读取为 **0（低）**，继电器未吸合；泵未启动。
+- I²C 扫描：BH1750 重新接线后为 `[0x23, 0x44]`；光照 **22.5 lx**（环境较暗），SHT31 **19.44 °C / 58.57 % RH**。
+- 土壤 ADC 原始：`17844 / 17396 / 17748 / 17860 / 18004`（未标定）。
+- 固件已用 `mpremote 1.29.0` 部署 **37 个文件**；硬复位后日志出现 `web server listening on 0.0.0.0:80`，无 `EADDRINUSE`、无任务崩溃。
+- 真机发现并修复：`network` 包名与 MicroPython 内置 `network` 模块冲突，包已改名为 `netmgr`；旧板端 `network/` 已删除。
+- 水泵 0.8 秒干转脉冲：GPIO5 `0 → 1 → 0`，复位后 `0`；用户确认继电器吸合、水泵实际转动。GPIO 控制链路与继电器/泵回路验证通过。
+- 新增 `tools/provision_wifi.py`：本地 `getpass` 输入 SSID/密码，上传 `/data/wifi.json`，复位后读取串口 IP；密码不进入聊天或日志。
+- Wi-Fi 已连接：设备 IP **192.168.0.100**；浏览器打开后完成校时，节气显示 **立冬**，Web 页面可正常加载。
+- 真机 HTTP 修复：MicroPython 不支持 `latin-1`，HTTP 头改用 UTF-8；静态文件分块间补 `await writer.drain()`；清除 `server.py` 的 UTF-8 BOM。
+- 前端修复：土壤未标定时图表仍绘制温度线，图例显示“土壤湿度未标定”；适宜度原因改为中文。
+- 配置 API 已支持 `calibration`（`soil_dry`/`soil_wet`）；等待湿端原始值后写入。
+- **总览改版**：底部“传感器状态”替换为“节气农事”卡：显示当前节气、季节/序号、本节气剩余天数、3 条农事建议和下一个节气；“查看全部”进入 24 节气页。1024px 下适宜度卡改回单列，修复重叠。
+- **节气内容真实性**：`ESP/solar_terms/data.py` 中仅 6 个节气有完整农事 tips，其余 18 个只有简介；总览卡对未收录节气显示简介 + “农事建议待补充”，不编造。
+- **设备管理标定**：新增土壤干湿两点标定卡，可“读取当前 ADC”、保存/清除标定；`state.sensors.soil.raw` 已暴露到 API。标定保存后下一轮采样生效。
+- **标定输入修复**：2 秒轮询不再覆盖未保存的输入；加入本地 `calibrationDraft`。CDP 实测：输入 `12345` 等 3 秒保留，读取当前填入 `50860` 后等 3 秒保留，湿端输入 `6789` 同样保留。
+- **适宜度显示修正**：分项行改为“温度分/湿度分/土壤分/光照分”，并注明“分项得分（0–100），不是传感器读数”；100% 土壤对应土壤分 0、总分 45（过湿）。
+- **图表更新逻辑**：图例不再仅凭历史点数显示“未标定”，改为按当前 `calibration` 显示“等待采样”；图表追加当前实时读数，土壤线/右轴能随当前值更新。
+- **HTTP 异常兼容**：`HttpError` / `ApiError` 不再调用 MicroPython 缺失的 `Exception.__init__`，修复 404/校验异常时的 `connection failed`。
+- **离线恢复**：Wi-Fi 显示 connected、RSSI −35，但 ARP/HTTP 全无响应；复位恢复。根因是浏览器并发连接耗尽 lwIP 套接字。Web 服务增加 `MAX_CLIENTS=6`、静态发送 10 秒超时、`wait_closed` 1 秒超时；30 个并发 API + 12 个混合静态/API 压测后 health=200、ping 正常。
+- 截图：`artifacts/overview-score-fixed.png`（本地）。
+- 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
+- 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。
+- 尚未测试：长期泵运行、最长运行保护、RGB LED、屏幕。
+- 结论：SHT31、BH1750、土壤 ADC、GPIO5 默认关闭正常；固件已上板并能启动 Web 服务。
+
 ## 已知问题 / 未验证
 
-1. **真机完全未验证**：传感器读数、I²C 地址/上拉、ADC 校准、继电器吸合、泵电流、RGB LED 均未实测。
+1. **真机部分验证**：SHT31、BH1750、土壤 ADC、GPIO5 默认低、继电器/泵短脉冲已实测；长期泵运行、最长运行保护、RGB LED 仍未验证。
 2. **PIN 默认关闭**：`security.require_pin=false`；API/UI 的 401 流程已实现，等屏幕能展示 PIN 后启用。
 3. **串口屏工程缺失**：仅完成资料阅读与页面规格；`.HMI` 需 USART HMI 上位机创建。
 4. **18 个节气长文案缺失**：UI 明确显示「暂无收录」，不伪造。
 5. **Wi-Fi 屏幕配网 UI 未接**：设备端状态机已完成（M3A），屏幕页面仍待 M5；当前可用 `/data/wifi.json` 预置。
 6. **MCP 未实现**：`docs/` 与 API 已为 MCP Server 预留稳定接口。
-7. **`deploy.py` 未在板端执行**：`mpremote` 未安装；脚本为待验证状态。
+7. **`deploy.py` 已在 COM10 上执行成功**（37 个文件）；`mpremote` 已安装；Wi-Fi 已连接 `192.168.0.100`，Web 可访问。
+8. **`/api/v1/health` 的 `uptime_s` 每 30 秒采样更新**：短时间内读到 0 属正常；页面不依赖该字段。
 8. **主目录 UI 与构建产物**：`ESP/web/static/*` 由 `tools/build_web.py` 生成，`.gitignore` 忽略；根目录 HTML 是唯一视觉源。
 9. **截图依赖 Edge headless**：`artifacts/` 不入库，仅用于本地验收。
 
 ## 下一步（按优先级）
 
+- [x] **M2 硬件识别**：COM10 / MicroPython 1.29.0 / SHT31 / BH1750 / GPIO5 默认低。
+- [x] **M2 固件部署**：`deploy.py` 上传 37 个文件，硬复位后 Web 服务正常启动。
 - [ ] **M2 真机 bring-up**：核对开发板原理图、RGB LED、GPIO5 下拉、继电器/泵额定；接入 SHT31/BH1750/HW-390；记录实测值。
 - [x] **M2 接线图初稿**：`docs/WIRING_DIAGRAM.svg`（待实物核对）。
 - [ ] **M2 安全实测**：上电/复位/拔 USB/程序卡死四种场景泵必须停；最长运行、故障锁存、看门狗。

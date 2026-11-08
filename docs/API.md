@@ -34,7 +34,7 @@
              "now":1762500000,"now_local":"2026-11-07T20:00:00+08:00",
              "source":"device"},
   "sensors": {
-    "soil":   {"value":42.0,"unit":"%","valid":true,"ts":1762500000,"error":null,"status":"ok"},
+    "soil":   {"value":42.0,"unit":"%","valid":true,"ts":1762500000,"error":null,"raw":18068,"status":"ok"},
     "air_temp": {"value":24.6,"unit":"C","valid":true,"ts":1762500000,"error":null,"status":"ok"},
     "air_humidity": {"value":63.0,"unit":"%","valid":true,"ts":1762500000,"error":null,"status":"ok"},
     "light": {"value":12680.0,"unit":"lx","valid":true,"ts":1762500000,"error":null,"status":"ok"}
@@ -47,12 +47,13 @@
                  "history":[]},
   "network": {"wifi":"connected","status":"connected","ssid":"...","ip":"192.168.1.50","rssi":-55},
   "security": {"pin_required": false},
-  "config": {"irrigation": {}, "plant": {}, "sampling": {}, "device": {}},
+  "config": {"irrigation": {}, "plant": {}, "calibration": {"soil_dry": null, "soil_wet": null}, "sampling": {}, "device": {}},
   "meta": {"source":"device","ts":1762500000}
 }
 ```
 
 - 传感器 `valid=false` 时 `value` 为 `null`，`error` 说明原因（`uncalibrated`、`crc_error`、`stale` 等）。
+- `sensors.soil.raw` 是 ADC 原始计数，仅用于干湿两点标定，不是湿度百分比。
 - 适宜度在数据无效/过期时 `score=null`、`status="unavailable"`。
 - `meta.source` 为 `device` 或 `simulator`（仅开发模拟器）。
 
@@ -76,13 +77,16 @@
 
 ### PUT /api/v1/config
 
-请求体只接受 `irrigation` 与 `plant` 两个 section：
+请求体接受 `irrigation`、`plant` 与 `calibration` 三个 section：
 
 ```json
 {"irrigation":{"mode":"manual","soil_threshold":35,"max_run_s":20,"min_interval_s":1800},
- "plant":{"profile":"general"}}
+ "plant":{"profile":"general"},
+ "calibration":{"soil_dry":18000,"soil_wet":9000}}
 ```
 
+- `calibration.soil_dry` / `soil_wet` 是 ADC 原始计数（0–65535），必须同时设置或同时为 `null`；差值至少 500。
+- 标定保存后，下一轮传感器采样生效；`GET /api/v1/state` 的 `sensors.soil.raw` 可用于“读取当前值”。
 - 校验失败返回 422 `INVALID_CONFIG`，不会部分保存。
 - 成功后返回公开配置。
 

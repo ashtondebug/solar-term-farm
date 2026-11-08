@@ -8,13 +8,13 @@ from core.log import Logger
 from core.state import DeviceState
 from fakes.hardware import FakeClock
 from fakes.wifi import FakeWlan, MemoryWifiStore
-from network.manager import (
+from netmgr.manager import (
     STATE_CONNECTED,
     STATE_PROVISIONING,
     STATE_UNCONFIGURED,
     NetworkManager,
 )
-from network.store import WifiStore
+from netmgr.store import WifiStore
 from storage.kvstore import KVStore
 
 

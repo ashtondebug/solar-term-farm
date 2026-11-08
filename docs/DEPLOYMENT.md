@@ -72,7 +72,13 @@ python tools\deploy.py --dry-run
 
 ## 7. Wi-Fi 配置
 
-设备端已实现扫描、连接、验证、5 次失败转配网（M3A，见 `docs/WIFI_PROVISIONING.md`）；屏幕配网页面尚未接入。当前可在板端 `/data/wifi.json` 预置：
+设备端已实现扫描、连接、验证、5 次失败转配网（M3A，见 `docs/WIFI_PROVISIONING.md`）；屏幕配网页面尚未接入。屏幕未接时，推荐使用本地脚本（密码不经过聊天）：
+
+```bat
+python tools\provision_wifi.py --port COM10
+```
+
+脚本会提示输入 SSID/密码，上传 `/data/wifi.json` 并复位，然后读取串口显示 IP 或失败原因。也可以手工预置：
 
 ```json
 {"ssid": "YOUR_SSID", "password": "YOUR_PASSWORD"}

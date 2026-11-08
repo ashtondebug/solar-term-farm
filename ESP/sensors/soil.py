@@ -65,5 +65,5 @@ class SoilSensor:
             raw, calibration.get("soil_dry"), calibration.get("soil_wet")
         )
         if error:
-            return Reading(None, self.unit, False, now, error)
-        return Reading(percent, self.unit, True, now, None)
+            return Reading(None, self.unit, False, now, error, raw=raw)
+        return Reading(percent, self.unit, True, now, None, raw=raw)
