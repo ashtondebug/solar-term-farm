@@ -1887,8 +1887,8 @@
     clearDemoValues();
     bind();
     fetchTerms();
-    fetchState();
-    setTimeout(fetchHistory, 1200);
+    setTimeout(fetchState, 1500);
+    setTimeout(fetchHistory, 2500);
     applyHash();
   }
 

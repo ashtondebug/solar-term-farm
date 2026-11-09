@@ -25,8 +25,6 @@ except ImportError:  # pragma: no cover
 from core.log import Logger
 from core.state import DeviceState
 from core.timeutil import SystemClock, format_local
-from display.screen import ScreenController
-from display.transport import UartTransport
 from irrigation.controller import IrrigationController
 from irrigation.history import IrrigationHistory
 from irrigation.relay import Relay
@@ -174,6 +172,9 @@ class Application:
         self.screen = None
         if self.config.get("display", {}).get("enabled"):
             try:
+                from display.screen import ScreenController
+                from display.transport import UartTransport
+
                 display_cfg = self.config["display"]
                 uart = machine.UART(
                     1,

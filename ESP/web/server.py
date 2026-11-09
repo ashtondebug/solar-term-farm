@@ -7,6 +7,7 @@ always close the connection, which keeps the browser and the device simple.
 
 import json
 import os
+import gc
 
 try:
     import asyncio
@@ -100,6 +101,7 @@ class WebServer:
                     except Exception:
                         await self._send_json(writer, 400, _error_body("BAD_JSON", "request body is not valid JSON"))
                         return
+                gc.collect()
                 result = self.api.handle(method, path, body, headers)
                 await self._send_json(writer, result["status"], result["body"])
                 return
@@ -120,6 +122,7 @@ class WebServer:
                 await asyncio.wait_for(writer.wait_closed(), 1)
             except Exception:
                 pass
+            gc.collect()
 
     async def _read_request(self, reader):
         line = await asyncio.wait_for(reader.readline(), REQUEST_TIMEOUT_S)
@@ -207,14 +210,11 @@ class WebServer:
         writer.write(header.encode("utf-8"))
         with open(file_path, "rb") as handle:
             while True:
-                chunk = handle.read(1024)
+                chunk = handle.read(512)
                 if not chunk:
                     break
                 writer.write(chunk)
-                # Let the WiFi/lwIP stack drain its socket buffer.  A blocking
-                # drain() here can stall forever on a large page even when the
-                # client is reading; yielding keeps the asyncio loop alive.
-                await asyncio.sleep_ms(1)
+                await asyncio.sleep_ms(2)
         await asyncio.sleep_ms(20)
 
     async def _send(self, writer, status, body, content_type, extra_headers):
