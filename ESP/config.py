@@ -60,6 +60,10 @@ DEFAULT_CONFIG = {
         "display": False,
         "web": True,
     },
+    "display": {
+        "enabled": False,
+        "baudrate": 9600,
+    },
 }
 
 VALID_MODES = ("auto", "manual")
@@ -193,6 +197,14 @@ def validate_config(config):
     for key in ("display", "web"):
         if not isinstance(features.get(key), bool):
             errors.append("features.%s must be a boolean" % key)
+
+    display = config.get("display", {})
+    if not isinstance(display, dict):
+        errors.append("display must be an object")
+    else:
+        if not isinstance(display.get("enabled"), bool):
+            errors.append("display.enabled must be a boolean")
+        _check_range(errors, "display.baudrate", display.get("baudrate"), 9600, 115200)
 
     return errors
 

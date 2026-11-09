@@ -2,7 +2,7 @@
 
 > 本文件是跨会话续作入口。每次完成功能、修复或优化后追加记录，并同步「当前状态 / 待办 / 已知问题」。
 >
-> 最后更新：2026-11-08（M2 A1–A4；M4 节气内容；M4B 植物档案/阶段/权重/JSON 导入/traits 展示；环境趋势四序列；内存拆分）
+> 最后更新：2026-11-09（串口屏协议/控制器骨架；M4B；M2；Web 稳定性）
 
 ## 当前状态
 
@@ -77,7 +77,7 @@
 
 ```text
 python -m compileall -q ESP tools tests    -> exit 0
-python -m unittest discover -s tests -v    -> Ran 64 tests ... OK
+python -m unittest discover -s tests -v    -> Ran 68 tests ... OK
 ```
 
 API 冒烟（模拟器 `127.0.0.1:8099`）：
@@ -116,9 +116,10 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - **HTTP 异常兼容**：`HttpError` / `ApiError` 不再调用 MicroPython 缺失的 `Exception.__init__`，修复 404/校验异常时的 `connection failed`。
 - **离线恢复 / HTML 稳定性**：浏览器并发加载 6 个资源时，旧的 `MAX_CLIENTS=6` 会把健康/轮询请求挡在门外；静态文件 `writer.drain()` 还会在约 7.5 KB 处卡死。现改为 1 KB 分块写入并让出事件循环，`MAX_CLIENTS=12`、请求超时 2 秒；页面保持打开 30 秒后 health 仍 200。
 - **M4 内存拆分**：`data.py` 核心元数据约 6.7 KB；谚语/习俗/农事全文放在仅构建时使用的 `culture.py`（约 28 KB）；`solar-terms.json`（约 31 KB）由构建生成并静态返回。设备空闲堆从约 40 KB 提升到约 83 KB，HTML 页面加载后仍保持 health=200。
-- **环境趋势图**：温度左轴 °C、空气湿度/土壤湿度外右轴 %、光照内右轴 lx；四序列图例和轴标题已显示，并追加当前实时点。
-- **M4B 植物特性展示**：导入档案支持 `traits`（株型、根系、根深、株高/株距、支撑、修剪、授粉、病害/虫害、光周期、耐寒/热害、水分策略、耐旱/涝、VPD/DLI、GDD、pH/EC/CO₂ 参考、来源/置信度）及阶段级 `days_to_next_stage`/`gdd_to_next_stage`/`advice`；节气“时令农事建议”下方和总览农事卡展示，实测 23 项。
-- 截图：`artifacts/plant-traits-advice.png`（本地）。
+- **环境趋势图**：温度左轴 °C、空气湿度/土壤湿度外右轴 %、光照内右轴 lx；四序列图例和轴标题已显示，并追加当前实时点。土壤改为深棕 `#8c5a3c`，光照改为琥珀 `#e6a100`，避免同色。图表支持鼠标/触摸悬停：垂直参考线、各序列数据点、时间与四项具体数值 tooltip。
+- **串口屏骨架**：`ESP/display/protocol.py`（行协议）、`transport.py`（UART/FF 终止符）、`screen.py`（状态推送、PIN、WiFi、灌溉命令）；`docs/SCREEN_PROTOCOL.md` 定义 5 页和组件名。屏幕实测 COM3/9600，5V TTL，待电平转换后接 ESP32。
+- **屏幕配置**：`display.enabled=false` 默认关闭；启用时 UART1 TX17/RX18，默认 9600；屏幕写操作需要 PIN 会话，水泵仍由 IrrigationController 执行安全约束。
+- 截图：`artifacts/chart-hover.png`、`artifacts/plant-traits-advice.png`（本地）。
 - 截图：`artifacts/overview-score-fixed.png`（本地）。
 - 截图：`artifacts/overview-solar.png`、`artifacts/overview-1024-fixed.png`、`artifacts/overview-farming.png`、`artifacts/device-calibration-data.png`（本地）。
 - 说明：`/api/v1/health` 的 `uptime_s` 在传感器循环中每 30 秒更新，短时间读到 0 属正常采样粒度，不影响页面。
@@ -156,13 +157,13 @@ PUT config threshold=45 -> ok; invalid max_run=999 -> 422
 - [ ] **M2 剩余安全项**：程序卡死/看门狗、Wi-Fi 断网（本次按要求跳过）；其余场景已通过。
 - [x] **M3A 配网服务**：扫描/连接/验证/5 次失败转配网/密码不入状态；主机测试通过。
 - [ ] **M3B 屏幕配网**：TJC 扫描/SSID/密码/连接状态；`/data/wifi.json` 原子保存；PIN 展示与启用。
-- [x] **M4 节气内容**：24/24 节气各 3 条详细农事 tips、3 条谚语、3 条习俗；64 项测试通过。
+- [x] **M4 节气内容**：24/24 节气各 3 条详细农事 tips、3 条谚语、3 条习俗；68 项测试通过。
 - [x] **M4 植物档案/阶段/权重**：profile/stage、通用阶段倍率、四项自定义权重、设置页与评分结果展示；设备实测通过。
-- [x] **M4B JSON 导入**：设置页文件导入、阶段级 ranges/weights、`/data/plants.json` 持久化、重启注册；JSON 校验与 64 项测试通过。
+- [x] **M4B JSON 导入**：设置页文件导入、阶段级 ranges/weights、`/data/plants.json` 持久化、重启注册；JSON 校验与 68 项测试通过。
 - [x] **M4B traits 展示**：株型/根系/根深/授粉/病害/水分策略/光周期/VPD/DLI 等特性在农事建议区展示；阶段 advice/积温/日温夜温参考；设备实测 23 项。
 - [ ] **M5 屏幕**：在 USART HMI 创建 5 页工程，按 `Touch_screen/docs/` 变量表对接 UART 协议。
 - [ ] **M6 MCP**：PC 端 stdio MCP Server，10 个工具，复用现有 REST + PIN；不成为核心依赖。
-- [ ] 提交前：跑 64 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
+- [ ] 提交前：跑 68 项测试 + 模拟器冒烟 + 更新本文件 + 汇总改动，等待用户确认后**一次**提交/推送。
 
 ## 关键设计决策
 

@@ -196,10 +196,14 @@ class WebServer:
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: %s\r\n"
             "Content-Length: %d\r\n"
-            "Cache-Control: no-store\r\n"
+            "Cache-Control: %s\r\n"
             "X-Content-Type-Options: nosniff\r\n"
             "Connection: close\r\n\r\n"
-        ) % (content_type, size)
+        ) % (
+            content_type,
+            size,
+            "public, max-age=3600" if path in ("/index.html", "/app.js", "/app.css", "/solar-terms.json") else "no-store",
+        )
         writer.write(header.encode("utf-8"))
         with open(file_path, "rb") as handle:
             while True:

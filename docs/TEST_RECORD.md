@@ -17,11 +17,11 @@ exit 0
 
 ```text
 python -m unittest discover -s tests -v
-Ran 64 tests in 0.019s
+Ran 68 tests in 0.019s
 OK
 ```
 
-覆盖：配置、土壤校准、SHT31 CRC、适宜度、植物档案/阶段/权重、JSON 档案导入/校验、植物 traits/阶段建议展示、灌溉状态机、节气边界、24 节气农事/谚语/习俗、API、HTTP 解析、真实 HTTP socket 往返、历史存储、时间纪元、Wi-Fi 配网状态机。
+覆盖：配置、土壤校准、SHT31 CRC、适宜度、植物档案/阶段/权重、JSON 档案导入/校验、植物 traits/阶段建议展示、串口屏行协议/PIN/Wi-Fi 命令、灌溉状态机、节气边界、24 节气农事/谚语/习俗、API、HTTP 解析、真实 HTTP socket 往返、历史存储、时间纪元、Wi-Fi 配网状态机。
 
 ## 3. 模拟器 API 冒烟
 

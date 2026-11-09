@@ -111,6 +111,7 @@
 
 - `plant.profile`：`general` / `lettuce` / `tomato` / `strawberry`；`plant.stage`：`seedling` / `growth` / `flowering` / `harvest`。
 - `plant.weights` 可省略或为 `null`，使用档案/阶段默认权重；填写时四项必须是 0–1 且总和大于 0。
+- `display` 可配置串口屏：`{"enabled":true,"baudrate":9600}`；启用后固件使用 UART1 TX17/RX18，默认 9600。屏幕写操作需要 PIN 会话。
 
 - `calibration.soil_dry` / `soil_wet` 是 ADC 原始计数（0–65535），必须同时设置或同时为 `null`；差值至少 500。
 - 标定保存后，下一轮传感器采样生效；`GET /api/v1/state` 的 `sensors.soil.raw` 可用于“读取当前值”。

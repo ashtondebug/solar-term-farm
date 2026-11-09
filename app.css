@@ -370,3 +370,15 @@ body.agri-offline .score-number {
 .plant-stage-note{margin-top:10px;font-size:11px;color:#7c897f;line-height:1.7}
 .plant-stage-note b{color:#3c4a40}
 @media(max-width:800px){.plant-traits-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Interactive chart hover: guide, points and tooltip. */
+.chart-wrap{position:relative}
+.chart-hit{cursor:crosshair}
+.chart-guide{stroke:#9fb0a5;stroke-width:1;stroke-dasharray:3 3;pointer-events:none}
+.chart-tooltip{position:absolute;z-index:8;width:164px;padding:9px 10px;border-radius:9px;background:#173d32;color:#f3f8f4;box-shadow:0 8px 24px rgba(18,41,31,.22);opacity:0;transform:translateY(3px);transition:opacity .12s ease,transform .12s ease;pointer-events:none;font-size:10px;line-height:1.55}
+.chart-tooltip.show{opacity:1;transform:none}
+.chart-tip-time{font-weight:700;font-size:11px;color:#d7e8dc;padding-bottom:4px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.12)}
+.chart-tip-row{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.chart-tip-row span{flex:1;color:#c7d8cc}
+.chart-tip-row b{font-weight:600;color:#fff}
+.chart-tip-dot{width:6px;height:6px;border-radius:50%;flex:0 0 6px}

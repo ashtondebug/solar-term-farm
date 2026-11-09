@@ -25,6 +25,8 @@ except ImportError:  # pragma: no cover
 from core.log import Logger
 from core.state import DeviceState
 from core.timeutil import SystemClock, format_local
+from display.screen import ScreenController
+from display.transport import UartTransport
 from irrigation.controller import IrrigationController
 from irrigation.history import IrrigationHistory
 from irrigation.relay import Relay
@@ -158,6 +160,7 @@ class Application:
             self.logger,
             source="device",
             plant_store=self.plant_store,
+            recompute=self.recompute_suitability,
         )
 
         self.web = WebServer(
@@ -167,6 +170,37 @@ class Application:
             port=80,
             logger=self.logger,
         )
+
+        self.screen = None
+        if self.config.get("display", {}).get("enabled"):
+            try:
+                display_cfg = self.config["display"]
+                uart = machine.UART(
+                    1,
+                    baudrate=int(display_cfg.get("baudrate", 9600)),
+                    tx=machine.Pin(self.config["pins"]["uart_tx"]),
+                    rx=machine.Pin(self.config["pins"]["uart_rx"]),
+                    timeout=0,
+                )
+                self.screen = ScreenController(
+                    UartTransport(uart),
+                    self.state,
+                    self.config,
+                    self.config_store,
+                    self.controller,
+                    self.network,
+                    self.clock,
+                    self.logger,
+                )
+                self.logger.info(
+                    "screen UART1 on TX%s/RX%s at %s baud",
+                    self.config["pins"]["uart_tx"],
+                    self.config["pins"]["uart_rx"],
+                    display_cfg.get("baudrate", 9600),
+                )
+            except Exception as exc:
+                self.logger.warn("screen init failed: %s", exc)
+
         self.logger.info("build complete")
         return self
 
@@ -235,6 +269,25 @@ class Application:
                 self.logger.error("%s task failed: %s", name, exc)
                 await asyncio.sleep(5)
 
+    def recompute_suitability(self):
+        """Re-evaluate using cached readings after a profile/config change."""
+        if self.manager is None:
+            return
+        now = self.clock.now()
+        plant = self.config["plant"]
+        profile = get_profile(
+            plant.get("profile", "general"),
+            plant.get("stage", "growth"),
+            plant.get("weights"),
+        )
+        result = evaluate(
+            self.manager.readings,
+            profile,
+            now,
+            stale_s=int(self.config["irrigation"].get("sensor_stale_s", 90)),
+        )
+        self.state.set_suitability(result, now)
+
     async def run(self):
         self.build()
         tasks = [
@@ -244,6 +297,8 @@ class Application:
         ]
         if self.config.get("features", {}).get("web", True):
             tasks.append(asyncio.create_task(self._guard("web", self.web.serve_forever)))
+        if self.screen is not None:
+            tasks.append(asyncio.create_task(self._guard("screen", self.screen.run)))
         await asyncio.gather(*tasks)
 
 

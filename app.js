@@ -43,6 +43,13 @@
     ["light", "光照"]
   ];
 
+  const CHART_COLORS = {
+    temp: "#438967",
+    humidity: "#4e8fb5",
+    soil: "#8c5a3c",
+    light: "#e6a100"
+  };
+
   const HABIT_LABELS = {
     upright: "直立",
     bush: "丛生/灌木",
@@ -377,7 +384,36 @@
     }
   }
 
+  async function fetchBootstrap() {
+    try {
+      const data = await api("/bootstrap");
+      state.data = data.state;
+      state.history = (data.history && data.history.points) || [];
+      state.historyAt = Date.now();
+      state.online = true;
+      state.backoff = POLL_MS;
+      renderAll();
+      setBanner();
+      maybeSyncTime(data.state);
+      schedule(POLL_MS);
+    } catch (error) {
+      state.online = false;
+      updateChrome();
+      setBanner(error && error.message);
+      state.backoff = Math.min(Math.round(state.backoff * 1.7), MAX_BACKOFF_MS);
+      schedule(state.backoff);
+    }
+  }
+
   async function fetchTerms(force = false) {
+    if (window.__AGRI_TERMS__ && window.__AGRI_TERMS__.length) {
+      state.terms = window.__AGRI_TERMS__;
+      state.termsAt = Date.now();
+      populateSeasonSelect();
+      if (state.currentView === "overview") renderOverviewSolar();
+      if (state.currentView === "calendar") renderCalendar();
+      return;
+    }
     if (!force && state.terms && Date.now() - state.termsAt < 3600000) return;
     try {
       const data = await api("/solar-terms");
@@ -817,10 +853,10 @@
     const legend = $(".chart-card .legend");
     if (legend) {
       legend.innerHTML = [
-        `<span><i style="background:#438967"></i>空气温度（左轴 °C）</span>`,
-        `<span><i style="background:#4e8fb5"></i>${humidityLegend}</span>`,
-        `<span><i style="background:#d1a45a"></i>${soilLegend}</span>`,
-        `<span><i style="background:#c9a227"></i>${lightLegend}</span>`
+        `<span><i style="background:${CHART_COLORS.temp}"></i>空气温度（左轴 °C）</span>`,
+        `<span><i style="background:${CHART_COLORS.humidity}"></i>${humidityLegend}</span>`,
+        `<span><i style="background:${CHART_COLORS.soil}"></i>${soilLegend}</span>`,
+        `<span><i style="background:${CHART_COLORS.light}"></i>${lightLegend}</span>`
       ].join("");
     }
     if (points.length < 2) {
@@ -899,19 +935,19 @@
     const percentLabels = [0, 0.5, 1].map((ratio) => {
       const value = 100 - 100 * ratio;
       const y = top + plotHeight * ratio;
-      return `<text x="${width - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${value}%</text>`;
+      return `<text x="${width - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="${CHART_COLORS.soil}" font-size="9">${value}%</text>`;
     }).join("");
     const lightLabels = [0, 0.5, 1].map((ratio) => {
       const value = maxLight - maxLight * ratio;
       const y = top + plotHeight * ratio;
       const text = value >= 100 ? String(Math.round(value)) : value.toFixed(1);
-      return `<text x="${width - 60}" y="${(y + 4).toFixed(1)}" fill="#c9a227" font-size="9">${text}</text>`;
+      return `<text x="${width - 60}" y="${(y + 4).toFixed(1)}" fill="${CHART_COLORS.light}" font-size="9">${text}</text>`;
     }).join("");
     const soilAxisNote = hasSoil
       ? ""
-      : `<text x="${width - 8}" y="${(top + plotHeight / 2).toFixed(1)}" text-anchor="end" fill="#b39a6d" font-size="9">${calibrated ? "等待采样" : "未标定"}</text>`;
-    const lightAxisCaption = `<text x="${width - 60}" y="12" fill="#c9a227" font-size="9">lx</text>`;
-    const percentAxisCaption = `<text x="${width - 8}" y="12" text-anchor="end" fill="#b39a6d" font-size="9">%</text>`;
+      : `<text x="${width - 8}" y="${(top + plotHeight / 2).toFixed(1)}" text-anchor="end" fill="${CHART_COLORS.soil}" font-size="9">${calibrated ? "等待采样" : "未标定"}</text>`;
+    const lightAxisCaption = `<text x="${width - 60}" y="12" fill="${CHART_COLORS.light}" font-size="9">lx</text>`;
+    const percentAxisCaption = `<text x="${width - 8}" y="12" text-anchor="end" fill="${CHART_COLORS.soil}" font-size="9">%</text>`;
     const xLabels = [0, 1, 2, 3].map((index) => {
       const pointIndex = Math.min(points.length - 1, Math.round(((points.length - 1) * index) / 3));
       const label = new Date(Number(points[pointIndex].ts) * 1000).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
@@ -922,12 +958,114 @@
       <defs><linearGradient id="agriArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5c9b78" stop-opacity=".2"/><stop offset="1" stop-color="#5c9b78" stop-opacity="0"/></linearGradient></defs>
       ${gridMarkup}${tempLabels}${percentLabels}${lightLabels}${lightAxisCaption}${percentAxisCaption}${soilAxisNote}${xLabels}
       <path d="${areaPath}" fill="url(#agriArea)"/>
-      ${hasLight ? `<path d="${lightPath}" fill="none" stroke="#c9a227" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 3"/>` : ""}
-      ${hasSoil ? `<path d="${soilPath}" fill="none" stroke="#d1a45a" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/>` : ""}
-      ${hasHumidity ? `<path d="${humidityPath}" fill="none" stroke="#4e8fb5" stroke-width="2" stroke-linecap="round"/>` : ""}
-      <path d="${tempPath}" fill="none" stroke="#438967" stroke-width="2.7" stroke-linecap="round"/>
+      ${hasLight ? `<path d="${lightPath}" fill="none" stroke="${CHART_COLORS.light}" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 3"/>` : ""}
+      ${hasSoil ? `<path d="${soilPath}" fill="none" stroke="${CHART_COLORS.soil}" stroke-width="2.3" stroke-linecap="round" stroke-dasharray="5 4"/>` : ""}
+      ${hasHumidity ? `<path d="${humidityPath}" fill="none" stroke="${CHART_COLORS.humidity}" stroke-width="2" stroke-linecap="round"/>` : ""}
+      <path d="${tempPath}" fill="none" stroke="${CHART_COLORS.temp}" stroke-width="2.7" stroke-linecap="round"/>
+      <line class="chart-guide" x1="${left}" y1="${top}" x2="${left}" y2="${top + plotHeight}" style="display:none"/>
+      <circle class="chart-dot" data-series="temp" r="4.2" fill="${CHART_COLORS.temp}" stroke="#fff" stroke-width="1.5" style="display:none"/>
+      <circle class="chart-dot" data-series="humidity" r="4.2" fill="${CHART_COLORS.humidity}" stroke="#fff" stroke-width="1.5" style="display:none"/>
+      <circle class="chart-dot" data-series="soil" r="4.2" fill="${CHART_COLORS.soil}" stroke="#fff" stroke-width="1.5" style="display:none"/>
+      <circle class="chart-dot" data-series="light" r="4.2" fill="${CHART_COLORS.light}" stroke="#fff" stroke-width="1.5" style="display:none"/>
+      <rect class="chart-hit" x="${left}" y="${top}" width="${plotWidth}" height="${plotHeight}" fill="transparent" pointer-events="all"/>
     </svg>`;
     wrap.innerHTML = svg;
+    attachChartHover(wrap, points, {
+      width, height, left, top, plotWidth, plotHeight,
+      x, yTemp, yPercent, yLight
+    });
+  }
+
+  function chartValue(value, unit) {
+    if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+    const number = Math.abs(value) >= 100 ? String(Math.round(value)) : value.toFixed(1);
+    return `${number}${unit}`;
+  }
+
+  function attachChartHover(wrap, points, geometry) {
+    const svg = wrap.querySelector("svg");
+    const hit = wrap.querySelector(".chart-hit");
+    if (!svg || !hit || points.length < 2) return;
+    const guide = wrap.querySelector(".chart-guide");
+    const dots = {};
+    wrap.querySelectorAll(".chart-dot").forEach((dot) => { dots[dot.dataset.series] = dot; });
+    const tip = make("div", "chart-tooltip");
+    tip.setAttribute("role", "status");
+    wrap.appendChild(tip);
+
+    const hide = () => {
+      if (guide) guide.style.display = "none";
+      Object.keys(dots).forEach((key) => { dots[key].style.display = "none"; });
+      tip.classList.remove("show");
+    };
+    const show = (event) => {
+      const rect = svg.getBoundingClientRect();
+      const px = ((event.clientX - rect.left) / rect.width) * geometry.width;
+      if (px < geometry.left || px > geometry.left + geometry.plotWidth) {
+        hide();
+        return;
+      }
+      const ratio = Math.max(0, Math.min(1, (px - geometry.left) / geometry.plotWidth));
+      const index = Math.max(0, Math.min(points.length - 1, Math.round(ratio * (points.length - 1))));
+      const point = points[index];
+      const sx = geometry.x(index);
+      if (guide) {
+        guide.setAttribute("x1", sx.toFixed(1));
+        guide.setAttribute("x2", sx.toFixed(1));
+        guide.style.display = "";
+      }
+      const values = {
+        temp: point.temp,
+        humidity: point.humidity,
+        soil: point.soil,
+        light: point.light
+      };
+      Object.keys(dots).forEach((key) => {
+        const value = values[key];
+        if (typeof value !== "number") {
+          dots[key].style.display = "none";
+          return;
+        }
+        const y = key === "temp" ? geometry.yTemp(value)
+          : key === "light" ? geometry.yLight(value)
+            : geometry.yPercent(value);
+        dots[key].setAttribute("cx", sx.toFixed(1));
+        dots[key].setAttribute("cy", y.toFixed(1));
+        dots[key].style.display = "";
+      });
+
+      const time = new Date(Number(point.ts) * 1000).toLocaleTimeString("zh-CN", {
+        hour: "2-digit", minute: "2-digit"
+      });
+      tip.textContent = "";
+      const head = make("div", "chart-tip-time", time);
+      tip.appendChild(head);
+      const rows = [
+        ["temp", "空气温度", chartValue(values.temp, " °C")],
+        ["humidity", "空气湿度", chartValue(values.humidity, "%")],
+        ["soil", "土壤湿度", chartValue(values.soil, "%")],
+        ["light", "光照", chartValue(values.light, " lx")]
+      ];
+      rows.forEach(([key, label, value]) => {
+        const row = make("div", "chart-tip-row");
+        const dot = make("i", "chart-tip-dot");
+        dot.style.background = CHART_COLORS[key];
+        row.appendChild(dot);
+        row.appendChild(make("span", "", label));
+        row.appendChild(make("b", "", value));
+        tip.appendChild(row);
+      });
+      const wrapRect = wrap.getBoundingClientRect();
+      const desired = event.clientX - wrapRect.left + 14;
+      const maxLeft = Math.max(8, wrap.clientWidth - 176);
+      tip.style.left = `${Math.max(8, Math.min(maxLeft, desired))}px`;
+      tip.style.top = "8px";
+      tip.classList.add("show");
+    };
+    hit.addEventListener("pointermove", show);
+    hit.addEventListener("pointerenter", show);
+    hit.addEventListener("pointerleave", hide);
+    hit.addEventListener("pointercancel", hide);
   }
 
   function reasonText(reason) {
@@ -1749,9 +1887,8 @@
     clearDemoValues();
     bind();
     fetchTerms();
-    fetchPlantProfiles();
     fetchState();
-    fetchHistory();
+    setTimeout(fetchHistory, 1200);
     applyHash();
   }
 

@@ -20,7 +20,7 @@ class ApiError(Exception):
 
 
 class DeviceApi:
-    def __init__(self, state, controller, config_store, history, config, clock, logger, source="device", plant_store=None):
+    def __init__(self, state, controller, config_store, history, config, clock, logger, source="device", plant_store=None, recompute=None):
         self.state = state
         self.controller = controller
         self.config_store = config_store
@@ -30,6 +30,7 @@ class DeviceApi:
         self.logger = logger
         self.source = source
         self.plant_store = plant_store
+        self.recompute = recompute
         self._term_cache = None
         self._term_cache_ts = 0
 
@@ -40,6 +41,11 @@ class DeviceApi:
             path, query = _split_path(path)
             if method == "GET" and path == "/api/v1/state":
                 return self._ok(self.get_state())
+            if method == "GET" and path == "/api/v1/bootstrap":
+                return self._ok({
+                    "state": self.get_state(),
+                    "history": self.get_history({"range": "12h"}),
+                })
             if method == "GET" and path == "/api/v1/history":
                 return self._ok(self.get_history(query))
             if method == "GET" and path == "/api/v1/solar-terms":
@@ -117,6 +123,8 @@ class DeviceApi:
             self.plant_store.save(list(merged.values()))
         except Exception as exc:
             raise ApiError(500, "PROFILE_SAVE_FAILED", "could not save plant profiles: %s" % exc)
+        if self.recompute:
+            self.recompute()
         return {
             "profiles": profile_names(),
             "stages": stage_names(),
@@ -132,7 +140,7 @@ class DeviceApi:
         if not isinstance(payload, dict):
             raise ApiError(400, "BAD_BODY", "body must be a JSON object")
         allowed = {}
-        for key in ("irrigation", "plant", "calibration"):
+        for key in ("irrigation", "plant", "calibration", "display"):
             if key in payload:
                 if not isinstance(payload[key], dict):
                     raise ApiError(400, "BAD_BODY", "%s must be an object" % key)
@@ -152,6 +160,8 @@ class DeviceApi:
         except ConfigError as exc:
             raise ApiError(422, "INVALID_CONFIG", str(exc))
         self.controller.publish(self.clock.now())
+        if self.recompute:
+            self.recompute()
         return self.config_store.public()
 
     def control(self, payload):

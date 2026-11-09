@@ -49,6 +49,17 @@ def main():
     shutil.copyfile(ROOT / "app.js", STATIC / "app.js")
     shutil.copyfile(ROOT / "app.css", STATIC / "app.css")
     solar = build_solar_terms()
+    terms = json.loads(solar.read_text(encoding="utf-8"))["data"]["terms"]
+    embedded = "<script>window.__AGRI_TERMS__=%s;</script>" % json.dumps(
+        terms, ensure_ascii=False, separators=(",", ":")
+    )
+    index_path = STATIC / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+    html = html.replace(
+        '<script src="app.js"></script>',
+        embedded + '\n<script src="app.js"></script>',
+    )
+    index_path.write_text(html, encoding="utf-8")
     print("built %s" % STATIC)
     for name in ("index.html", "app.js", "app.css", solar.name):
         print("  %-18s %6d bytes" % (name, (STATIC / name).stat().st_size))
