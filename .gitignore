@@ -16,3 +16,9 @@ ESP/web/static/solar-terms.json
 # Local probes / editor scratch
 commit-msg.txt
 probe*.txt
+
+# Never commit real Wi-Fi credentials
+ESP/wifi_secrets.py
+
+# Local HMI/font source files, not firmware
+Touch_screen/HMI/

@@ -1,7 +1,7 @@
 import unittest
 
 import _bootstrap  # noqa: F401
-from config import default_config, deep_merge, public_config, validate_config
+from config import default_config, deep_merge, migrate_config, public_config, validate_config
 
 
 class ConfigTests(unittest.TestCase):
@@ -50,6 +50,26 @@ class ConfigTests(unittest.TestCase):
         config["plant"].update({"stage": "growth", "weights": {"soil": 0.5}})
         errors = validate_config(config)
         self.assertTrue(any("plant.weights.temp" in item for item in errors))
+
+
+    def test_migrate_removes_old_screen_fields(self):
+        config = default_config()
+        config["display"] = {"enabled": False, "baudrate": 9600}
+        config["features"]["display"] = False
+        config["pins"]["uart_tx"] = 17
+        config["pins"]["uart_rx"] = 18
+        config["pins"]["button"] = 14
+        config["pins"]["oled_sda"] = 17
+        config["pins"]["oled_scl"] = 18
+        self.assertTrue(migrate_config(config))
+        self.assertNotIn("display", config)
+        self.assertNotIn("display", config["features"])
+        self.assertNotIn("uart_tx", config["pins"])
+        self.assertNotIn("uart_rx", config["pins"])
+        self.assertNotIn("oled_sda", config["pins"])
+        self.assertNotIn("oled_scl", config["pins"])
+        self.assertEqual(config["pins"]["button"], 41)
+        self.assertFalse(migrate_config(config))
 
 
 if __name__ == "__main__":

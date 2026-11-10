@@ -1,6 +1,6 @@
 """Load, validate and persist the device configuration."""
 
-from config import ConfigError, deep_merge, default_config, ensure_pin, public_config, validate_config
+from config import ConfigError, deep_merge, default_config, ensure_pin, migrate_config, public_config, validate_config
 
 
 class ConfigStore:
@@ -19,6 +19,7 @@ class ConfigStore:
             return self.config
 
         merged = deep_merge(default_config(), raw)
+        migrated = migrate_config(merged)
         errors = validate_config(merged)
         if errors:
             self.logger.error("config invalid: %s", "; ".join(errors))
@@ -29,7 +30,7 @@ class ConfigStore:
             return self.config
 
         self.config = merged
-        if self._maybe_pin():
+        if migrated or self._maybe_pin():
             self.save(self.config)
         return self.config
 

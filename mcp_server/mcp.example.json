@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "agriverse": {
+      "command": "D:\\Dev\\ESP32S3\\AgriVerse\\mcp_server\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "agriverse_mcp"],
+      "cwd": "D:\\Dev\\ESP32S3\\AgriVerse\\mcp_server",
+      "env": {
+        "PYTHONPATH": "D:\\Dev\\ESP32S3\\AgriVerse\\mcp_server",
+        "AGRI_BASE_URL": "http://192.168.153.234",
+        "AGRI_ALLOW_CONTROL": "1",
+        "AGRI_PIN": "",
+        "AGRI_TIMEOUT_S": "8"
+      }
+    }
+  }
+}

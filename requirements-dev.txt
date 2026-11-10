@@ -1,2 +1,4 @@
 mpremote>=1.22
 esptool>=4.7
+mcp>=1.29,<2
+httpx>=0.28,<1

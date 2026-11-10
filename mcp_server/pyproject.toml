@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agriverse-mcp"
+version = "0.1.0"
+description = "Model Context Protocol bridge for the AgriVerse ESP32-S3 irrigation controller"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mcp>=1.29,<2",
+  "httpx>=0.28,<1",
+]
+
+[project.scripts]
+agriverse-mcp = "agriverse_mcp.cli:main"
+
+[tool.setuptools]
+packages = ["agriverse_mcp"]

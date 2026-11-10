@@ -1,6 +1,6 @@
 """Single source of truth for the running device.
 
-Every client (web, TJC screen, future MCP bridge or PC tools) reads from this
+Every client (web, TFT, button intent, future MCP bridge or PC tools) reads from this
 snapshot and submits *intents* to the irrigation controller.  No client writes
 hardware directly.
 

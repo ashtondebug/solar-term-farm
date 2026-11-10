@@ -1,6 +1,6 @@
 # AgriVerse（节气智农）
 
-AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业物联网项目：采集土壤湿度、空气温湿度与光照，计算植物环境适宜度，执行受安全约束的自动/手动灌溉，并通过局域网 Web 页面与淘晶驰 TJC 串口屏进行本地交互。
+AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业物联网项目：采集土壤湿度、空气温湿度与光照，计算植物环境适宜度，执行受安全约束的自动/手动灌溉，并通过局域网 Web 页面和 2.8 英寸 SPI TFT 进行本地交互。
 
 项目仓库为**私人仓库**，当前处于 M1 垂直切片阶段。
 
@@ -11,36 +11,37 @@ AgriVerse 是一个以 **ESP32-S3 N16R8 + MicroPython** 为核心的智能农业
 - ESP32-S3 固件骨架：配置、状态、时间、日志、存储、传感器、适宜度、节气、灌溉安全状态机、HTTP API。
 - 主机模拟器：用真实 API/控制器/状态代码驱动浏览器页面，数据明确标注为模拟值。
 - Web 管理页：保留原有视觉基准，六个页面接入 `/api/v1/*`，支持离线提示、设备状态、灌溉控制、参数保存、PIN 输入、二十四节气切换、总览节气农事与土壤干湿两点标定；环境趋势图含温度、湿度、土壤与光照四条曲线；设置页可选植物档案、生长阶段与自定义权重，并可导入植物档案 JSON；农事建议区展示株型、根系、根深、授粉、病害、水分策略等 traits。
-- Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；真机已连接，屏幕配网 UI 待接。
-- 主机测试：`68` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、24 节气农事内容、植物档案/阶段/权重、JSON 档案导入、串口屏协议/PIN/Wi-Fi 命令、时间纪元、Wi-Fi 配网状态机均有覆盖。
+- Wi-Fi 自动重连与配网状态机：扫描、连接、验证成功后才保存、连续 5 次失败转配网；真机已连接，配网入口由 Web 页面提供。
+- 主机测试：`69` 项全部通过；HTTP 服务、API、灌溉状态机、土壤校准、SHT31、节气算法、24 节气农事内容、植物档案/阶段/权重、JSON 档案导入、时间纪元、Wi-Fi 配网状态机、TFT 格式与按钮意图均有覆盖。
 - 部署脚本：`tools/install.bat`、`tools/start.bat`、`tools/deploy.py`、`tools/build_web.py`。
-- 文档：架构、硬件、GPIO、API、部署、测试、串口屏资料阅读记录。
+- 文档：架构、硬件、GPIO、API、MCP、部署、测试。
+- Windows MCP bridge：`mcp_server/`，18 个工具覆盖传感器、适宜度、节气、灌溉状态、历史、诊断、启停泵、模式、阈值和植物档案；已在 DSH 中以 `mcp__agriverse__*` 工具接入。
 
 ## 真机状态与未验证项
 
-- 已实测 SHT31、BH1750、土壤 ADC、GPIO5 默认低、继电器吸合与水泵短脉冲。
-- 触摸屏、RGB LED、长期泵运行与故障告警仍未验证。
-- 触摸屏 `.HMI` 工程（USART HMI 闭源格式，需在上位机中搭建）。
-- Wi-Fi 屏幕配网页面、MCP Server。
-- 设备端 PIN 默认关闭（`security.require_pin=false`），M1 仅保留 API 与 UI 的 401 流程。
+- 2.8 英寸 ILI9341 TFT 和 GPIO41 按钮尚未完成实物验证。
+- 触摸屏设计已移除，不再维护 TJC/UART 屏幕工程。
+- 长期泵运行与故障告警仍未验证。
+- 设备端 PIN 默认关闭（`security.require_pin=false`），本版没有本地 PIN 显示入口。
 
 ## 硬件
 
 | 部件 | 型号 / 说明 |
 |---|---|
 | 主控 | ESP32-S3 N16R8（16 MB Flash / 8 MB PSRAM） |
-| 触摸屏 | 淘晶驰 TJC3224T128_011R_A01，2.8 英寸，320×240，电阻触摸，UART |
+| TFT | 2.8 英寸 240×320 ILI9341，SPI，SCK=GPIO40，SDA=GPIO39，RST=GPIO38，DC=GPIO2，CS=GPIO1，3.3V，竖屏常亮 |
+| 按钮 | GPIO41，高电平触发，内部下拉；按一次启动，再按一次停止 |
 | 土壤湿度 | HW-390 V2.0 电容式，VCC/GND/AOUT，AOUT 接 GPIO4（ADC） |
 | 空气温湿度 | SHT31，I²C，SDA=GPIO8，SCL=GPIO9 |
 | 光照 | BH1750，I²C，与 SHT31 共用总线 |
 | 灌溉执行 | 3.3V 供电、**高电平触发**继电器，IN=GPIO5；低压直流水泵 |
 | 水位检测 | **不安装**，系统不提供水位/缺水自动检测 |
 
-### 接线图
+### 接线
 
-[![AgriVerse 接线图（初稿）](docs/WIRING_DIAGRAM.svg)](docs/WIRING_DIAGRAM.svg)
+完整引脚表见 [docs/GPIO_WIRING.md](docs/GPIO_WIRING.md)。TFT 使用 GPIO40/39 的 SPI，CS/DC/RST 为 GPIO1/2/38；SHT31/BH1750 保持在 GPIO8/9。按钮只提交灌溉意图，不直接操作继电器。
 
-> 实线为导线，圆点为连接点，无圆点交叉不相连。屏幕 VCC/电平、继电器 IN 上拉、泵额定参数仍需实物核对；**3.3V 屏严禁接 5V**。完整引脚表见 [docs/GPIO_WIRING.md](docs/GPIO_WIRING.md)。
+**本地交互：** TFT 竖屏常亮，每秒刷新空气温湿度、土壤、光照、水泵、适宜度和当前节气农事；GPIO41 高电平按钮按一次启动，再按一次停止；停泵后 5 秒内再按会自动排队，待 `min_off_s` 结束后启动；20 秒上限仍会自动停止。
 
 ### 继电器安全逻辑（强制）
 
@@ -106,8 +107,8 @@ AgriVerse/
 │  ├─ storage/                      # 原子 JSON / 历史 JSONL
 │  ├─ netmgr/                       # Wi-Fi 状态机
 │  └─ web/                          # HTTP API / 静态服务
-├─ Touch_screen/                    # 串口屏页面规格与资源说明
-├─ docs/                            # 架构、硬件、API、测试、TJC 资料
+├─ mcp_server/                      # Windows MCP bridge（stdio/HTTP）
+├─ docs/                            # 架构、硬件、API、MCP、测试
 ├─ tools/                           # 构建、模拟器、部署、测试
 ├─ tests/                           # 标准库 unittest
 ├─ README.md
@@ -130,6 +131,25 @@ AgriVerse/
 
 详见 [docs/API.md](docs/API.md)。
 
+## MCP（Windows PC）
+
+MCP Server 运行在同一局域网的 Windows 电脑上，ESP32 仍是灌溉安全的最终执行者。DSH 已通过官方 `dsh-mcp-client` 接入，工具名为 `mcp__agriverse__*`：
+
+```powershell
+cd mcp_server
+.\install.ps1
+$env:AGRI_BASE_URL = "http://192.168.153.234"
+$env:AGRI_ALLOW_CONTROL = "1"
+.\.venv\Scripts\python.exe -m agriverse_mcp
+```
+
+- 默认只读；`AGRI_ALLOW_CONTROL=1` 才注册启泵、阈值、模式和档案工具；
+- `start_irrigation` 必须传 `confirm="START_IRRIGATION"`，运行时长由设备 `max_run_s` 强制限制；
+- `stop_irrigation` 始终可用；
+- PIN 只从 `AGRI_PIN` 环境变量读取，不写入日志。
+
+详见 [mcp_server/README.md](mcp_server/README.md) 与 [docs/MCP.md](docs/MCP.md)。
+
 ## 烧录与部署
 
 1. 安装 MicroPython 固件到 ESP32-S3（需按开发板确认固件与 USB 模式）。
@@ -140,7 +160,7 @@ AgriVerse/
 python tools\deploy.py --port COM6
 ```
 
-部署脚本会把 `ESP/` 下的 `.py` 与构建后的 Web 静态文件写入板端。屏幕未接时，Wi-Fi 用本地脚本配置（密码不经过聊天）：
+部署脚本会把 `ESP/` 下的 `.py` 与构建后的 Web 静态文件写入板端。Wi-Fi 用本地脚本配置（密码不经过聊天）：
 
 ```bat
 python tools\provision_wifi.py --port COM10
@@ -151,14 +171,16 @@ python tools\provision_wifi.py --port COM10
 ## 已知限制
 
 - 真机未接入时，所有传感器/灌溉结论只代表主机仿真，不代表硬件已验证。
-- 串口屏 `.HMI` 工程尚未创建；协议、UART 传输、屏幕控制器和 HMI 组件规范已完成，屏幕实际联调待电平转换后接入。
-- 24 个节气的农事、谚语和习俗均已补齐；植物档案/阶段、自定义权重已实现；串口屏与 MCP 仍待完成。
-- 设备 PIN 默认关闭；启用前需要先完成屏幕或设置页的 PIN 展示流程。
-- 本项目不使用云服务器，不依赖互联网；MCP 扩展尚未实现，但 API 已为后续 MCP Server 提供稳定接口。
+- 串口屏设计已移除；TFT 常亮显示环境数据，按钮 GPIO41 按一次启动、再按一次停止。
+- 24 个节气的农事、谚语和习俗均已补齐；植物档案/阶段、自定义权重已实现。
+- 设备 PIN 默认关闭；本版没有本地 PIN 显示入口。
+- 本项目不使用云服务器，不依赖互联网；MCP Server 运行在同一局域网的 Windows 电脑上，电脑休眠时 MCP 不可用，但不影响设备本地自动灌溉和网页。
 
 ## 安全与隐私
 
-- 仓库为私人仓库；不包含 Wi-Fi 密码、设备 PIN 或云服务密钥。
-- Wi-Fi 凭证只保存在设备 `/data/wifi.json`，不上传、不在 API 返回、不写入日志。
-- 管理页面不展示已保存的 Wi-Fi 密码。
+- 仓库为私人仓库；不包含真实 Wi-Fi 密码、设备 PIN 或云服务密钥。
+- 本地开发凭据只放在被 `.gitignore` 忽略的 `ESP/wifi_secrets.py`；公开仓库只保留 `ESP/wifi_secrets.example.py` 的 `wifi_ssid` / `password` 占位符。
+- 设备优先使用 `/data/wifi.json` 的已保存凭据；文件不存在时才回退到本地 `wifi_secrets.py`。
+- Wi-Fi 密码不会通过 API 返回、不写入日志、不在管理页面展示。
+- 提交前必须检查 `git status` 和 diff，禁止把 `ESP/wifi_secrets.py` 加入版本库。
 - 继电器默认关闭不能依赖软件；请先完成硬件下拉与 COM/NO 接线核对。

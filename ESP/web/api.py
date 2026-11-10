@@ -140,7 +140,7 @@ class DeviceApi:
         if not isinstance(payload, dict):
             raise ApiError(400, "BAD_BODY", "body must be a JSON object")
         allowed = {}
-        for key in ("irrigation", "plant", "calibration", "display"):
+        for key in ("irrigation", "plant", "calibration", "tft", "button"):
             if key in payload:
                 if not isinstance(payload[key], dict):
                     raise ApiError(400, "BAD_BODY", "%s must be an object" % key)

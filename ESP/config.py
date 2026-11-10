@@ -39,8 +39,7 @@ DEFAULT_CONFIG = {
         "sensor_stale_s": 90,
     },
     "security": {
-        # M1 keeps PIN enforcement off until the TJC screen can display a
-        # generated PIN.  The API/UI 401 path is implemented and tested.
+        # PIN enforcement stays off until a local UI can display the PIN.
         "require_pin": False,
         "pin": "",
     },
@@ -52,17 +51,28 @@ DEFAULT_CONFIG = {
         "soil_adc": 4,
         "i2c_sda": 8,
         "i2c_scl": 9,
-        "uart_tx": 17,
-        "uart_rx": 18,
+        "tft_sck": 40,
+        "tft_sda": 39,
+        "tft_rst": 38,
+        "tft_dc": 2,
+        "tft_cs": 1,
+        "button": 41,
         "relay": 5,
     },
     "features": {
-        "display": False,
         "web": True,
     },
-    "display": {
-        "enabled": False,
-        "baudrate": 9600,
+    "tft": {
+        "enabled": True,
+        "rotation": 3,
+        "freq": 20000000,
+        "width": 240,
+        "height": 320,
+    },
+    "button": {
+        "enabled": True,
+        "active_high": True,
+        "debounce_ms": 50,
     },
 }
 
@@ -84,6 +94,31 @@ def _copy(value):
 def default_config():
     """Return a fresh, mutable copy of the defaults."""
     return _copy(DEFAULT_CONFIG)
+
+
+def migrate_config(config):
+    """Remove fields from the retired TJC/UART screen design."""
+    changed = False
+    if isinstance(config.get("display"), dict):
+        config.pop("display", None)
+        changed = True
+    if isinstance(config.get("oled"), dict):
+        config.pop("oled", None)
+        changed = True
+    features = config.get("features")
+    if isinstance(features, dict) and "display" in features:
+        features.pop("display", None)
+        changed = True
+    pins = config.get("pins")
+    if isinstance(pins, dict):
+        for key in ("uart_tx", "uart_rx", "oled_sda", "oled_scl"):
+            if key in pins:
+                pins.pop(key, None)
+                changed = True
+        if pins.get("button") == 14:
+            pins["button"] = 41
+            changed = True
+    return changed
 
 
 def deep_merge(base, override):
@@ -184,27 +219,45 @@ def validate_config(config):
 
     pins = config.get("pins", {})
     pin_values = []
-    for key in ("soil_adc", "i2c_sda", "i2c_scl", "uart_tx", "uart_rx", "relay"):
+    pin_keys = (
+        "soil_adc", "i2c_sda", "i2c_scl",
+        "tft_sck", "tft_sda", "tft_rst", "tft_dc", "tft_cs",
+        "button", "relay",
+    )
+    for key in pin_keys:
         value = pins.get(key)
         if not isinstance(value, int) or isinstance(value, bool) or value < 0 or value > 48:
             errors.append("pins.%s must be an integer GPIO number" % key)
         else:
             pin_values.append(value)
-    if len(pin_values) == 6 and len(set(pin_values)) != 6:
-        errors.append("pins must be unique across soil/i2c/uart/relay")
+    if len(pin_values) == len(pin_keys) and len(set(pin_values)) != len(pin_keys):
+        errors.append("pins must be unique across soil/i2c/tft/button/relay")
 
     features = config.get("features", {})
-    for key in ("display", "web"):
-        if not isinstance(features.get(key), bool):
-            errors.append("features.%s must be a boolean" % key)
+    if not isinstance(features.get("web"), bool):
+        errors.append("features.web must be a boolean")
 
-    display = config.get("display", {})
-    if not isinstance(display, dict):
-        errors.append("display must be an object")
+    tft = config.get("tft", {})
+    if not isinstance(tft, dict):
+        errors.append("tft must be an object")
     else:
-        if not isinstance(display.get("enabled"), bool):
-            errors.append("display.enabled must be a boolean")
-        _check_range(errors, "display.baudrate", display.get("baudrate"), 9600, 115200)
+        if not isinstance(tft.get("enabled"), bool):
+            errors.append("tft.enabled must be a boolean")
+        if tft.get("rotation") not in (0, 1, 2, 3):
+            errors.append("tft.rotation must be 0, 1, 2 or 3")
+        _check_range(errors, "tft.freq", tft.get("freq"), 1000000, 40000000)
+        if tft.get("width") != 240 or tft.get("height") != 320:
+            errors.append("tft.width/height must be 240x320")
+
+    button = config.get("button", {})
+    if not isinstance(button, dict):
+        errors.append("button must be an object")
+    else:
+        if not isinstance(button.get("enabled"), bool):
+            errors.append("button.enabled must be a boolean")
+        if not isinstance(button.get("active_high"), bool):
+            errors.append("button.active_high must be a boolean")
+        _check_range(errors, "button.debounce_ms", button.get("debounce_ms"), 20, 200)
 
     return errors
 

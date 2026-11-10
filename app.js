@@ -233,7 +233,7 @@
       const overlay = make("div", "agri-modal");
       const card = make("div", "agri-modal-card");
       card.appendChild(make("h3", "", "需要设备 PIN"));
-      card.appendChild(make("p", "agri-muted", message || "请输入设备屏幕或设置页显示的 6 位 PIN。"));
+      card.appendChild(make("p", "agri-muted", message || "请输入设置页或设备配置工具中的 6 位 PIN。"));
       const input = make("input", "agri-input");
       input.type = "password";
       input.inputMode = "numeric";
@@ -1407,7 +1407,8 @@
     grid.appendChild(field("主控型号", data.device.model || "ESP32-S3 N16R8"));
     grid.appendChild(field("固件平台", data.device.firmware || "MicroPython"));
     grid.appendChild(field("固件版本", data.device.version || "—"));
-    grid.appendChild(field("触摸屏", "TJC3224T128_011R_A01 · 2.8 英寸"));
+    grid.appendChild(field("本地显示", "2.8 英寸 ILI9341 TFT · 竖屏"));
+    grid.appendChild(field("本地按钮", "GPIO41 · 高电平 · 启动/停止"));
     grid.appendChild(field("传感器", "土壤湿度 / SHT31 / BH1750"));
     grid.appendChild(field("Wi-Fi 状态", network.status === "connected" ? "已连接" : (network.status || "未知")));
     grid.appendChild(field("局域网 IP", network.ip || "—"));

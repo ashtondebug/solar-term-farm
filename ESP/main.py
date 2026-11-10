@@ -31,6 +31,7 @@ from irrigation.relay import Relay
 from netmgr.manager import NetworkManager
 from netmgr.store import WifiStore
 from sensors.bh1750 import BH1750
+from sensors.i2c_bus import RecoveringI2C
 from sensors.manager import SensorManager
 from sensors.sht31 import SHT31
 from sensors.soil import SoilSensor
@@ -104,17 +105,18 @@ class Application:
         wlan = _WLAN
         self.network = NetworkManager(
             wlan,
-            WifiStore(kv, self.logger),
+            WifiStore(kv, self.logger, use_code_defaults=True),
             self.state,
             self.logger,
             self.clock,
         )
         self.network.start()
 
-        i2c = machine.SoftI2C(
-            scl=machine.Pin(self.config["pins"]["i2c_scl"]),
-            sda=machine.Pin(self.config["pins"]["i2c_sda"]),
+        i2c = RecoveringI2C(
+            scl=self.config["pins"]["i2c_scl"],
+            sda=self.config["pins"]["i2c_sda"],
             freq=100000,
+            logger=self.logger,
         )
         adc = machine.ADC(machine.Pin(self.config["pins"]["soil_adc"]))
         try:
@@ -169,38 +171,67 @@ class Application:
             logger=self.logger,
         )
 
-        self.screen = None
-        if self.config.get("display", {}).get("enabled"):
+        self.tft = None
+        self.button = None
+        if self.config.get("tft", {}).get("enabled"):
             try:
-                from display.screen import ScreenController
-                from display.transport import UartTransport
+                from tft.display import TftDisplay
+                from tft.ili9341 import ILI9341
 
-                display_cfg = self.config["display"]
-                uart = machine.UART(
-                    1,
-                    baudrate=int(display_cfg.get("baudrate", 9600)),
-                    tx=machine.Pin(self.config["pins"]["uart_tx"]),
-                    rx=machine.Pin(self.config["pins"]["uart_rx"]),
-                    timeout=0,
+                tft_cfg = self.config["tft"]
+                pins = self.config["pins"]
+                spi = machine.SPI(
+                    2,
+                    baudrate=int(tft_cfg.get("freq", 20000000)),
+                    polarity=0,
+                    phase=0,
+                    sck=machine.Pin(pins["tft_sck"]),
+                    mosi=machine.Pin(pins["tft_sda"]),
                 )
-                self.screen = ScreenController(
-                    UartTransport(uart),
-                    self.state,
-                    self.config,
-                    self.config_store,
-                    self.controller,
-                    self.network,
-                    self.clock,
-                    self.logger,
+                driver = ILI9341(
+                    spi,
+                    cs=pins["tft_cs"],
+                    dc=pins["tft_dc"],
+                    rst=pins["tft_rst"],
+                    width=240,
+                    height=320,
+                    rotation=int(tft_cfg.get("rotation", 0)),
                 )
+                self.tft = TftDisplay(driver, self.state, self.clock, self.logger)
                 self.logger.info(
-                    "screen UART1 on TX%s/RX%s at %s baud",
-                    self.config["pins"]["uart_tx"],
-                    self.config["pins"]["uart_rx"],
-                    display_cfg.get("baudrate", 9600),
+                    "tft ILI9341 SCK%s/SDA%s CS%s DC%s RST%s",
+                    pins["tft_sck"],
+                    pins["tft_sda"],
+                    pins["tft_cs"],
+                    pins["tft_dc"],
+                    pins["tft_rst"],
                 )
             except Exception as exc:
-                self.logger.warn("screen init failed: %s", exc)
+                self.logger.warn("tft init failed: %s", exc)
+
+        if self.config.get("button", {}).get("enabled"):
+            try:
+                from button import PumpButton
+
+                button_cfg = self.config["button"]
+                button_pin = machine.Pin(
+                    self.config["pins"]["button"],
+                    machine.Pin.IN,
+                    machine.Pin.PULL_DOWN,
+                )
+                self.button = PumpButton(
+                    button_pin,
+                    self.controller,
+                    self.clock,
+                    self.logger,
+                    active_high=bool(button_cfg.get("active_high", True)),
+                    debounce_ms=int(button_cfg.get("debounce_ms", 50)),
+                )
+                self.logger.info(
+                    "button on GPIO%s active-high", self.config["pins"]["button"]
+                )
+            except Exception as exc:
+                self.logger.warn("button init failed: %s", exc)
 
         self.logger.info("build complete")
         return self
@@ -298,8 +329,10 @@ class Application:
         ]
         if self.config.get("features", {}).get("web", True):
             tasks.append(asyncio.create_task(self._guard("web", self.web.serve_forever)))
-        if self.screen is not None:
-            tasks.append(asyncio.create_task(self._guard("screen", self.screen.run)))
+        if self.tft is not None:
+            tasks.append(asyncio.create_task(self._guard("tft", self.tft.run)))
+        if self.button is not None:
+            tasks.append(asyncio.create_task(self._guard("button", self.button.run)))
         await asyncio.gather(*tasks)
 
 

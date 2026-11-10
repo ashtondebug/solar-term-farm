@@ -1,49 +1,79 @@
 #!/usr/bin/env python3
 """Prompt locally for Wi-Fi credentials and write them to the board.
 
-The password is read with getpass, never printed, never passed through the
-chat, and only written to a temporary file that is uploaded to
-``/data/wifi.json`` and then deleted. After reset the script reads the serial
-log to show the IP address (or the failure reason).
+The password is read with getpass, never printed and never sent through chat.
+This script uses the serial REPL directly instead of mpremote so the device
+watchdog cannot interrupt the upload. It writes ``/data/wifi.json``, restores
+``main.py``, resets, and reads the resulting IP from the serial log.
 """
 
 import argparse
+import base64
 import getpass
 import json
-import os
-import subprocess
-import sys
-import tempfile
 import time
 
+import serial
 
-def run(command):
-    print("+ " + " ".join(command))
-    code = subprocess.call(command)
-    if code != 0:
-        raise SystemExit("command failed: %s" % " ".join(command))
+
+def _drain(ser):
+    try:
+        return ser.read(ser.in_waiting or 1)
+    except Exception:
+        return b""
+
+
+def _prompt(ser):
+    for _ in range(20):
+        ser.write(b"\x03")
+        time.sleep(0.25)
+        if b">>>" in _drain(ser):
+            return True
+    return False
+
+
+def _cmd(ser, text, wait=0.05):
+    ser.write(text.encode("ascii") + b"\r\n")
+    time.sleep(wait)
+    _drain(ser)
+
+
+def _reset(ser, wait_s=5):
+    _cmd(ser, "import machine; machine.reset()", 0.2)
+    time.sleep(wait_s)
+    return _prompt(ser)
+
+
+def upload(port, ssid, password):
+    payload = json.dumps({"ssid": ssid, "password": password}, ensure_ascii=False).encode("utf-8")
+    encoded = base64.b64encode(payload).decode("ascii")
+    ser = serial.Serial(port, 115200, timeout=0.25, write_timeout=1)
+    try:
+        if not _prompt(ser):
+            raise SystemExit("no serial REPL prompt")
+        _cmd(ser, "import os")
+        try:
+            _cmd(ser, "os.rename('main.py','main.bak')")
+        except Exception:
+            pass
+        if not _reset(ser):
+            raise SystemExit("no REPL after disabling main")
+        _cmd(ser, "import os")
+        _cmd(ser, "os.mkdir('data')")
+        _cmd(ser, "import binascii")
+        _cmd(ser, "f=open('/data/wifi.json','wb')")
+        for index in range(0, len(encoded), 160):
+            _cmd(ser, "f.write(binascii.a2b_base64('%s'))" % encoded[index:index + 160], 0.03)
+        _cmd(ser, "f.close()")
+        _cmd(ser, "os.rename('main.bak','main.py')")
+        _cmd(ser, "import machine; machine.reset()", 0.2)
+        time.sleep(2)
+    finally:
+        ser.close()
 
 
 def read_until_ip(port, timeout_s):
-    try:
-        import serial
-    except ImportError:
-        print("pyserial is not available; check the serial log manually.")
-        return
-    time.sleep(1.5)
-    ser = serial.Serial()
-    ser.port = port
-    ser.baudrate = 115200
-    ser.timeout = 1
-    ser.dtr = False
-    ser.rts = False
-    try:
-        ser.open()
-        ser.reset_input_buffer()
-    except Exception as exc:
-        print("serial open failed: %s" % exc)
-        return
-    print("waiting for Wi-Fi (up to %ss)..." % timeout_s)
+    ser = serial.Serial(port, 115200, timeout=0.5)
     deadline = time.time() + timeout_s
     buffer = ""
     try:
@@ -54,25 +84,25 @@ def read_until_ip(port, timeout_s):
             text = data.decode("utf-8", "replace")
             print(text, end="")
             buffer += text
-            if "wifi connected:" in buffer or "192.168." in buffer:
+            if "wifi connected:" in buffer:
                 return
             if "wrong_password" in buffer:
-                print("\nWi-Fi password rejected (wrong_password). Re-run the script.")
+                print("\nWi-Fi password rejected. Re-run the script.")
                 return
             if "no_ap_found" in buffer:
-                print("\nWi-Fi SSID not found (no_ap_found). Check the SSID.")
+                print("\nWi-Fi SSID not found. Check the hotspot name.")
                 return
             if "provisioning" in buffer:
-                print("\nFive attempts failed; device entered provisioning.")
+                print("\nDevice entered provisioning after repeated failures.")
                 return
     finally:
         ser.close()
-    print("\nNo IP seen before timeout; check the serial log or router.")
+    print("\nNo IP observed before timeout; check the serial log.")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Upload Wi-Fi credentials to AgriVerse")
-    parser.add_argument("--port", default="COM10", help="serial port, e.g. COM10")
+    parser.add_argument("--port", default="COM11", help="serial port, e.g. COM11")
     parser.add_argument("--timeout", type=int, default=60, help="seconds to wait for IP")
     parser.add_argument("--no-wait", action="store_true", help="do not read the serial log")
     args = parser.parse_args()
@@ -86,22 +116,8 @@ def main():
     if len(password) > 64:
         raise SystemExit("password is too long (max 64)")
 
-    fd, path = tempfile.mkstemp(prefix="agri-wifi-", suffix=".json")
-    os.close(fd)
-    try:
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump({"ssid": ssid, "password": password}, handle, ensure_ascii=False)
-        print("+ mpremote connect %s fs mkdir :data" % args.port)
-        subprocess.call(["mpremote", "connect", args.port, "fs", "mkdir", ":data"])
-        run(["mpremote", "connect", args.port, "fs", "cp", path, ":data/wifi.json"])
-    finally:
-        try:
-            os.remove(path)
-        except OSError:
-            pass
-
-    print("credentials uploaded; resetting board")
-    run(["mpremote", "connect", args.port, "reset"])
+    upload(args.port, ssid, password)
+    print("credentials uploaded; waiting for Wi-Fi")
     if not args.no_wait:
         read_until_ip(args.port, args.timeout)
 

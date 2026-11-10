@@ -2,13 +2,13 @@
 
 ## 1. 目标
 
-设备在**无云、无互联网**的局域网中独立运行：采集环境数据、计算适宜度、执行受约束的灌溉、向浏览器与串口屏提供一致状态。Web、屏幕与未来的 MCP 都只是客户端，不拥有硬件。
+设备在**无云、无互联网**的局域网中独立运行：采集环境数据、计算适宜度、执行受约束的灌溉、向浏览器、TFT 和 MCP 提供一致状态。Web、TFT、按钮与 MCP 都只是客户端/意图源，不拥有硬件。
 
 ## 2. 分层
 
 ```text
-浏览器 / TJC 屏 / MCP Server
-        │ HTTP / UART
+浏览器 / TFT / MCP Server / GPIO41 按钮
+        │ HTTP / I²C / HTTP / intent
         ▼
 ESP/web/api.py  ── 统一 JSON envelope、鉴权、参数校验
         │
@@ -71,4 +71,4 @@ Relay(GPIO5) / I²C / ADC / Wi-Fi
 
 M1 已实现：配置/状态/存储、三传感器、适宜度、24 节气算法与元数据、灌溉状态机、HTTP API、Web 数据层、模拟器、测试与文档。
 
-后续：真机 bring-up、Wi-Fi 屏幕配网、PIN 启用、24 节气长文案、TJC HMI、MCP Server。详见 `PROGRESS.md`。
+后续：真机 bring-up、Wi-Fi 配网验证、TFT/按钮实测、二十四节气长文案、MCP 工具验收。详见 `PROGRESS.md`。

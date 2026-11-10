@@ -13,9 +13,11 @@
 
 **ESP32S3开发语言：** MicroPython
 
-**显示设备：** 淘晶驰 TJC3224T128_011R_A01 2.8 英寸 UART 串口触摸屏
+**显示设备：** 2.8 英寸 240×320 SPI TFT（ILI9341），SCK=GPIO40，SDA=GPIO39，RST=GPIO38，DC=GPIO2，CS=GPIO1，3.3V，常亮
 
-**屏幕开发软件：** USART HMI
+**本地输入：** GPIO41 高电平按钮；内部下拉；按一次启动，再按一次停止；停泵后 5 秒内再按会排队到 `min_off_s` 结束；设备 `max_run_s` 仍会自动停止
+
+> **2026-11-09 设计变更：** 原淘晶驰 TJC 串口屏方案已移除。本文件中后续涉及 TJC、USART HMI、屏幕页面、屏幕 UART 的段落仅作历史记录，不再作为实现要求。当前本地交互以 2.8 英寸 SPI TFT + GPIO41 按钮为准；SHT31/BH1750 仍使用 GPIO8/9。
 
 **网络方式：** Wi-Fi + 局域网 Web 管理
 
@@ -220,8 +222,12 @@ SHT31 与 BH1750 可以共用 I²C 总线，但必须核实地址、供电和上
 | GPIO4 | HW-390 V2.0 土壤湿度传感器 AOUT | ADC |
 | GPIO8 | SHT31、BH1750 SDA | I²C 数据 |
 | GPIO9 | SHT31、BH1750 SCL | I²C 时钟 |
-| GPIO17 | 串口屏 RX | ESP32-S3 TX |
-| GPIO18 | 串口屏 TX | ESP32-S3 RX |
+| GPIO40 | TFT SCK | SPI 时钟 |
+| GPIO39 | TFT SDA/MOSI | SPI 数据 |
+| GPIO38 | TFT RST | 复位 |
+| GPIO2 | TFT DC | 数据/命令 |
+| GPIO1 | TFT CS | 片选 |
+| GPIO41 | 按钮 OUT | 高电平按下，内部下拉 |
 | GPIO5 | 3.3V 高电平触发继电器 IN | HIGH 启动，LOW 停止 |
 
 以上是初步规划，不是最终接线表。

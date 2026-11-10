@@ -72,7 +72,7 @@ python tools\deploy.py --dry-run
 
 ## 7. Wi-Fi 配置
 
-设备端已实现扫描、连接、验证、5 次失败转配网（M3A，见 `docs/WIFI_PROVISIONING.md`）；屏幕配网页面尚未接入。屏幕未接时，推荐使用本地脚本（密码不经过聊天）：
+设备端已实现扫描、连接、验证、5 次失败转配网（M3A，见 `docs/WIFI_PROVISIONING.md`）；配网入口由 Web 页面提供。推荐使用本地脚本（密码不经过聊天）：
 
 ```bat
 python tools\provision_wifi.py --port COM10
@@ -85,14 +85,14 @@ python tools\provision_wifi.py --port COM10
 ```
 
 - 该文件不会通过 Web API 返回，也不写入日志。
-- 连续 5 次连接失败后，`network.status` 变为 `provisioning`，等待后续屏幕配网流程。
+- 连续 5 次连接失败后，`network.status` 变为 `provisioning`，等待 Web 配网流程。
 - 没有 Wi-Fi 时，采集、适宜度、自动灌溉仍应运行；Web 无法访问。
 
 ## 8. 设备 PIN
 
-M1 默认 `security.require_pin=false`，便于在屏幕尚未完成时调试。启用方式：
+M1 默认 `security.require_pin=false`，便于调试。启用方式：
 
-1. 等待 TJC 屏幕能显示设备 PIN，或在受控环境通过串口 REPL 读取配置；
+1. 在受控环境通过串口 REPL 或配置工具设置 PIN；
 2. 将 `/data/config.json` 的 `security.require_pin` 设为 `true`，`security.pin` 设为 6 位数字；
 3. 重启后，控制/配置写入需要 `X-AgriVerse-Pin`；页面会弹窗要求输入。
 
@@ -109,7 +109,7 @@ M1 默认 `security.require_pin=false`，便于在屏幕尚未完成时调试。
 | 页面显示「开发模拟器」 | 当前连接的是主机 devserver，不是 ESP32 |
 | 传感器显示「未标定」 | 先完成 HW-390 干湿两点校准，写入 `/data/config.json` |
 | 水泵不启动 | 检查模式、阈值、最小停泵、故障锁存、继电器 IN 电平与硬件接线 |
-| 控制返回 401 | `security.require_pin=true`，输入屏幕显示的 6 位 PIN |
+| 控制返回 401 | `security.require_pin=true`，在客户端输入 6 位 PIN |
 
 ## 10. 本机 Git 代理备注
 
