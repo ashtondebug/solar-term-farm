@@ -58,6 +58,7 @@ DEFAULT_CONFIG = {
         "tft_cs": 1,
         "button": 41,
         "relay": 5,
+        "relay_feedback": None,
     },
     "features": {
         "web": True,
@@ -230,8 +231,14 @@ def validate_config(config):
             errors.append("pins.%s must be an integer GPIO number" % key)
         else:
             pin_values.append(value)
-    if len(pin_values) == len(pin_keys) and len(set(pin_values)) != len(pin_keys):
-        errors.append("pins must be unique across soil/i2c/tft/button/relay")
+    feedback = pins.get("relay_feedback")
+    if feedback is not None:
+        if not isinstance(feedback, int) or isinstance(feedback, bool) or feedback < 0 or feedback > 48:
+            errors.append("pins.relay_feedback must be null or an integer GPIO number")
+        else:
+            pin_values.append(feedback)
+    if len(set(pin_values)) != len(pin_values):
+        errors.append("pins must be unique across soil/i2c/tft/button/relay/feedback")
 
     features = config.get("features", {})
     if not isinstance(features.get("web"), bool):

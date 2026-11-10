@@ -85,10 +85,25 @@ class Application:
         self.config_store = ConfigStore(kv, self.logger)
         self.config = self.config_store.load()
         relay_number = int(self.config["pins"].get("relay", 5))
-        if relay_number != 5:
+        feedback_number = self.config["pins"].get("relay_feedback")
+        if relay_number != 5 or feedback_number is not None:
             reviewed_pin = machine.Pin(relay_number, machine.Pin.OUT, value=0)
-            self.relay = Relay(reviewed_pin, active_high=True, logger=self.logger)
-            self.logger.warn("relay moved from GPIO5 to config pin %s", relay_number)
+            feedback_pin = None
+            if feedback_number is not None:
+                feedback_pin = machine.Pin(
+                    int(feedback_number), machine.Pin.IN, machine.Pin.PULL_UP
+                )
+            self.relay = Relay(
+                reviewed_pin,
+                active_high=True,
+                logger=self.logger,
+                feedback_pin=feedback_pin,
+                feedback_active_low=True,
+            )
+            if relay_number != 5:
+                self.logger.warn("relay moved from GPIO5 to config pin %s", relay_number)
+            if feedback_pin is not None:
+                self.logger.info("relay feedback on GPIO%s", feedback_number)
         self.state.set_device(
             name=self.config["device"]["name"],
             model=DEVICE_MODEL,
