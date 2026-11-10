@@ -43,6 +43,35 @@ class RelayTests(unittest.TestCase):
         relay.off("test")
         self.assertEqual(pin.value(), 0)
 
+    def test_feedback_tracks_relay_state(self):
+        pin = FakePin()
+        feedback = _FeedbackPin(pin)
+        relay = Relay(pin, feedback_pin=feedback)
+        self.assertTrue(relay.set(True, "test"))
+        self.assertTrue(relay.status()["feedback"])
+        self.assertTrue(relay.set(False, "test"))
+        self.assertFalse(relay.status()["feedback"])
+        self.assertIsNone(relay.fault)
+
+    def test_feedback_mismatch_latches_fault(self):
+        pin = FakePin()
+        feedback = FakePin(0)  # active-low contact stuck closed
+        relay = Relay(pin, feedback_pin=feedback)
+        self.assertTrue(relay.set(True, "test"))
+        self.assertFalse(relay.set(False, "test"))
+        self.assertEqual(pin.value(), 0)
+        self.assertIn("relay_feedback_mismatch", relay.fault)
+
+
+class _FeedbackPin:
+    """Aux contact: closed (0) when the relay output is high."""
+
+    def __init__(self, relay_pin):
+        self.relay_pin = relay_pin
+
+    def value(self):
+        return 0 if self.relay_pin.value() else 1
+
 
 class IrrigationTests(unittest.TestCase):
     def test_manual_start_and_max_run(self):

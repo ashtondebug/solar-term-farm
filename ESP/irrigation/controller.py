@@ -149,10 +149,15 @@ class IrrigationController:
 
     def clear_fault(self):
         # Only clear after the relay has been driven to its safe state.
-        self.relay.off("fault_cleared")
+        now = self.clock.now()
+        if not self.relay.off("fault_cleared"):
+            # Do not mask a stuck contact or GPIO write failure.
+            self.publish(now)
+            return False
         self.relay.fault = None
         self.state = STATE_IDLE
-        self.publish(self.clock.now())
+        self.publish(now)
+        return True
 
     def publish(self, now):
         cfg = self.irrigation_config
@@ -160,6 +165,7 @@ class IrrigationController:
             remaining = max(0, int(cfg.get("max_run_s", 20)) - (int(now) - int(self.started_ts)))
         else:
             remaining = 0
+        relay_status = self.relay.status()
         if self.relay.fault:
             self.state = STATE_FAULT
         payload = {
@@ -175,6 +181,7 @@ class IrrigationController:
             "history": self.history.recent(10),
             "last_action": self.last_action,
             "alarm": "FAULT" if self.relay.fault else None,
+            "relay_feedback": relay_status.get("feedback"),
         }
         self.state_store.set_irrigation(payload)
         return payload
