@@ -10,7 +10,7 @@
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
-`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `73 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S` · `v0.1.1-dev`
+`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `73 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S` · `v0.1.0`
 
 SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
@@ -564,8 +564,10 @@ SolarTerm Farm/
 - [x] Windows MCP Server
 - [x] ILI9341 TFT 驱动与英文仪表盘
 - [x] GPIO41 按钮启停
-- [x] 长时运行、故障注入与告警状态主机测试（v0.1.1-dev）
-- [ ] 真机长时泵运行、故障注入与告警验收
+- [x] 长时运行、故障注入与告警状态主机测试
+- [x] 真实继电器故障注入测试脚本与验收矩阵（待真机执行）
+- [ ] 真机长时泵运行与故障注入执行
+- [ ] 继电器状态反馈（辅助触点/电流检测）
 - [ ] TFT 方向/刷新稳定性真机验收
 - [ ] 泵启动时 TFT 白屏/花屏的电源与 EMI 整改
 - [ ] 土壤干湿两点标定实测
@@ -578,6 +580,7 @@ SolarTerm Farm/
 - **TFT 仍在 bring-up**：当前使用 `rotation=3`，方向、闪烁和泵启动时的白屏需要继续按实物验证。
 - **电源干扰**：水泵/继电器启动可能造成 3.3V 跌落或 TFT RST 干扰；需要独立供电、滤波和续流二极管。
 - **无水位检测**：系统不做缺水自动保护，泵不能长期无人值守运行。
+- **无继电器反馈**：当前只能确认 GPIO 输出，不能确认继电器触点真正闭合；真实线圈/触点故障需辅助触点或电流检测。测试流程见 [docs/RELAY_FAULT_INJECTION.md](docs/RELAY_FAULT_INJECTION.md)。
 - **Wi-Fi 仅 2.4GHz**：ESP32-S3 不支持 5GHz。
 - **PIN 默认关闭**：当前版本没有本地 PIN 显示入口；启用前先确认输入方式。
 - **MCP 依赖局域网**：电脑休眠、IP 变化或热点关闭时 MCP 不可用，不影响设备本地逻辑。
@@ -649,6 +652,7 @@ Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 | [docs/WIFI_PROVISIONING.md](docs/WIFI_PROVISIONING.md) | Wi-Fi 状态机与故障处理 |
 | [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | 测试计划与验收项 |
 | [docs/TEST_RECORD.md](docs/TEST_RECORD.md) | 测试记录 |
+| [docs/RELAY_FAULT_INJECTION.md](docs/RELAY_FAULT_INJECTION.md) | 真实继电器故障注入流程 |
 | [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md) | OSHW 合规、设计源与许可证矩阵 |
 | [hardware/BOM.csv](hardware/BOM.csv) | 物料清单 |
 | [hardware/SCHEMATIC.svg](hardware/SCHEMATIC.svg) | 模块级原理图 |
