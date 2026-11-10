@@ -43,6 +43,35 @@ class RelayTests(unittest.TestCase):
         relay.off("test")
         self.assertEqual(pin.value(), 0)
 
+    def test_feedback_tracks_relay_state(self):
+        pin = FakePin()
+        feedback = _FeedbackPin(pin)
+        relay = Relay(pin, feedback_pin=feedback)
+        self.assertTrue(relay.set(True, "test"))
+        self.assertTrue(relay.status()["feedback"])
+        self.assertTrue(relay.set(False, "test"))
+        self.assertFalse(relay.status()["feedback"])
+        self.assertIsNone(relay.fault)
+
+    def test_feedback_mismatch_latches_fault(self):
+        pin = FakePin()
+        feedback = FakePin(0)  # active-low contact stuck closed
+        relay = Relay(pin, feedback_pin=feedback)
+        self.assertTrue(relay.set(True, "test"))
+        self.assertFalse(relay.set(False, "test"))
+        self.assertEqual(pin.value(), 0)
+        self.assertIn("relay_feedback_mismatch", relay.fault)
+
+
+class _FeedbackPin:
+    """Aux contact: closed (0) when the relay output is high."""
+
+    def __init__(self, relay_pin):
+        self.relay_pin = relay_pin
+
+    def value(self):
+        return 0 if self.relay_pin.value() else 1
+
 
 class IrrigationTests(unittest.TestCase):
     def test_manual_start_and_max_run(self):
@@ -97,6 +126,44 @@ class IrrigationTests(unittest.TestCase):
         result = controller.request("start", "manual", "r1", 1000)
         self.assertFalse(result["ok"])
         self.assertEqual(result["code"], "FAULT")
+
+    def test_button_start_is_manual_state(self):
+        config, pin, relay, state, clock, history, controller = build()
+        result = controller.request("start", "button", "b1", 1000)
+        self.assertTrue(result["ok"])
+        self.assertEqual(state.get("irrigation.state"), "manual")
+
+    def test_long_run_stops_at_max_run(self):
+        config, pin, relay, state, clock, history, controller = build(max_run=10)
+        controller.request("start", "auto", "long", 1000)
+        # Simulate two hours of ticks; max_run must still win.
+        for now in range(1001, 8201):
+            controller.tick(now, None)
+        self.assertEqual(pin.value(), 0)
+        self.assertFalse(state.get("irrigation.pump"))
+        record = history.recent(1)[0]
+        self.assertEqual(record["stop_reason"], "max_run")
+        self.assertEqual(record["duration_s"], 10)
+
+    def test_fault_while_running_forces_pump_off_and_alarms(self):
+        config, pin, relay, state, clock, history, controller = build()
+        controller.request("start", "manual", "f1", 1000)
+        self.assertEqual(pin.value(), 1)
+        relay.fault = "injected relay fault"
+        controller.tick(1001, None)
+        self.assertEqual(pin.value(), 0)
+        self.assertEqual(state.get("irrigation.state"), "fault")
+        self.assertEqual(state.get("irrigation.alarm"), "FAULT")
+
+    def test_clear_fault_drives_off_and_returns_idle(self):
+        config, pin, relay, state, clock, history, controller = build()
+        controller.request("start", "manual", "f1", 1000)
+        relay.fault = "injected"
+        controller.tick(1001, None)
+        controller.clear_fault()
+        self.assertEqual(pin.value(), 0)
+        self.assertEqual(state.get("irrigation.state"), "idle")
+        self.assertIsNone(state.get("irrigation.alarm"))
 
 
 if __name__ == "__main__":

@@ -154,7 +154,7 @@ node --check app.js
 python -m unittest discover -s tests -v
 ```
 
-当前基线：**69 项主机测试通过**。
+当前基线：**76 项主机测试通过**。
 
 MCP：
 
@@ -199,7 +199,7 @@ cd mcp_server
 提交 PR 前请确认：
 
 - [ ] 改动范围单一，提交信息清晰
-- [ ] 69 项主机测试通过（或说明新增/变更的测试）
+- [ ] 76 项主机测试通过（或说明新增/变更的测试）
 - [ ] MCP 改动通过 `mcp_server/tests`
 - [ ] 未提交 `ESP/wifi_secrets.py`、HMI/字体文件或真实凭据
 - [ ] 已同步相关文档、引脚表和 API 说明
