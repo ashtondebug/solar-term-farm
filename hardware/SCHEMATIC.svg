@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="SolarTerm Farm module-level schematic">
+  <title>SolarTerm Farm module-level schematic</title>
+  <rect width="1600" height="1000" fill="#ffffff"/>
+  <text x="40" y="42" font-family="sans-serif" font-size="26" font-weight="bold" fill="#173d32">SolarTerm Farm — module-level schematic</text>
+  <text x="40" y="68" font-family="sans-serif" font-size="14" fill="#555">Module-level build · not to scale · hardware license: CERN-OHL-S-2.0</text>
+
+  <!-- ESP32 -->
+  <rect x="70" y="170" width="330" height="650" rx="12" fill="#f4faf6" stroke="#173d32" stroke-width="3"/>
+  <text x="90" y="204" font-family="sans-serif" font-size="20" font-weight="bold" fill="#173d32">ESP32-S3 N16R8</text>
+  <text x="90" y="228" font-family="sans-serif" font-size="13" fill="#555">MicroPython · 3.3 V logic</text>
+  <text x="90" y="275" font-family="sans-serif" font-size="14" fill="#333">GPIO1   TFT_CS</text>
+  <text x="90" y="305" font-family="sans-serif" font-size="14" fill="#333">GPIO2   TFT_DC</text>
+  <text x="90" y="335" font-family="sans-serif" font-size="14" fill="#333">GPIO4   SOIL_ADC</text>
+  <text x="90" y="365" font-family="sans-serif" font-size="14" fill="#333">GPIO5   RELAY_IN</text>
+  <text x="90" y="395" font-family="sans-serif" font-size="14" fill="#333">GPIO8   I2C_SDA</text>
+  <text x="90" y="425" font-family="sans-serif" font-size="14" fill="#333">GPIO9   I2C_SCL</text>
+  <text x="90" y="455" font-family="sans-serif" font-size="14" fill="#333">GPIO38  TFT_RST</text>
+  <text x="90" y="485" font-family="sans-serif" font-size="14" fill="#333">GPIO39  TFT_SDA</text>
+  <text x="90" y="515" font-family="sans-serif" font-size="14" fill="#333">GPIO40  TFT_SCK</text>
+  <text x="90" y="545" font-family="sans-serif" font-size="14" fill="#333">GPIO41  BUTTON</text>
+  <text x="90" y="590" font-family="sans-serif" font-size="14" fill="#333">3V3     3.3 V rail</text>
+  <text x="90" y="620" font-family="sans-serif" font-size="14" fill="#333">GND     common ground</text>
+  <text x="90" y="680" font-family="sans-serif" font-size="13" fill="#555">Do not use GPIO35–37</text>
+  <text x="90" y="700" font-family="sans-serif" font-size="13" fill="#555">(PSRAM pins on N16R8)</text>
+
+  <!-- TFT -->
+  <rect x="1140" y="120" width="380" height="300" rx="12" fill="#f4faf6" stroke="#1d6049" stroke-width="3"/>
+  <text x="1160" y="154" font-family="sans-serif" font-size="20" font-weight="bold" fill="#173d32">2.8" TFT — ILI9341</text>
+  <text x="1160" y="180" font-family="sans-serif" font-size="13" fill="#555">240×320 · SPI · 3.3 V</text>
+  <text x="1160" y="225" font-family="sans-serif" font-size="14" fill="#333">VCC → 3.3 V</text>
+  <text x="1160" y="255" font-family="sans-serif" font-size="14" fill="#333">GND → GND</text>
+  <text x="1160" y="285" font-family="sans-serif" font-size="14" fill="#333">SCK → GPIO40</text>
+  <text x="1160" y="315" font-family="sans-serif" font-size="14" fill="#333">SDA → GPIO39</text>
+  <text x="1160" y="345" font-family="sans-serif" font-size="14" fill="#333">RST → GPIO38</text>
+  <text x="1160" y="375" font-family="sans-serif" font-size="14" fill="#333">DC  → GPIO2</text>
+  <text x="1160" y="405" font-family="sans-serif" font-size="14" fill="#333">CS  → GPIO1</text>
+
+  <!-- Sensors -->
+  <rect x="1140" y="470" width="380" height="210" rx="12" fill="#f4faf6" stroke="#1d6049" stroke-width="3"/>
+  <text x="1160" y="504" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173d32">I²C sensors</text>
+  <text x="1160" y="530" font-family="sans-serif" font-size="13" fill="#555">SHT31 + BH1750 · 3.3 V</text>
+  <text x="1160" y="570" font-family="sans-serif" font-size="14" fill="#333">VCC → 3.3 V</text>
+  <text x="1160" y="600" font-family="sans-serif" font-size="14" fill="#333">GND → GND</text>
+  <text x="1160" y="630" font-family="sans-serif" font-size="14" fill="#333">SDA → GPIO8</text>
+  <text x="1160" y="660" font-family="sans-serif" font-size="14" fill="#333">SCL → GPIO9</text>
+
+  <!-- Soil -->
+  <rect x="1140" y="720" width="380" height="130" rx="12" fill="#f4faf6" stroke="#1d6049" stroke-width="3"/>
+  <text x="1160" y="754" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173d32">HW-390 soil</text>
+  <text x="1160" y="780" font-family="sans-serif" font-size="13" fill="#555">Capacitive · analog</text>
+  <text x="1160" y="815" font-family="sans-serif" font-size="14" fill="#333">AOUT → GPIO4 · VCC 3.3 V · GND</text>
+
+  <!-- Button -->
+  <rect x="560" y="130" width="300" height="150" rx="12" fill="#f4faf6" stroke="#e6a100" stroke-width="3"/>
+  <text x="580" y="164" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173d32">Push button</text>
+  <text x="580" y="190" font-family="sans-serif" font-size="13" fill="#555">active high · internal pull-down</text>
+  <text x="580" y="230" font-family="sans-serif" font-size="14" fill="#333">3.3 V — button — GPIO41</text>
+  <line x1="400" y1="535" x2="560" y2="205" stroke="#e6a100" stroke-width="3"/>
+  <text x="445" y="350" font-family="sans-serif" font-size="13" fill="#e6a100">GPIO41</text>
+
+  <!-- Relay and pump -->
+  <rect x="560" y="720" width="300" height="160" rx="12" fill="#f4faf6" stroke="#c65c4e" stroke-width="3"/>
+  <text x="580" y="754" font-family="sans-serif" font-size="19" font-weight="bold" fill="#173d32">Relay + pump</text>
+  <text x="580" y="780" font-family="sans-serif" font-size="13" fill="#555">3.3 V active-high relay</text>
+  <text x="580" y="815" font-family="sans-serif" font-size="14" fill="#333">IN ← GPIO5</text>
+  <text x="580" y="845" font-family="sans-serif" font-size="14" fill="#333">COM/NO → pump supply</text>
+  <line x1="400" y1="365" x2="560" y2="780" stroke="#c65c4e" stroke-width="3"/>
+  <text x="450" y="610" font-family="sans-serif" font-size="13" fill="#c65c4e">GPIO5</text>
+
+  <!-- SPI bus -->
+  <line x1="400" y1="275" x2="1140" y2="285" stroke="#1d6049" stroke-width="3"/>
+  <line x1="400" y1="455" x2="1140" y2="345" stroke="#1d6049" stroke-width="3"/>
+  <line x1="400" y1="485" x2="1140" y2="315" stroke="#1d6049" stroke-width="3"/>
+  <line x1="400" y1="515" x2="1140" y2="285" stroke="#1d6049" stroke-width="3"/>
+  <text x="760" y="260" font-family="sans-serif" font-size="13" fill="#1d6049">SPI (CS/DC/RST/MOSI/SCK)</text>
+
+  <!-- I2C bus -->
+  <line x1="400" y1="395" x2="1140" y2="630" stroke="#1d6049" stroke-width="3"/>
+  <line x1="400" y1="425" x2="1140" y2="660" stroke="#1d6049" stroke-width="3"/>
+  <text x="720" y="560" font-family="sans-serif" font-size="13" fill="#1d6049">I²C SDA/SCL</text>
+
+  <!-- Soil line -->
+  <line x1="400" y1="335" x2="1140" y2="815" stroke="#1d6049" stroke-width="3"/>
+  <text x="730" y="600" font-family="sans-serif" font-size="13" fill="#1d6049">ADC</text>
+
+  <!-- footer -->
+  <line x1="40" y1="920" x2="1560" y2="920" stroke="#cccccc"/>
+  <text x="40" y="950" font-family="sans-serif" font-size="13" fill="#555">Common ground required between controller, TFT, sensors, relay and pump supply.</text>
+  <text x="40" y="975" font-family="sans-serif" font-size="13" fill="#555">Pump uses separate supply; relay IN requires 10 kΩ pull-down; pump and relay coils require flyback diodes.</text>
+</svg>

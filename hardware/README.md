@@ -23,7 +23,11 @@ SolarTerm Farm 不是定制 PCB，而是由现成模块组成的可复现硬件�
 | 文件 | 内容 |
 |---|---|
 | [BOM.csv](BOM.csv) | 物料清单 |
+| [SCHEMATIC.svg](SCHEMATIC.svg) | 模块级原理图（设计源） |
+| [SCHEMATIC.md](SCHEMATIC.md) | 原理图网络表与说明 |
+| [ASSEMBLY.svg](ASSEMBLY.svg) | 装配布局图 |
 | [WIRING.md](WIRING.md) | 接线与装配步骤 |
+| [DATASHEETS.md](DATASHEETS.md) | 第三方器件 datasheet 链接 |
 | [../docs/GPIO_WIRING.md](../docs/GPIO_WIRING.md) | 引脚、继电器、传感器总线 |
 | [../docs/HARDWARE.md](../docs/HARDWARE.md) | 硬件规格与限制 |
 | [../docs/OPEN_HARDWARE.md](../docs/OPEN_HARDWARE.md) | OSHW 合规说明与许可证矩阵 |

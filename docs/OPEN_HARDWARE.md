@@ -21,7 +21,10 @@ CERN-OHL-S-2.0 是**强互惠**硬件许可证：修改并分发 Covered Source 
 | 设计内容 | 位置 |
 |---|---|
 | 物料清单 BOM | [hardware/BOM.csv](../hardware/BOM.csv) |
+| 模块级原理图 | [hardware/SCHEMATIC.svg](../hardware/SCHEMATIC.svg) / [SCHEMATIC.md](../hardware/SCHEMATIC.md) |
+| 装配布局图 | [hardware/ASSEMBLY.svg](../hardware/ASSEMBLY.svg) |
 | 接线与装配 | [hardware/WIRING.md](../hardware/WIRING.md) |
+| 第三方 datasheet | [hardware/DATASHEETS.md](../hardware/DATASHEETS.md) |
 | 引脚与电气约束 | [docs/GPIO_WIRING.md](GPIO_WIRING.md) |
 | 硬件规格与限制 | [docs/HARDWARE.md](HARDWARE.md) |
 | 固件 | [ESP/](../ESP/) |
@@ -65,15 +68,28 @@ python tools\deploy.py --port COM11
 
 ## 5. OSHW 对齐清单
 
-- [x] 硬件设计源可获取（BOM、接线、装配）
+- [x] 硬件设计源可获取（BOM、模块级原理图、装配图、接线）
 - [x] 软件源代码可获取（MIT）
+- [x] 第三方器件资料可公开获取、无需 NDA
 - [x] 允许修改和再分发
 - [x] 说明电源、接地、感性负载和继电器安全
 - [x] 明确第三方模块不纳入本仓库许可
 - [x] 记录已知限制和未验证项
+- [x] 公开版本 v0.1.0
 - [ ] OSHWA 认证 UID（未申请）
 - [ ] 定制 PCB 源文件（当前无 PCB）
 - [ ] 外壳 CAD（当前无外壳）
+
+## 6. OSHWA 申请准备状态
+
+| 项目 | 状态 |
+|---|---|
+| 模块级原理图/装配图 | 已完成 |
+| 第三方 datasheet 链接 | 已完成 |
+| 公开版本 v0.1.0 | 已完成 |
+| 邮件预确认 | 按项目决定跳过 |
+| OSHWA 在线申请 | 待提交 |
+| UID / 认证标 | 未获得，不能使用 |
 
 ## 6. 安全与责任
 

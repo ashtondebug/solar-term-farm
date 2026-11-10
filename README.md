@@ -10,7 +10,7 @@
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
-`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S`
+`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S` · `v0.1.0`
 
 SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
@@ -226,10 +226,13 @@ SolarTerm Farm 同时以 **open source hardware** 方式发布：
 | 第三方模块 | 各自厂商条款 |
 
 - 物料清单：[hardware/BOM.csv](hardware/BOM.csv)
+- 模块级原理图：[hardware/SCHEMATIC.svg](hardware/SCHEMATIC.svg)
+- 装配布局图：[hardware/ASSEMBLY.svg](hardware/ASSEMBLY.svg)
 - 接线与装配：[hardware/WIRING.md](hardware/WIRING.md)
+- 第三方 datasheet：[hardware/DATASHEETS.md](hardware/DATASHEETS.md)
 - 完整合规说明：[docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)
 
-当前是 **module-level build**（现成模块 + 接线 + 固件），不是定制 PCB。仓库提供 BOM、接线、装配、固件和测试；尚未申请 OSHWA 认证，也没有 OSHWA UID，因此不会声称“OSHW certified”。
+当前是 **module-level build**（现成模块 + 接线 + 固件），不是定制 PCB。仓库提供 BOM、原理图、装配图、接线、固件和测试；当前公开版本为 `v0.1.0`，尚未申请 OSHWA 认证，也没有 OSHWA UID，因此不会声称“OSHW certified”。
 
 ---
 
@@ -532,7 +535,13 @@ SolarTerm Farm/
 ├─ mcp_server/                      # Windows MCP bridge
 ├─ tests/                           # 主机标准库 unittest
 ├─ tools/                           # 构建、模拟器、部署、配网
-├─ hardware/                        # BOM、接线、装配
+├─ hardware/                        # BOM、原理图、装配图、datasheet
+│  ├─ BOM.csv
+│  ├─ SCHEMATIC.svg
+│  ├─ SCHEMATIC.md
+│  ├─ ASSEMBLY.svg
+│  ├─ WIRING.md
+│  └─ DATASHEETS.md
 ├─ docs/                            # 架构、硬件、API、MCP、测试
 │  ├─ OPEN_HARDWARE.md              # OSHW 合规与许可证矩阵
 │  └─ images/                       # 图片占位说明
@@ -641,7 +650,10 @@ Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 | [docs/TEST_RECORD.md](docs/TEST_RECORD.md) | 测试记录 |
 | [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md) | OSHW 合规、设计源与许可证矩阵 |
 | [hardware/BOM.csv](hardware/BOM.csv) | 物料清单 |
+| [hardware/SCHEMATIC.svg](hardware/SCHEMATIC.svg) | 模块级原理图 |
+| [hardware/ASSEMBLY.svg](hardware/ASSEMBLY.svg) | 装配布局图 |
 | [hardware/WIRING.md](hardware/WIRING.md) | 接线与装配 |
+| [hardware/DATASHEETS.md](hardware/DATASHEETS.md) | 第三方器件 datasheet |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南与 PR 清单 |
 | [LICENSE](LICENSE) | 软件 MIT 许可证 |
 | [LICENSE-HARDWARE](LICENSE-HARDWARE) | 硬件 CERN-OHL-S-2.0 许可证 |

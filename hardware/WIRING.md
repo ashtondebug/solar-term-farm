@@ -1,6 +1,8 @@
 # 接线与装配
 
-> 硬件设计文档使用 CERN-OHL-S-2.0；软件使用 MIT。完整引脚表见 [../docs/GPIO_WIRING.md](../docs/GPIO_WIRING.md)。
+![SolarTerm Farm assembly layout](ASSEMBLY.svg)
+
+> 硬件设计文档使用 CERN-OHL-S-2.0；软件使用 MIT。完整引脚表见 [../docs/GPIO_WIRING.md](../docs/GPIO_WIRING.md)。原理图见 [SCHEMATIC.md](SCHEMATIC.md)，第三方资料见 [DATASHEETS.md](DATASHEETS.md)。
 
 ## 1. 接线总表
 

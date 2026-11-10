@@ -5,7 +5,7 @@ MicroPython firmware and the CPython host tools.
 """
 
 VERSION = "0.1.0"
-BUILD_STAGE = "M0"
+BUILD_STAGE = "M1"
 DEVICE_MODEL = "ESP32-S3 N16R8"
 FIRMWARE = "MicroPython"
-PROJECT_NAME = "AgriVerse"
+PROJECT_NAME = "SolarTerm Farm"
