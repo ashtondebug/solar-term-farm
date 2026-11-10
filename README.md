@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="docs/images/oshw-logo.svg" width="96" alt="Open Source Hardware">
+  <br>
+  <sub>Open Source Hardware · 非 OSHWA 认证</sub>
+</p>
+
 # SolarTerm Farm · 节气智农
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
@@ -602,6 +608,7 @@ SolarTerm Farm/
 |---|---|
 | 固件、Web、工具、测试、MCP | [MIT License](LICENSE) |
 | 硬件设计文档、BOM、接线、装配 | [CERN-OHL-S-2.0](LICENSE-HARDWARE) |
+| OSHW 齿轮标志 | CC BY-SA 4.0；见 [docs/images/README.md](docs/images/README.md) |
 | 第三方模块 | 各自厂商条款 |
 
 ```text

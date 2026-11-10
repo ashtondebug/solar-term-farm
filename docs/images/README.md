@@ -1,4 +1,18 @@
-# 图片占位清单
+# 图片与标志
+
+## OSHW 齿轮标志
+
+`oshw-logo.svg` 是 README 顶部的 Open Source Hardware 齿轮标志。
+
+- 原始标志：Open Source Hardware Association (OSHWA)
+- 清洁矢量版：timmwille / osh-logo
+- 来源：https://github.com/timmwille/osh-logo
+- 许可证：CC BY-SA 4.0
+- 用途：标识本项目的 open hardware 属性，不代表 OSHWA 认证；本项目没有 OSHWA UID。
+
+该标志不是 CERN-OHL-S-2.0 或 MIT 的一部分；再分发时请保留本署名和 CC BY-SA 4.0 链接。
+
+## 项目图片占位
 
 README 中的项目图库目前使用文字占位，上传真实图片后按下面文件名替换。
 
