@@ -1,0 +1,17 @@
+item,ref,qty,part,specification,notes
+1,U1,1,ESP32-S3 development board,N16R8; 16 MB flash; 8 MB PSRAM,MicroPython 1.29 or compatible
+2,D1,1,2.8 inch TFT,240x320; ILI9341; SPI; 7-pin; 3.3V,No touch
+3,S1,1,SHT31 temperature/humidity sensor,I2C; 3.3V,Needs pull-ups
+4,S2,1,BH1750 light sensor,I2C; 3.3V,Shares bus with SHT31
+5,S3,1,HW-390 V2.0 soil moisture sensor,Capacitive; analog AOUT,Connects to ADC GPIO4
+6,SW1,1,Momentary push button,Normally open,GPIO41; active high
+7,K1,1,Relay module,3.3V coil; active-high input; COM/NO,GPIO5; flyback diode recommended
+8,M1,1,Low-voltage DC pump,Match relay contact rating,Separate pump supply
+9,R1,1,Resistor,10k ohm,Relay IN pull-down to GND
+10,C1,1,Ceramic capacitor,100 nF,TFT supply decoupling
+11,C2,1,Electrolytic capacitor,470 uF,TFT/pump supply bulk decoupling
+12,D2,1,Flyback diode,Rating above pump current,Pump terminals
+13,D3,1,Flyback diode,Rating above relay coil current,Relay coil if not on module
+14,PSU1,1,3.3V supply,Current margin for ESP32 + TFT,Do not power pump from this rail
+15,PSU2,1,Pump supply,Matches pump voltage/current,Common ground with controller
+16,W1,1,Jumper wires,Female-female / male-female,Keep SPI wires short

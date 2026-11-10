@@ -2,7 +2,7 @@
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
-`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready` · `MIT`
+`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S`
 
 SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
@@ -17,6 +17,7 @@ SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、
 - [系统架构](#系统架构)
 - [硬件清单](#硬件清单)
 - [引脚分配](#引脚分配)
+- [Open Hardware](#open-hardware)
 - [灌溉安全模型](#灌溉安全模型)
 - [快速开始](#快速开始)
 - [固件部署](#固件部署)
@@ -203,6 +204,24 @@ sequenceDiagram
 **不要使用 GPIO36/37。** N16R8 的 PSRAM 引脚组包含 GPIO35–37；TFT 的 CS/DC 已避开这些引脚。
 
 完整接线、继电器 COM/NO 与传感器总线排查见 [docs/GPIO_WIRING.md](docs/GPIO_WIRING.md)。
+
+---
+
+## Open Hardware
+
+SolarTerm Farm 同时以 **open source hardware** 方式发布：
+
+| 对象 | 许可证 |
+|---|---|
+| 硬件设计文档、BOM、接线、装配 | [CERN-OHL-S-2.0](LICENSE-HARDWARE) |
+| 固件、Web、工具、测试 | [MIT](LICENSE) |
+| 第三方模块 | 各自厂商条款 |
+
+- 物料清单：[hardware/BOM.csv](hardware/BOM.csv)
+- 接线与装配：[hardware/WIRING.md](hardware/WIRING.md)
+- 完整合规说明：[docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)
+
+当前是 **module-level build**（现成模块 + 接线 + 固件），不是定制 PCB。仓库提供 BOM、接线、装配、固件和测试；尚未申请 OSHWA 认证，也没有 OSHWA UID，因此不会声称“OSHW certified”。
 
 ---
 
@@ -505,11 +524,14 @@ SolarTerm Farm/
 ├─ mcp_server/                      # Windows MCP bridge
 ├─ tests/                           # 主机标准库 unittest
 ├─ tools/                           # 构建、模拟器、部署、配网
+├─ hardware/                        # BOM、接线、装配
 ├─ docs/                            # 架构、硬件、API、MCP、测试
+│  ├─ OPEN_HARDWARE.md              # OSHW 合规与许可证矩阵
 │  └─ images/                       # 图片占位说明
 ├─ README.md
 ├─ CONTRIBUTING.md
 ├─ LICENSE
+├─ LICENSE-HARDWARE
 └─ PROGRESS.md
 ```
 
@@ -568,20 +590,30 @@ SolarTerm Farm/
 - 提交前运行 `python -m unittest discover -s tests -v`；
 - 硬件改动请在 PR 中附接线、供电与实测说明。
 
-贡献默认按 MIT 许可证授权。
+贡献默认按对应对象许可证授权：软件 MIT，硬件源 CERN-OHL-S-2.0。
 
 ---
 
 ## 许可证
 
-本项目使用 [MIT License](LICENSE)。
+本项目采用 **双许可证**：
+
+| 对象 | 许可证 |
+|---|---|
+| 固件、Web、工具、测试、MCP | [MIT License](LICENSE) |
+| 硬件设计文档、BOM、接线、装配 | [CERN-OHL-S-2.0](LICENSE-HARDWARE) |
+| 第三方模块 | 各自厂商条款 |
 
 ```text
-MIT License
+Software: MIT License
 Copyright (c) 2026 AshtonDebug
+
+Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 ```
 
-你可以自由使用、修改、分发和商用，但需保留版权与许可证声明。软件按“原样”提供，不附带任何明示或暗示担保。
+软件可以自由使用、修改、分发和商用，但需保留版权与许可证声明。硬件设计源在分发修改版或产品时，按 CERN-OHL-S-2.0 提供 Complete Source。
+
+完整说明见 [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)。
 
 ---
 
@@ -598,8 +630,12 @@ Copyright (c) 2026 AshtonDebug
 | [docs/WIFI_PROVISIONING.md](docs/WIFI_PROVISIONING.md) | Wi-Fi 状态机与故障处理 |
 | [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | 测试计划与验收项 |
 | [docs/TEST_RECORD.md](docs/TEST_RECORD.md) | 测试记录 |
+| [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md) | OSHW 合规、设计源与许可证矩阵 |
+| [hardware/BOM.csv](hardware/BOM.csv) | 物料清单 |
+| [hardware/WIRING.md](hardware/WIRING.md) | 接线与装配 |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南与 PR 清单 |
-| [LICENSE](LICENSE) | MIT 许可证 |
+| [LICENSE](LICENSE) | 软件 MIT 许可证 |
+| [LICENSE-HARDWARE](LICENSE-HARDWARE) | 硬件 CERN-OHL-S-2.0 许可证 |
 | [PROGRESS.md](PROGRESS.md) | 阶段进展与设计变更 |
 
 ---

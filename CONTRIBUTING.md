@@ -2,7 +2,7 @@
 
 感谢关注 **SolarTerm Farm（节气智农）**。这是一个以 ESP32-S3、MicroPython、局域网 Web 和 MCP 为核心的智能灌溉项目。提交代码、文档、测试、接线经验或问题复现都欢迎。
 
-> 参与贡献即表示你同意你的贡献按本仓库的 [MIT License](LICENSE) 授权。
+> 参与贡献即表示你同意你的贡献按对应对象许可证授权：软件为 [MIT License](LICENSE)，硬件设计源为 [CERN-OHL-S-2.0](LICENSE-HARDWARE)。
 
 ---
 
@@ -229,10 +229,21 @@ cd mcp_server
 
 ## 9. 许可证
 
-本项目使用 [MIT License](LICENSE)。
+本项目采用双许可证：
+
+| 对象 | 许可证 |
+|---|---|
+| 固件、Web、工具、测试、MCP | [MIT License](LICENSE) |
+| 硬件设计文档、BOM、接线、装配 | [CERN-OHL-S-2.0](LICENSE-HARDWARE) |
+| 第三方模块 | 各自厂商条款 |
 
 ```text
+Software: MIT License
 Copyright (c) 2026 AshtonDebug
+
+Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 ```
 
-提交贡献即表示你同意以 MIT 许可证发布你的贡献。
+提交软件贡献即表示你同意以 MIT 发布；提交硬件设计源即表示你同意以 CERN-OHL-S-2.0 发布。完整说明见 [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)。
+
+本仓库尚未获得 OSHWA 认证 UID，不得声称“OSHW certified”或使用 OSHWA 认证标志。
