@@ -16,12 +16,17 @@ SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、
 
 > **项目阶段：M1 垂直切片。** 固件、Web、TFT、MCP 和测试链路已打通，正在做真机 bring-up。TFT 方向、闪烁和泵启动时的电源干扰仍在验证。
 
+<p align="center">
+  <img src="docs/images/overview.jpg" width="760" alt="SolarTerm Farm 实机：绿植、土壤传感器、TFT、按钮、继电器与水泵">
+  <br>
+  <sub>SolarTerm Farm 实机：环境采集、TFT 本地仪表盘、按钮与低压灌溉执行器</sub>
+</p>
+
 ---
 
 ## 目录
 
 - [项目亮点](#项目亮点)
-- [项目图库](#项目图库)
 - [系统架构](#系统架构)
 - [硬件清单](#硬件清单)
 - [引脚分配](#引脚分配)
@@ -58,50 +63,6 @@ SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、
 | 可测试性 | 主机模拟器 + 76 项标准库 unittest，不依赖真实硬件即可开发 |
 
 **不依赖云服务。** 设备、Web 和 MCP 均在同一局域网内工作；电脑休眠时 MCP 不可用，但设备本地灌溉与 Web 不受影响。
-
----
-
-## 项目图库
-
-> 以下为**图片占位**。上传真实照片后，把对应文字块替换为 Markdown 图片即可。建议统一放在 `docs/images/`，文件名已给出。
-
-> **图片占位 01 · 项目总览**
->
-> - 建议文件：`docs/images/01-overview.jpg`
-> - 画面：桌面上的 SolarTerm Farm 设备、TFT、按钮、继电器、水泵与接线整体。
-> - 替换：`![SolarTerm Farm 项目总览](docs/images/01-overview.jpg)`
-
-> **图片占位 02 · TFT 仪表盘特写**
->
-> - 建议文件：`docs/images/02-tft-dashboard.jpg`
-> - 画面：竖屏 TFT 正视图，能读到 `AIR TEMP`、`SOIL`、`PUMP`、`SOLAR TERM`。
-> - 替换：`![TFT 仪表盘](docs/images/02-tft-dashboard.jpg)`
-
-> **图片占位 03 · Web 管理页**
->
-> - 建议文件：`docs/images/03-web-dashboard.png`
-> - 画面：桌面浏览器的总览页，含环境曲线、节气卡片和设备状态。
-> - 替换：`![Web 管理页](docs/images/03-web-dashboard.png)`
-
-> **图片占位 04 · 接线与执行器**
->
-> - 建议文件：`docs/images/04-wiring.jpg`
-> - 画面：ESP32-S3、TFT、传感器、继电器、水泵电源的接线与共地。
-> - 替换：`![接线与执行器](docs/images/04-wiring.jpg)`
-
-> **图片占位 05 · MCP 客户端**
->
-> - 建议文件：`docs/images/05-mcp-client.png`
-> - 画面：DSH 或 MCP 客户端中调用 `mcp__agriverse__get_environment`、`get_irrigation_status`。
-> - 替换：`![MCP 客户端](docs/images/05-mcp-client.png)`
-
-> **图片占位 06 · 灌溉测试**
->
-> - 建议文件：`docs/images/06-irrigation-test.jpg`
-> - 画面：水泵出水、继电器动作或按钮启停的测试记录。
-> - 替换：`![灌溉测试](docs/images/06-irrigation-test.jpg)`
-
-图片占位清单也维护在 [`docs/images/README.md`](docs/images/README.md)。
 
 ---
 
@@ -192,6 +153,12 @@ sequenceDiagram
 
 > **电源建议：** 水泵和继电器属于感性负载，建议独立供电、共地、加续流二极管与滤波电容。不要把水泵电流经过 ESP32 的 3.3V 稳压器。
 
+<p align="center">
+  <img src="docs/images/tft-dashboard.jpg" width="520" alt="2.8 英寸 ILI9341 TFT 仪表盘特写">
+  <br>
+  <sub>2.8 英寸 ILI9341 竖屏仪表盘：空气温湿度、土壤、光照、水泵、模式与节气卡片</sub>
+</p>
+
 ---
 
 ## 引脚分配
@@ -212,6 +179,12 @@ sequenceDiagram
 **不要使用 GPIO36/37。** N16R8 的 PSRAM 引脚组包含 GPIO35–37；TFT 的 CS/DC 已避开这些引脚。
 
 完整接线、继电器 COM/NO 与传感器总线排查见 [docs/GPIO_WIRING.md](docs/GPIO_WIRING.md)。
+
+<p align="center">
+  <img src="docs/images/breadboard-wiring.jpg" width="720" alt="ESP32-S3 面包板接线：TFT、传感器、按钮和继电器">
+  <br>
+  <sub>面包板原型：ESP32-S3、TFT SPI、I²C 传感器、GPIO41 按钮与继电器接线</sub>
+</p>
 
 ---
 
@@ -266,6 +239,12 @@ GPIO5 = 0V LOW     → 继电器释放 → 水泵停止
 ```
 
 按钮不直接写 GPIO5，仍经过 `IrrigationController`。
+
+<p align="center">
+  <img src="docs/images/irrigation-test.jpg" width="720" alt="低压水泵从水杯抽水到种植盆的灌溉测试">
+  <br>
+  <sub>低压泵出水测试：水泵从水杯抽水到种植盆；实际测试必须有人看护并保留断电手段</sub>
+</p>
 
 ---
 
@@ -420,6 +399,17 @@ app.css
 
 `ESP/web/static/` 是构建产物，不手工编辑。
 
+> **截图占位 · Web 总览页**
+>
+> - 以后截图后放到：`docs/images/web-overview.png`
+> - 画面：浏览器总览页，含环境曲线、节气卡片、适宜度和设备状态。
+> - 替换本段为：`![Web 管理页](docs/images/web-overview.png)`
+
+> **截图占位 · Web 灌溉/设置页**
+>
+> - 以后截图后放到：`docs/images/web-irrigation.png`
+> - 画面：灌溉模式、阈值、最大运行时间与土壤两点标定。
+
 ---
 
 ## MCP Server
@@ -451,6 +441,12 @@ $env:AGRI_ALLOW_CONTROL = "1"
 - PIN 只从 `AGRI_PIN` 环境变量读取，不写日志。
 
 DSH 配置后工具名为 `mcp__agriverse__*`。详见 [mcp_server/README.md](mcp_server/README.md) 与 [docs/MCP.md](docs/MCP.md)。
+
+> **截图占位 · MCP 工具调用**
+>
+> - 以后截图后放到：`docs/images/mcp-tools.png`
+> - 画面：DSH/MCP 客户端中调用 `mcp__agriverse__get_environment`、`get_irrigation_status`。
+> - 替换本段为：`![MCP 工具调用](docs/images/mcp-tools.png)`
 
 ---
 
@@ -544,7 +540,7 @@ SolarTerm Farm/
 │  └─ DATASHEETS.md
 ├─ docs/                            # 架构、硬件、API、MCP、测试
 │  ├─ OPEN_HARDWARE.md              # OSHW 合规与许可证矩阵
-│  └─ images/                       # 图片占位说明
+│  └─ images/                       # 实拍图与截图占位
 ├─ README.md
 ├─ CONTRIBUTING.md
 ├─ LICENSE
@@ -664,20 +660,6 @@ Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 | [LICENSE](LICENSE) | 软件 MIT 许可证 |
 | [LICENSE-HARDWARE](LICENSE-HARDWARE) | 硬件 CERN-OHL-S-2.0 许可证 |
 | [PROGRESS.md](PROGRESS.md) | 阶段进展与设计变更 |
-
----
-
-## 图片替换说明
-
-1. 把照片放到 `docs/images/`，使用上文建议文件名；
-2. 删除对应的 `> **图片占位 ...**` 文字块；
-3. 替换为：
-
-```markdown
-![图片说明](docs/images/文件名.jpg)
-```
-
-建议图片宽度控制在 1600px 以内，JPEG/PNG 均可。`docs/images/README.md` 维护同一份清单。
 
 ---
 
