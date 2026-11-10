@@ -5,9 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agriverse-mcp"
 version = "0.1.0"
-description = "Model Context Protocol bridge for the AgriVerse ESP32-S3 irrigation controller"
+description = "Model Context Protocol bridge for the SolarTerm Farm ESP32-S3 irrigation controller"
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 dependencies = [
   "mcp>=1.29,<2",
   "httpx>=0.28,<1",

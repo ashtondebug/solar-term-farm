@@ -2,7 +2,7 @@
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
-`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready`
+`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready` · `MIT`
 
 SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
@@ -29,6 +29,8 @@ SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、
 - [路线图](#路线图)
 - [已知限制](#已知限制)
 - [安全与隐私](#安全与隐私)
+- [贡献](#贡献)
+- [许可证](#许可证)
 - [文档索引](#文档索引)
 
 ---
@@ -506,6 +508,8 @@ SolarTerm Farm/
 ├─ docs/                            # 架构、硬件、API、MCP、测试
 │  └─ images/                       # 图片占位说明
 ├─ README.md
+├─ CONTRIBUTING.md
+├─ LICENSE
 └─ PROGRESS.md
 ```
 
@@ -537,7 +541,7 @@ SolarTerm Farm/
 - **Wi-Fi 仅 2.4GHz**：ESP32-S3 不支持 5GHz。
 - **PIN 默认关闭**：当前版本没有本地 PIN 显示入口；启用前先确认输入方式。
 - **MCP 依赖局域网**：电脑休眠、IP 变化或热点关闭时 MCP 不可用，不影响设备本地逻辑。
-- **私人项目**：仓库未附开源许可证；对外使用前请先确认授权。
+- **硬件仍在 bring-up**：TFT 方向、刷新稳定性和泵启动干扰仍需按实物验收。
 
 ---
 
@@ -554,6 +558,33 @@ SolarTerm Farm/
 
 ---
 
+## 贡献
+
+欢迎提交固件、Web、TFT、MCP、文档、测试和接线经验。
+
+- 先读 [CONTRIBUTING.md](CONTRIBUTING.md)；
+- 保持 `IrrigationController` 是唯一继电器出口；
+- 不提交真实 WiFi 密码、PIN、Token 或 HMI/字体本地文件；
+- 提交前运行 `python -m unittest discover -s tests -v`；
+- 硬件改动请在 PR 中附接线、供电与实测说明。
+
+贡献默认按 MIT 许可证授权。
+
+---
+
+## 许可证
+
+本项目使用 [MIT License](LICENSE)。
+
+```text
+MIT License
+Copyright (c) 2026 AshtonDebug
+```
+
+你可以自由使用、修改、分发和商用，但需保留版权与许可证声明。软件按“原样”提供，不附带任何明示或暗示担保。
+
+---
+
 ## 文档索引
 
 | 文档 | 内容 |
@@ -567,6 +598,8 @@ SolarTerm Farm/
 | [docs/WIFI_PROVISIONING.md](docs/WIFI_PROVISIONING.md) | Wi-Fi 状态机与故障处理 |
 | [docs/TEST_PLAN.md](docs/TEST_PLAN.md) | 测试计划与验收项 |
 | [docs/TEST_RECORD.md](docs/TEST_RECORD.md) | 测试记录 |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | 贡献指南与 PR 清单 |
+| [LICENSE](LICENSE) | MIT 许可证 |
 | [PROGRESS.md](PROGRESS.md) | 阶段进展与设计变更 |
 
 ---
