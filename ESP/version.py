@@ -4,7 +4,7 @@ Keep this module dependency-free so it can be imported by both the
 MicroPython firmware and the CPython host tools.
 """
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 BUILD_STAGE = "M1"
 DEVICE_MODEL = "ESP32-S3 N16R8"
 FIRMWARE = "MicroPython"

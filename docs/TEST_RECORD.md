@@ -17,7 +17,7 @@ exit 0
 
 ```text
 python -m unittest discover -s tests -v
-Ran 69 tests in 0.019s
+Ran 73 tests in 0.019s
 OK
 ```
 
@@ -124,6 +124,7 @@ Wi-Fi disconnect -> not tested (user request)
 ## 6. 未验证
 
 - TFT 常亮显示、GPIO41 按钮启停切换、5 秒排队与 20 秒自动停止。
+- 长时运行（2 小时模拟 tick）、故障注入、泵强制关闭与告警状态。
 - 设备 PIN 流程的真实交互（模拟器/PIN 默认关闭）。
 - Wi-Fi 断网后的自动重连（本次按要求跳过）。
 - 程序卡死/看门狗复位。

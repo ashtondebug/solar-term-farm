@@ -98,6 +98,44 @@ class IrrigationTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["code"], "FAULT")
 
+    def test_button_start_is_manual_state(self):
+        config, pin, relay, state, clock, history, controller = build()
+        result = controller.request("start", "button", "b1", 1000)
+        self.assertTrue(result["ok"])
+        self.assertEqual(state.get("irrigation.state"), "manual")
+
+    def test_long_run_stops_at_max_run(self):
+        config, pin, relay, state, clock, history, controller = build(max_run=10)
+        controller.request("start", "auto", "long", 1000)
+        # Simulate two hours of ticks; max_run must still win.
+        for now in range(1001, 8201):
+            controller.tick(now, None)
+        self.assertEqual(pin.value(), 0)
+        self.assertFalse(state.get("irrigation.pump"))
+        record = history.recent(1)[0]
+        self.assertEqual(record["stop_reason"], "max_run")
+        self.assertEqual(record["duration_s"], 10)
+
+    def test_fault_while_running_forces_pump_off_and_alarms(self):
+        config, pin, relay, state, clock, history, controller = build()
+        controller.request("start", "manual", "f1", 1000)
+        self.assertEqual(pin.value(), 1)
+        relay.fault = "injected relay fault"
+        controller.tick(1001, None)
+        self.assertEqual(pin.value(), 0)
+        self.assertEqual(state.get("irrigation.state"), "fault")
+        self.assertEqual(state.get("irrigation.alarm"), "FAULT")
+
+    def test_clear_fault_drives_off_and_returns_idle(self):
+        config, pin, relay, state, clock, history, controller = build()
+        controller.request("start", "manual", "f1", 1000)
+        relay.fault = "injected"
+        controller.tick(1001, None)
+        controller.clear_fault()
+        self.assertEqual(pin.value(), 0)
+        self.assertEqual(state.get("irrigation.state"), "idle")
+        self.assertIsNone(state.get("irrigation.alarm"))
+
 
 if __name__ == "__main__":
     unittest.main()
