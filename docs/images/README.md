@@ -1,5 +1,13 @@
 # 图片与标志
 
+## Open Source Software 徽标
+
+`oss-badge.svg` 是 README 顶部的软件开源徽标，标注 **OPEN SOURCE SOFTWARE · MIT**。
+
+- 本项目自制徽标，不使用 OSI 官方标志，也不暗示 OSI 认证；
+- 软件许可证为 MIT，属于 OSI 认可的许可证；
+- 徽标随本项目文档按 MIT 使用，可修改颜色/文字。
+
 ## OSHW 齿轮标志
 
 `oshw-logo.svg` 是 README 顶部的 Open Source Hardware 齿轮标志。

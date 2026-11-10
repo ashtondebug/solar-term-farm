@@ -1,7 +1,9 @@
 <p align="center">
   <img src="docs/images/oshw-logo.svg" width="96" alt="Open Source Hardware">
+  &nbsp;&nbsp;
+  <img src="docs/images/oss-badge.svg" width="156" alt="Open Source Software - MIT">
   <br>
-  <sub>Open Source Hardware · 非 OSHWA 认证</sub>
+  <sub>Open Source Hardware · 非 OSHWA 认证 &nbsp;|&nbsp; Open Source Software · MIT</sub>
 </p>
 
 # SolarTerm Farm · 节气智农
