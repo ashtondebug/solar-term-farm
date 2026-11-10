@@ -65,7 +65,7 @@ class IrrigationController:
             return {"ok": False, "code": "RELAY_FAILED", "message": "relay did not switch on"}
         self.started_ts = int(now)
         self.last_start_ts = int(now)
-        self.state = STATE_MANUAL if trigger == "manual" else STATE_AUTO
+        self.state = STATE_MANUAL if trigger in ("manual", "button") else STATE_AUTO
         self.history.start(now, trigger)
         self.last_action = {"action": "start", "trigger": trigger, "ts": int(now)}
         self.logger.info("irrigation start (%s)", trigger)
@@ -85,6 +85,14 @@ class IrrigationController:
 
     def tick(self, now, soil_reading):
         cfg = self.irrigation_config
+        if self.relay.fault:
+            # A relay fault must never leave the pump energised.  Attempt a
+            # safe off transition, latch the fault, and skip auto control.
+            if self.relay.on:
+                self.relay.off("fault")
+            self.state = STATE_FAULT
+            self.publish(now)
+            return
         if self.relay.on:
             elapsed = int(now) - int(self.started_ts or now)
             if elapsed >= int(cfg.get("max_run_s", 20)):
@@ -140,9 +148,16 @@ class IrrigationController:
         return result
 
     def clear_fault(self):
+        # Only clear after the relay has been driven to its safe state.
+        now = self.clock.now()
+        if not self.relay.off("fault_cleared"):
+            # Do not mask a stuck contact or GPIO write failure.
+            self.publish(now)
+            return False
         self.relay.fault = None
         self.state = STATE_IDLE
-        self.publish(self.clock.now())
+        self.publish(now)
+        return True
 
     def publish(self, now):
         cfg = self.irrigation_config
@@ -150,6 +165,7 @@ class IrrigationController:
             remaining = max(0, int(cfg.get("max_run_s", 20)) - (int(now) - int(self.started_ts)))
         else:
             remaining = 0
+        relay_status = self.relay.status()
         if self.relay.fault:
             self.state = STATE_FAULT
         payload = {
@@ -164,6 +180,8 @@ class IrrigationController:
             "min_interval_s": int(cfg.get("min_interval_s", 1800)),
             "history": self.history.recent(10),
             "last_action": self.last_action,
+            "alarm": "FAULT" if self.relay.fault else None,
+            "relay_feedback": relay_status.get("feedback"),
         }
         self.state_store.set_irrigation(payload)
         return payload

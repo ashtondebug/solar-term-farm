@@ -44,7 +44,7 @@
   "solar_term": {"name":"立冬","index":18,"season":"冬季","angle":225,"start_ts":...,"end_ts":...},
   "irrigation": {"mode":"auto","pump":false,"state":"idle","remaining_s":0,
                  "last_start_ts":null,"last_stop_ts":null,"max_run_s":20,"threshold":35.0,
-                 "history":[]},
+                 "alarm":null,"relay_feedback":null,"history":[]},
   "network": {"wifi":"connected","status":"connected","ssid":"...","ip":"192.168.1.50","rssi":-55},
   "security": {"pin_required": false},
   "config": {"irrigation": {}, "plant": {}, "calibration": {"soil_dry": null, "soil_wet": null}, "sampling": {}, "device": {}},

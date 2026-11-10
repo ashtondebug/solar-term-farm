@@ -9,14 +9,16 @@ import json
 import os
 
 MAX_BYTES = 256 * 1024
+MAX_POINTS = 256
 
 
 class HistoryStore:
-    def __init__(self, root, logger=None, retention_days=7, max_bytes=MAX_BYTES):
+    def __init__(self, root, logger=None, retention_days=7, max_bytes=MAX_BYTES, max_points=MAX_POINTS):
         self.root = root.rstrip("/")
         self.logger = logger
         self.retention_s = int(retention_days) * 86400
         self.max_bytes = int(max_bytes)
+        self.max_points = int(max_points)
         self.points = []
         self.path = self.root + "/history.jsonl"
         try:
@@ -24,8 +26,18 @@ class HistoryStore:
         except OSError:
             pass
 
+    def _now(self):
+        try:
+            import time
+
+            epoch_offset = 946684800 if time.gmtime(0)[0] == 2000 else 0
+            return int(time.time()) + epoch_offset
+        except Exception:
+            return 0
+
     def load(self):
         self.points = []
+        cutoff = self._now() - self.retention_s
         for name in ("history.jsonl.1", "history.jsonl"):
             path = self.root + "/" + name
             try:
@@ -38,8 +50,18 @@ class HistoryStore:
                             point = json.loads(line)
                         except Exception:
                             continue
-                        if isinstance(point, dict) and "ts" in point:
+                        if not isinstance(point, dict) or "ts" not in point:
+                            continue
+                        try:
+                            if int(point.get("ts", 0)) < cutoff:
+                                continue
+                            if len(self.points) >= self.max_points:
+                                del self.points[0]
                             self.points.append(point)
+                        except MemoryError:
+                            if self.logger:
+                                self.logger.warn("history load memory limit; truncated")
+                            break
             except OSError:
                 continue
         self._prune()
@@ -62,15 +84,11 @@ class HistoryStore:
 
     def _prune(self, now=None):
         if now is None:
-            try:
-                import time
-
-                epoch_offset = 946684800 if time.gmtime(0)[0] == 2000 else 0
-                now = int(time.time()) + epoch_offset
-            except Exception:
-                now = 0
+            now = self._now()
         cutoff = int(now) - self.retention_s
         self.points = [p for p in self.points if int(p.get("ts", 0)) >= cutoff]
+        if len(self.points) > self.max_points:
+            self.points = self.points[-self.max_points :]
 
     def _rotate(self):
         try:

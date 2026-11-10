@@ -145,8 +145,10 @@ class TftDisplay:
         self._value("soil", self._fmt((sensors.get("soil") or {}).get("value"), 0) + " %", 14, 111, 96, self.GOLD)
         self._value("light", self._fmt((sensors.get("light") or {}).get("value"), 0) + " lx", 130, 111, 96, self.GOLD)
 
-        pump = "ON" if irrigation.get("pump") else "OFF"
-        self._value("pump", pump, 14, 155, 96, self.GREEN if pump == "ON" else self.RED)
+        pump_state = str(irrigation.get("state") or "")
+        pump = "FAULT" if pump_state == "fault" else ("ON" if irrigation.get("pump") else "OFF")
+        pump_color = self.RED if pump in ("FAULT", "OFF") else self.GREEN
+        self._value("pump", pump, 14, 155, 96, pump_color)
         self._value("mode", str(irrigation.get("mode", "auto")).upper(), 130, 155, 96, self.WHITE)
 
         if index != self._last_term:
