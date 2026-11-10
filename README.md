@@ -1,10 +1,10 @@
-# AgriVerse · 节气智农
+# SolarTerm Farm · 节气智农
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
 `ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `69 host tests` · `MCP ready`
 
-AgriVerse 面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
+SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
 > **项目阶段：M1 垂直切片。** 固件、Web、TFT、MCP 和测试链路已打通，正在做真机 bring-up。TFT 方向、闪烁和泵启动时的电源干扰仍在验证。
 
@@ -57,8 +57,8 @@ AgriVerse 面向小型种植箱、阳台菜园和教学演示。设备在**无�
 > **图片占位 01 · 项目总览**
 >
 > - 建议文件：`docs/images/01-overview.jpg`
-> - 画面：桌面上的 AgriVerse 设备、TFT、按钮、继电器、水泵与接线整体。
-> - 替换：`![AgriVerse 项目总览](docs/images/01-overview.jpg)`
+> - 画面：桌面上的 SolarTerm Farm 设备、TFT、按钮、继电器、水泵与接线整体。
+> - 替换：`![SolarTerm Farm 项目总览](docs/images/01-overview.jpg)`
 
 > **图片占位 02 · TFT 仪表盘特写**
 >
@@ -206,7 +206,7 @@ sequenceDiagram
 
 ## 灌溉安全模型
 
-AgriVerse 把“谁想启动泵”和“泵是否允许运行”分开。
+SolarTerm Farm 把“谁想启动泵”和“泵是否允许运行”分开。
 
 - `IrrigationController` 是唯一能操作继电器的地方；
 - Web、MCP、按钮只能提交 `start` / `stop` 意图；
@@ -483,7 +483,7 @@ cd mcp_server
 ## 目录结构
 
 ```text
-AgriVerse/
+SolarTerm Farm/
 ├─ agriverse_admin_dashboard.html   # Web UI 视觉源文件
 ├─ app.js                           # 前端数据层
 ├─ app.css                          # 前端样式
@@ -585,4 +585,4 @@ AgriVerse/
 
 ---
 
-<p align="right">AgriVerse · 让每一次浇水都有依据</p>
+<p align="right">SolarTerm Farm · 让每一次浇水都有依据</p>

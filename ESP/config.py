@@ -16,7 +16,7 @@ from version import VERSION
 
 DEFAULT_CONFIG = {
     "device": {
-        "name": "AgriVerse",
+        "name": "SolarTerm Farm",
         "timezone_offset": 8 * 3600,
     },
     "sampling": {

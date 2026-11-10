@@ -1,4 +1,4 @@
-"""Always-on 240x320 portrait dashboard for AgriVerse.
+"""Always-on 240x320 portrait dashboard for SolarTerm Farm.
 
 Only ASCII text is drawn on the TFT; the built-in font has no Chinese glyphs.
 The static layout is painted once, then only changed values are repainted.
@@ -90,7 +90,7 @@ class TftDisplay:
         name, season, _date, _idx = self._term_info(term)
         self.tft.fill(self.BG)
         self.tft.fill_rect(0, 0, self.WIDTH, 40, self.HEADER)
-        self._box_text("AgriVerse", 10, 7, 100, self.WHITE, self.HEADER)
+        self._box_text("SolarTerm Farm", 10, 7, 120, self.WHITE, self.HEADER)
         self._box_text(name + " / " + season, 10, 23, 210, self.GOLD, self.HEADER)
 
         self._card(8, 48, 108, 38)
@@ -108,7 +108,7 @@ class TftDisplay:
         self._box_text("PUMP", 14, 141, 96, self.MUTED, self.CARD)
         self._box_text("MODE", 130, 141, 96, self.MUTED, self.CARD)
         self._box_text("SOLAR TERM", 14, 186, 120, self.MUTED, self.CARD)
-        self._box_text("AgriVerse LOCAL", 8, 300, 170, self.MUTED, self.BG)
+        self._box_text("SolarTerm Farm LOCAL", 8, 300, 180, self.MUTED, self.BG)
         self._ready = True
 
     def _redraw_term(self, term):
