@@ -22,3 +22,6 @@ ESP/wifi_secrets.py
 
 # Local HMI/font source files, not firmware
 Touch_screen/HMI/
+
+# Raw local photos; optimized copies live in docs/images/
+Picture/

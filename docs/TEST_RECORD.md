@@ -17,7 +17,7 @@ exit 0
 
 ```text
 python -m unittest discover -s tests -v
-Ran 75 tests in 0.019s
+Ran 76 tests in 0.019s
 OK
 ```
 

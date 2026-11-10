@@ -27,6 +27,18 @@ class HistoryStoreTests(unittest.TestCase):
         store.load()
         self.assertEqual(len(store.points), 2)
 
+    def test_load_caps_memory_points(self):
+        root = tempfile.mkdtemp(prefix="agri-history-")
+        path = os.path.join(root, "history.jsonl")
+        now = int(__import__("time").time())
+        with open(path, "w", encoding="utf-8") as handle:
+            for offset in range(400):
+                handle.write('{"ts": %d, "temp": 20}\n' % (now - offset))
+        store = HistoryStore(root, max_points=64)
+        store.load()
+        self.assertEqual(len(store.points), 64)
+        self.assertEqual(store.points[-1]["ts"], now - 399)
+
 
 if __name__ == "__main__":
     unittest.main()

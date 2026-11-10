@@ -20,27 +20,35 @@
 
 该标志不是 CERN-OHL-S-2.0 或 MIT 的一部分；再分发时请保留本署名和 CC BY-SA 4.0 链接。
 
-## 项目图片占位
+## 已使用的实拍图
 
-README 中的项目图库目前使用文字占位，上传真实图片后按下面文件名替换。
+以下图片由 `Picture/` 中的原始照片压缩生成（最长边 1600px），用于 README 内嵌展示：
 
-| 编号 | 建议文件 | 画面内容 | README 位置 |
-|---|---|---|---|
-| 01 | `01-overview.jpg` | 设备、TFT、按钮、继电器、水泵整体 | 项目图库 |
-| 02 | `02-tft-dashboard.jpg` | 竖屏 TFT 仪表盘正视图 | 项目图库 |
-| 03 | `03-web-dashboard.png` | Web 管理页总览 | 项目图库 |
-| 04 | `04-wiring.jpg` | ESP32-S3、TFT、传感器、继电器接线 | 项目图库 |
-| 05 | `05-mcp-client.png` | MCP 客户端调用工具 | 项目图库 |
-| 06 | `06-irrigation-test.jpg` | 水泵/继电器/按钮测试 | 项目图库 |
+| 文件 | 画面 | README 位置 |
+|---|---|---|
+| `overview.jpg` | 设备、绿植、TFT、按钮、继电器、水泵整体 | 标题下方 |
+| `tft-dashboard.jpg` | ILI9341 竖屏仪表盘特写 | 硬件清单 |
+| `breadboard-wiring.jpg` | ESP32-S3 面包板与 SPI/I²C/按钮接线 | 引脚分配 |
+| `irrigation-test.jpg` | 低压泵从水杯抽水到种植盆 | 灌溉安全模型 |
 
-## 替换步骤
+## 截图占位
 
-1. 将图片放到本目录，文件名与上表一致；
-2. 在根目录 `README.md` 中找到对应的 `> **图片占位 ...**` 文字块；
+以下位置已经预留在 README 对应章节，截图后放入本目录并替换文字块：
+
+| 文件 | 画面 | README 位置 |
+|---|---|---|
+| `web-overview.png` | Web 总览页、环境曲线、节气卡片 | Web 管理页 |
+| `web-irrigation.png` | 灌溉/设置页、阈值与标定 | Web 管理页 |
+| `mcp-tools.png` | MCP 客户端调用工具 | MCP Server |
+
+## 替换截图
+
+1. 将截图放到本目录，文件名与上表一致；
+2. 在根目录 `README.md` 中找到对应的 `> **截图占位 ...**` 文字块；
 3. 删除文字块，换成：
 
 ```markdown
-![图片说明](docs/images/文件名.jpg)
+![截图说明](docs/images/文件名.png)
 ```
 
-图片建议不超过 1600px 宽；JPG/PNG 均可。不要提交包含 Wi-Fi 密码、PIN 或其他敏感信息的截图。
+截图不要包含 Wi-Fi 密码、PIN、Token 或其他敏感信息。
