@@ -10,7 +10,7 @@
 
 > 一个运行在 **ESP32-S3 N16R8 + MicroPython** 上的智能农业垂直切片：环境采集、植物适宜度、节气农事、安全灌溉、本地 TFT、局域网 Web 与 Windows MCP。
 
-`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `75 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S` · `v0.1.0`
+`ESP32-S3` · `MicroPython 1.29` · `ILI9341 TFT` · `LAN only` · `76 host tests` · `MCP ready` · `Open Hardware` · `MIT + CERN-OHL-S` · `v0.1.0`
 
 SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、阳台菜园和教学演示。设备在**无云、无互联网**的局域网中独立运行；Web、TFT、按钮和 MCP 都只是状态消费者或意图源，水泵安全始终由设备端 `IrrigationController` 最终裁决。
 
@@ -55,7 +55,7 @@ SolarTerm Farm（节气智农，智能节气种植箱）面向小型种植箱、
 | 本地交互 | 2.8 英寸 ILI9341 SPI TFT 常亮仪表盘；GPIO41 按钮启停水泵 |
 | 局域网 Web | 六页管理界面，实时状态、趋势图、参数保存、土壤两点标定、植物档案导入 |
 | MCP | Windows 端 stdio MCP Server，读传感器/状态，可选启停泵与参数控制 |
-| 可测试性 | 主机模拟器 + 75 项标准库 unittest，不依赖真实硬件即可开发 |
+| 可测试性 | 主机模拟器 + 76 项标准库 unittest，不依赖真实硬件即可开发 |
 
 **不依赖云服务。** 设备、Web 和 MCP 均在同一局域网内工作；电脑休眠时 MCP 不可用，但设备本地灌溉与 Web 不受影响。
 
@@ -297,7 +297,7 @@ python -m unittest discover -s tests -v
 预期：
 
 ```text
-Ran 75 tests in ...
+Ran 76 tests in ...
 OK
 ```
 
