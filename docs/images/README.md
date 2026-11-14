@@ -10,15 +10,24 @@
 
 ## OSHW 齿轮标志
 
-`oshw-logo.svg` 是 README 顶部的 Open Source Hardware 齿轮标志。
+`oshw-logo.svg` 是通用 Open Source Hardware 齿轮图标，**不是 OSHWA 认证标识**，当前不再作为 README 顶部的认证标志使用。
 
 - 原始标志：Open Source Hardware Association (OSHWA)
 - 清洁矢量版：timmwille / osh-logo
 - 来源：https://github.com/timmwille/osh-logo
 - 许可证：CC BY-SA 4.0
-- 用途：仅作为通用 open hardware 齿轮图标；**它不是 OSHWA 认证标识**。本项目的认证标识使用纯文本 `[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert`。
 
 该标志不是 CERN-OHL-S-2.0 或 MIT 的一部分；再分发时请保留本署名和 CC BY-SA 4.0 链接。
+
+## OSHWA 认证标志
+
+`oshwa-certification-CN000034-wide.svg` 与 `oshwa-certification-CN000034-stack.svg` 是本项目的官方认证 mark，用于 README 与文档。
+
+- 生成方式：使用 OSHWA 官方模板，将 UID 文本替换为 `CN000034`；
+- 官方模板：<https://certification.oshwa.org/images/mark-wide-template.svg>、<https://certification.oshwa.org/images/mark-stack-template.svg>
+- 认证页：<https://certification.oshwa.org/cn000034.html>
+- 使用规范：<https://certification.oshwa.org/mark-usage.html>
+- 不要修改标志形状、颜色或 UID；纯文本形式为 `[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert`。
 
 ## 已使用的实拍图
 

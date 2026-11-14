@@ -1,7 +1,7 @@
 <p align="center">
-  <strong>[OSHW] CN000034</strong> · Certified open source hardware
-  &nbsp;|&nbsp;
-  <a href="https://certification.oshwa.org/cn000034.html">OSHWA certification record</a>
+  <a href="https://certification.oshwa.org/cn000034.html">
+    <img src="docs/images/oshwa-certification-CN000034-wide.svg" width="340" alt="OSHWA Certified CN000034">
+  </a>
   <br>
   <sub><code>[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert</code></sub>
   <br>
