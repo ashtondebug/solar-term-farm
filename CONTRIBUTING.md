@@ -246,4 +246,4 @@ Hardware: CERN Open Hardware Licence Version 2 - Strongly Reciprocal
 
 提交软件贡献即表示你同意以 MIT 发布；提交硬件设计源即表示你同意以 CERN-OHL-S-2.0 发布。完整说明见 [docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)。
 
-本仓库尚未获得 OSHWA 认证 UID，不得声称“OSHW certified”或使用 OSHWA 认证标志。
+本项目已通过 OSHWA 认证（UID `CN000034`，认证日期 2026-11-14），可以在本项目范围内使用 OSHWA 认证标识；衍生版本如果未单独认证，不得暗示其已获认证。

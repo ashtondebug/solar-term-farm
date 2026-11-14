@@ -2,8 +2,10 @@
 
 SolarTerm Farm 以 **open source hardware** 方式发布：硬件设计源、BOM、装配说明和固件都可以获取、修改和再分发。
 
-> **状态：OSHW-aligned / open hardware source available。**
-> 本仓库**尚未申请 OSHWA 认证**，没有 OSHWA UID；在获得 UID 前不会使用 OSHWA 认证标志。
+> **状态：OSHWA Certified / open hardware certified。**
+> 认证 UID：**CN000034**；认证日期：**2026-11-14**。
+> 认证记录：<https://certification.oshwa.org/cn000034.html>。
+> 项目版本仍为 **0.1.0**。
 
 ## 1. 许可证矩阵
 
@@ -76,7 +78,7 @@ python tools\deploy.py --port COM11
 - [x] 明确第三方模块不纳入本仓库许可
 - [x] 记录已知限制和未验证项
 - [x] 公开版本 v0.1.0
-- [ ] OSHWA 认证 UID（未申请）
+- [x] OSHWA 认证 UID：`CN000034`
 - [ ] 定制 PCB 源文件（当前无 PCB）
 - [ ] 外壳 CAD（当前无外壳）
 
@@ -88,8 +90,8 @@ python tools\deploy.py --port COM11
 | 第三方 datasheet 链接 | 已完成 |
 | 公开版本 v0.1.0 | 已完成 |
 | 邮件预确认 | 按项目决定跳过 |
-| OSHWA 在线申请 | 待提交 |
-| UID / 认证标 | 未获得，不能使用 |
+| OSHWA 在线申请 | 已通过 |
+| UID / 认证标 | `CN000034` / OSHWA Certified |
 
 ## 6. 安全与责任
 
@@ -105,14 +107,20 @@ python tools\deploy.py --port COM11
 
 ## 7. 认证
 
-如需 OSHWA 认证：
+本项目已通过 OSHWA 自认证，认证信息：
 
-1. 准备完整设计源、BOM、装配说明和许可证；
-2. 在 [Open Source Hardware Association](https://www.oshwa.org/) 提交申请；
-3. 获得 OSHWA UID 后，才能使用 OSHWA 认证标志；
-4. 在 README 中记录 UID。
+- UID：`CN000034`
+- 认证日期：2026-11-14
+- 认证记录：<https://certification.oshwa.org/cn000034.html>
+- 项目版本：`0.1.0`
 
-本仓库当前**没有** OSHWA UID，也不会声称已认证。
+可使用的纯文本认证标识：
+
+```text
+[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert
+```
+
+认证标识的使用遵循 OSHWA 的 [Certification Mark Usage](https://certification.oshwa.org/mark-usage.html)：不得修改标志，UID 与项目对应，不得暗示未认证的衍生版本已获认证。
 
 ## 8. 贡献
 

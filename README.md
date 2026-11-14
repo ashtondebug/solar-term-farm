@@ -1,9 +1,13 @@
 <p align="center">
-  <img src="docs/images/oshw-logo.svg" width="96" alt="Open Source Hardware">
-  &nbsp;&nbsp;
+  <strong>[OSHW] CN000034</strong> · Certified open source hardware
+  &nbsp;|&nbsp;
+  <a href="https://certification.oshwa.org/cn000034.html">OSHWA certification record</a>
+  <br>
+  <sub><code>[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert</code></sub>
+  <br>
   <img src="docs/images/oss-badge.svg" width="156" alt="Open Source Software - MIT">
   <br>
-  <sub>Open Source Hardware · 非 OSHWA 认证 &nbsp;|&nbsp; Open Source Software · MIT</sub>
+  <sub>Open Source Hardware · OSHWA Certified · CN000034 &nbsp;|&nbsp; Open Source Software · MIT</sub>
 </p>
 
 # SolarTerm Farm · 节气智农
@@ -205,7 +209,7 @@ SolarTerm Farm 同时以 **open source hardware** 方式发布：
 - 第三方 datasheet：[hardware/DATASHEETS.md](hardware/DATASHEETS.md)
 - 完整合规说明：[docs/OPEN_HARDWARE.md](docs/OPEN_HARDWARE.md)
 
-当前是 **module-level build**（现成模块 + 接线 + 固件），不是定制 PCB。仓库提供 BOM、原理图、装配图、接线、固件和测试；当前公开版本为 `v0.1.0`，尚未申请 OSHWA 认证，也没有 OSHWA UID，因此不会声称“OSHW certified”。
+当前是 **module-level build**（现成模块 + 接线 + 固件），不是定制 PCB。仓库提供 BOM、原理图、装配图、接线、固件和测试；当前公开版本为 `v0.1.0`。项目已通过 **OSHWA 认证，UID `CN000034`，认证日期 2026-11-14**，认证记录：<https://certification.oshwa.org/cn000034.html>。
 
 ---
 
@@ -616,7 +620,7 @@ SolarTerm Farm/
 |---|---|
 | 固件、Web、工具、测试、MCP | [MIT License](LICENSE) |
 | 硬件设计文档、BOM、接线、装配 | [CERN-OHL-S-2.0](LICENSE-HARDWARE) |
-| OSHW 齿轮标志 | CC BY-SA 4.0；见 [docs/images/README.md](docs/images/README.md) |
+| OSHW 齿轮标志 | CC BY-SA 4.0；见 [docs/images/README.md](docs/images/README.md)；认证标识使用纯文本 `[OSHW] CN000034` |
 | 第三方模块 | 各自厂商条款 |
 
 ```text

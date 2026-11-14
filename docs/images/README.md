@@ -16,7 +16,7 @@
 - 清洁矢量版：timmwille / osh-logo
 - 来源：https://github.com/timmwille/osh-logo
 - 许可证：CC BY-SA 4.0
-- 用途：标识本项目的 open hardware 属性，不代表 OSHWA 认证；本项目没有 OSHWA UID。
+- 用途：仅作为通用 open hardware 齿轮图标；**它不是 OSHWA 认证标识**。本项目的认证标识使用纯文本 `[OSHW] CN000034 | Certified open source hardware | oshwa.org/cert`。
 
 该标志不是 CERN-OHL-S-2.0 或 MIT 的一部分；再分发时请保留本署名和 CC BY-SA 4.0 链接。
 
